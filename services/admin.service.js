@@ -1,7 +1,7 @@
 const { Op } = require('sequelize')
-const { Users, Groups, Roles, GroupPermissions, Storages, Categories } = require('../config/models')
+const { Users, Groups, GroupPermissions, Storages, Categories } = require('../config/models')
 
-class UserService {
+class AdminService {
 
     async isExists(username, phone) {
         try {
@@ -15,45 +15,26 @@ class UserService {
                 attributes: ['id', 'username', 'password', 'phone']
             })
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
     async addGroupService(name) {
         try {
-            const group = await
-                Groups.create({ name: name })
-
+            const group = await Groups.create({ name: name })
             return {
-                status: true,
-                code: 201,
-                message: '',
-                data: group
+                status: 201,
+                msg: 'group name added',
+                msg_key: 'created',
+                detail: group,
             }
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
-        }
-    }
-
-    async addRoleService(name) {
-        try {
-            const role = await
-                Roles.create({ role: name })
-
-            return {
-                status: true,
-                code: 201,
-                message: '',
-                data: role
-            }
-        } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
     async addAccessPathService(url, method, groupId) {
         try {
-
             const isExist = await
                 GroupPermissions.findAll({
                     where: {
@@ -62,32 +43,28 @@ class UserService {
                         groupId: groupId
                     }
                 })
-
             if (isExist.length > 0) {
                 return {
-                    status: false,
-                    code: 403,
-                    message: 'already exist',
-                    data: []
+                    status: 403,
+                    msg: 'group permission found',
+                    msg_key: 'already exist',
+                    detail: []
                 }
             }
-
             const permission = await
                 GroupPermissions.create({
                     url: url,
                     method: method,
                     groupId: groupId
                 })
-
             return {
-                status: true,
-                code: 201,
-                message: '',
-                data: permission
+                status: 201,
+                msg: 'group permission added',
+                msg_key: 'created',
+                detail: permission
             }
-
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -100,29 +77,19 @@ class UserService {
                     en_name: oby?.en_name || null,
                     slug: oby.slug
                 })
-
             return {
-                status: true,
-                code: 201,
-                message: '',
-                data: storage
+                status: 201,
+                msg: 'storage name added',
+                msg_key: 'created',
+                detail: storage
             }
-
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
     async addCategoryService(oby) {
         try {
-
-            return {
-                status: true,
-                code: 201,
-                message: '',
-                data: 'test'
-            }
-
             const category = await 
                 Categories.create({
                     tm_name: oby.tm_name,
@@ -131,37 +98,32 @@ class UserService {
                     slug: oby.slug,
                     storageId: oby.storageId
                 })
-
             return {
-                status: true,
-                code: 201,
-                message: '',
-                data: category
+                status: 201,
+                msg: 'category name added',
+                msg_key: 'created',
+                detail: category
             }
-
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
     async deleteAccessPathService(id) {
         try {
-            const group = await
-                GroupPermissions
-                    .destroy({ where: { id: Number(id) } })
-
+            const group = await GroupPermissions
+                .destroy({ where: { id: Number(id) } })
             return {
-                success: true,
-                code: 200,
-                message: '',
-                data: group
+                status: 200,
+                msg: 'group permission deleted',
+                msg_key: 'deleted',
+                detail: group
             }
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-
 }
 
-module.exports = new UserService()
+module.exports = new AdminService()

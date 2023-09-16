@@ -4,15 +4,15 @@ const database = require('./database')
 const Users = database.define('users', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     phone: { type: DataTypes.STRING(12), allowNull: false, unique: true },
-    password: { type: DataTypes.STRING(20), allowNull: false },
-    last_ip: { type: DataTypes.STRING(15), allowNull: false },
-    device_type: { type: DataTypes.STRING(100), allowNull: false },
-    uuid: { type: DataTypes.UUID, allowNull: false, unique: true },
+    password: { type: DataTypes.STRING(25), allowNull: false },
+    last_ip: { type: DataTypes.STRING(15), allowNull: true }, // should be updated
+    device_type: { type: DataTypes.STRING(100), allowNull: true }, // should be updated
+    uuid: { type: DataTypes.UUID, allowNull: true, unique: true }, // should be updated
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     isCustomer: { type: DataTypes.BOOLEAN, defaultValue: true },
-    isSeller: { type: DataTypes.BOOLEAN, defaultValue: true },
-    isStaff: { type: DataTypes.BOOLEAN, defaultValue: true },
-    isSuperAdmin: { type: DataTypes.BOOLEAN, defaultValue: true },
+    isSeller: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isStaff: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isSuperAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
@@ -52,7 +52,7 @@ const Sellers = database.define('sellers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     name: { type: DataTypes.STRING(50), allowNull: false, unique: true },
     store_number: { type: DataTypes.SMALLINT, allowNull: false },
-    store_floor: { type: DataTypes.TINYINT, allowNull: false },
+    store_floor: { type: DataTypes.SMALLINT, allowNull: false },
     about: { type: DataTypes.STRING, allowNull: true },
     logo: { type: DataTypes.STRING(100), allowNull: false },
     background_image: { type: DataTypes.STRING(100), allowNull: true },
@@ -150,7 +150,7 @@ const Products = database.define('products', {
 const ProductImages = database.define('product_images', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     name: { type: DataTypes.STRING(100), allowNull: true },
-    order: { type: DataTypes.TINYINT, allowNull: false },
+    order: { type: DataTypes.SMALLINT, allowNull: false },
     image: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
@@ -159,7 +159,7 @@ const ProductImages = database.define('product_images', {
 
 const ProductReviews = database.define('product_reviews', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    star: { type: DataTypes.ENUM({ values: [1, 2, 3, 4, 5] }), allowNull: false },
+    star: { type: DataTypes.ENUM({ values: ['1', '2', '3', '4', '5'] }), allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
@@ -202,7 +202,7 @@ const Banners = database.define('banners', {
     en_image: { type: DataTypes.STRING(100) },
     url: { type: DataTypes.STRING(100), allowNull: false, validate: { isUrl: true } },
     type: { type: DataTypes.ENUM({ values: ['home', 'product', 'profile', 'ad', 'category', 'etc'] }), allowNull: false },
-    sort_order: { type: DataTypes.TINYINT, allowNull: false },
+    sort_order: { type: DataTypes.SMALLINT, allowNull: false },
     star_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
     end_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },

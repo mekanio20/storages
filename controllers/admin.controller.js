@@ -6,36 +6,18 @@ class AdminController {
         try {
             const { name } = req.body
             const data = await adminService.addGroupService(name)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
             })
         } catch (error) {
             return res.status(500).json({ 
-                success: false, 
-                code: 500, 
-                message: error.message 
-            })
-        }
-    }
-
-    async addRole(req, res) {
-        try {
-            const { role } = req.body
-            const data = await adminService.addRoleService(role)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data
-            })
-        } catch (error) {
-            return res.status(500).json({ 
-                success: false, 
-                code: 500, 
-                message: error.message 
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: [] 
             })
         }
     }
@@ -44,17 +26,18 @@ class AdminController {
         try {
             const { url, method, groupId } = req.body
             const data = await adminService.addAccessPathService(url, method, groupId)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
             })
         } catch (error) {
             return res.status(500).json({ 
-                success: false, 
-                code: 500, 
-                message: error.message 
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
             })
         }
     }
@@ -63,17 +46,18 @@ class AdminController {
         try {
             const oby = req.body
             const data = await adminService.addStorageService(oby)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
             })
         } catch (error) {
             return res.status(500).json({ 
-                success: false, 
-                code: 500, 
-                message: error.message 
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
             })
         }
     }
@@ -82,17 +66,18 @@ class AdminController {
         try {
             const oby = req.body
             const data = await adminService.addCategoryService(oby)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
             })
         } catch (error) {
             return res.status(500).json({ 
-                success: false, 
-                code: 500, 
-                message: error.message 
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
             })
         }
     }
@@ -101,17 +86,18 @@ class AdminController {
         try {
             const { id } = req.params
             const data = await adminService.deleteAccessPathService(id)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
             })
         } catch (error) {
             return res.status(500).json({ 
-                success: false, 
-                code: 500,
-                message: error.message 
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: [] 
             })
         }
     }

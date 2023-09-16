@@ -10,20 +10,21 @@ class UserController {
 
     async userLogin(req, res) {
         try {
-            const { username, password, phone } = req.body
-            const data = await userService.userLoginService(username, password, phone)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data,
+            const { password, phone } = req.body
+            const data = await userService.userLoginService(password, phone)
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
                 token: data.token
             })
         } catch (error) {
-            return res.status(500).json({ 
-                success: false, 
-                code: 500, 
-                message: error.message 
+            return res.status(500).json({
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
             })
         }
     }
@@ -32,18 +33,19 @@ class UserController {
         try {
             const oby = req.body
             const data = await userService.userRegisterService(oby)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data,
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
                 token: data.token
             })
         } catch (error) {
-            return res.status(500).json({ 
-                success: false, 
-                code: 500, 
-                message: error.message 
+            return res.status(500).json({
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
             })
         }
     }
@@ -54,24 +56,25 @@ class UserController {
             const user = userPermission(req.user.id, id)
             if (!user) {
                 return res.status(403).json({
-                    success: false,
-                    code: 403,
-                    message: 'forbidden',
-                    data: []
+                    status: 403,
+                    msg: 'user blocked',
+                    msg_key: 'forbidden',
+                    detail: []
                 })
             }
             const data = await userService.userProfileService(id)
-            return res.status(data.code).json({
-                success: data.success,
-                code: data.code,
-                message: data.message,
-                data: data.data,
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
             })
         } catch (error) {
-            return res.status(500).json({ 
-                success: false, 
-                code: 500, 
-                message: error.message 
+            return res.status(500).json({
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
             })
         }
     }

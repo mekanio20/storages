@@ -5,10 +5,11 @@ module.exports = (schema, property) => {
         if (valid) {
             next();
         } else {
-            res.status(404).json({ 
-                success: false, 
-                code: 403,
-                message: error.details[0].message 
+            res.status(404).json({
+                status: 404,
+                msg: error.details[0].message,
+                msg_key: error.details[0].name,
+                detail: []
             })
         }
     }

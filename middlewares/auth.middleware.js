@@ -12,10 +12,10 @@ module.exports = (req, res, next) => {
         return next()
     } catch (error) {
         return res.json({ 
-            success: false, 
-            code: 500,
-            message: error.message, 
-            data: []
+            status: 500,
+            msg: error.message,
+            msg_key: error.name,
+            detail: []
         })
     }
 }

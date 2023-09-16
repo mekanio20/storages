@@ -529,3 +529,7 @@
 ::ffff:127.0.0.1 - - [25/Aug/2023:07:33:53 +0000] "POST /api/admin/add/category HTTP/1.1" 404 157
 ::ffff:127.0.0.1 - - [25/Aug/2023:07:34:28 +0000] "POST /api/admin/add/category HTTP/1.1" 201 225
 ::ffff:127.0.0.1 - - [25/Aug/2023:07:35:56 +0000] "POST /api/admin/add/category HTTP/1.1" 201 39
+::ffff:127.0.0.1 - - [16/Sep/2023:11:01:14 +0000] "POST /api/user/login HTTP/1.1" 500 95
+::ffff:127.0.0.1 - - [16/Sep/2023:11:01:49 +0000] "POST /api/user/login HTTP/1.1" 500 106
+::ffff:127.0.0.1 - - [16/Sep/2023:11:02:22 +0000] "POST /api/user/login HTTP/1.1" 500 115
+::ffff:127.0.0.1 - - [16/Sep/2023:11:02:47 +0000] "POST /api/user/login HTTP/1.1" 500 104

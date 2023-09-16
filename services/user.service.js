@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const { Op } = require('sequelize')
-const { Users, Groups, UserRoles, Roles } = require('../config/models')
+const { Users, Groups } = require('../config/models')
 const jwt = require('jsonwebtoken')
 
 const generateJwt = (id, group) => {
@@ -12,116 +12,85 @@ const generateOTP = () => {
 
 class UserService {
 
-    async isExists(username, phone) {
+    async isExists(phone) {
         try {
             return Users.findAll({
                 where: {
                     [Op.or]: {
-                        username: username,
                         phone: phone
                     }
                 },
-                attributes: ['id', 'username', 'password', 'phone', 'groupId']
+                attributes: ['id', 'password', 'phone', 'groupId']
             })
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async userLoginService(username, password, phone) {
+    async userLoginService(password, phone) {
         try {
-            const user = await this.isExists(username, phone)
-
+            const user = await this.isExists(phone)
             if (user.length === 0) {
                 return { 
-                    success: false, 
-                    code: 401, 
-                    message: 'unauthorized', 
-                    data: [] 
+                    status: 401, 
+                    msg: 'user nod found',
+                    msg_key: 'unauthorized',
+                    detail: [] 
                 }
             }
-
             const hash = await bcrypt.compare(password, user[0].password)
             if (hash) {
                 const token = generateJwt(user[0].id, user.groupId)
                 return {
-                    success: true,
-                    code: 200,
-                    message: '',
-                    data: user,
+                    status: 200,
+                    msg: 'token matched',
+                    msg_key: 'password is correct',
+                    detail: user,
                     token: token
                 }
             }
-
             return {
-                success: false,
-                code: 401,
-                message: 'unauthorized',
-                data: []
+                status: 401,
+                msg: 'token did not match',
+                msg_key: 'password is incorrect',
+                detail: []
             }
-
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
     async userRegisterService(oby) {
         try {
-            const user = await this.isExists(oby.username, oby.phone)
-
+            const user = await this.isExists(oby.phone)
             if (user.length > 0) {
                 return {
-                    success: false,
-                    code: 403,
-                    message: 'already exist',
-                    data: []
+                    status: 403,
+                    msg: 'user found',
+                    msg_key: 'already exist',
+                    detail: []
                 }
             }
-
             const hash = await bcrypt.hash(oby.password, 5)
-            let group_id = await
-                Groups.findOne({
-                    where: { name: 'USERS' },
-                    attributes: ['id']
-                })
+            let group_id = await Groups.findOne({ where: { name: 'USERS' }, attributes: ['id'] })
                 group_id = JSON.stringify(group_id)
                 group_id = Number(JSON.parse(group_id).id)
-
-            let role_id = await
-                Roles.findOne({
-                    where: { role: 'user' },
-                    attributes: ['id']
-                })
-                role_id = JSON.stringify(role_id)
-                role_id = Number(JSON.parse(role_id).id)
-
-            const _user = await
+            const _user = await 
                 Users.create({
-                    fullname: oby.fullname,
-                    username: oby.username,
                     phone: oby.phone,
                     password: hash,
-                    groupId: group_id,
-                    address: oby?.address || null,
+                    groupId: group_id
                 })
-
-            await UserRoles.create({
-                userId: _user.id,
-                roleId: role_id
-            })
-
             const token = generateJwt(_user.id, group_id)
-
             return {
-                success: true,
-                code: 201,
-                message: '',
-                data: _user,
+                status: 201,
+                msg: 'user registered',
+                msg_key: 'created',
+                detail: _user,
                 token: token
             }
-
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -131,32 +100,26 @@ class UserService {
                 Users.findOne({
                     where: { id: id },
                     attributes: [
-                        'id', 
-                        'fullname', 
-                        'username', 
-                        'phone', 
-                        'address'
+                        'id',
+                        'phone'
                     ]
                 })
-
             if (!user) {
                 return {
-                    success: false,
-                    code: 401,
-                    message: 'unauthorized',
-                    data: []
+                    status: 403,
+                    msg: 'user nod found',
+                    msg_key: 'unauthorized',
+                    detail: []
                 }
             }
-
             return {
-                success: true,
-                code: 200,
-                message: '',
-                data: user
+                status: 200,
+                msg: 'user found',
+                msg_key: 'authorized',
+                detail: user
             }
-
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -166,7 +129,7 @@ class UserService {
             const _phone = phone
             const _otp = generateOTP()
         } catch (error) {
-            throw { success: false, code: 500, message: error.message }
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 }

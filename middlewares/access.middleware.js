@@ -8,7 +8,6 @@ module.exports = (params) => {
                 req.originalUrl.pop()
                 req.originalUrl = req.originalUrl.join('/')
             }
-
             const permission = await
                 GroupPermissions.findOne({
                     where: {
@@ -18,22 +17,20 @@ module.exports = (params) => {
                     },
                     attributes: ['url', 'method']
                 })
-                
             if (permission)
                 return next()
-
             return res.status(403).json({
-                success: false,
-                code: 403,
-                message: 'forbidden',
-                data: []
+                status: 403,
+                msg: 'user blocked',
+                msg_key: 'forbidden',
+                detail: []
             })
-
         } catch (error) {
             return res.status(500).json({
-                success: false,
-                code: 500,
-                message: error.message
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
             })
         }
     }
