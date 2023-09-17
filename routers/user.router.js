@@ -14,7 +14,7 @@ router.post('/register',
     userController.userRegister)
 
 router.get('/profile/:id', 
-    authMiddleware, accessMiddleware(true),
+    // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.profile, 'params'), 
     userController.userProfile)
 

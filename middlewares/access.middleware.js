@@ -17,8 +17,7 @@ module.exports = (params) => {
                     },
                     attributes: ['url', 'method']
                 })
-            if (permission)
-                return next()
+            if (permission) { return next() }
             return res.status(403).json({
                 status: 403,
                 msg: 'user blocked',

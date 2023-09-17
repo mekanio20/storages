@@ -123,7 +123,6 @@ class UserService {
         }
     }
 
-
     async sendOtpService(phone) {
         try {
             const _phone = phone

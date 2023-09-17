@@ -1,26 +1,12 @@
 const { Op } = require('sequelize')
-const { Users, Groups, GroupPermissions, Storages, Categories } = require('../config/models')
+const { Groups, GroupPermissions, Storages, Categories, Brands, Subcategories, Features, FeatureDescriptions, SubcategoryFeatures } = require('../config/models')
 
 class AdminService {
 
-    async isExists(username, phone) {
-        try {
-            return Users.findAll({
-                where: {
-                    [Op.or]: {
-                        username: username,
-                        phone: phone
-                    }
-                },
-                attributes: ['id', 'username', 'password', 'phone']
-            })
-        } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
+    // ADD
     async addGroupService(name) {
         try {
+            name = name.trim().toUpperCase()
             const group = await Groups.create({ name: name })
             return {
                 status: 201,
@@ -70,7 +56,7 @@ class AdminService {
 
     async addStorageService(oby) {
         try {
-            const storage = await 
+            const storage = await
                 Storages.create({
                     tm_name: oby.tm_name,
                     ru_name: oby?.ru_name || null,
@@ -90,7 +76,7 @@ class AdminService {
 
     async addCategoryService(oby) {
         try {
-            const category = await 
+            const category = await
                 Categories.create({
                     tm_name: oby.tm_name,
                     ru_name: oby?.ru_name || null,
@@ -109,6 +95,98 @@ class AdminService {
         }
     }
 
+    async addSubcategoryService(oby) {
+        try {
+            const subcategory = await
+                Subcategories.create({
+                    tm_name: oby.tm_name,
+                    ru_name: oby?.ru_name || null,
+                    en_name: oby?.en_name || null,
+                    slug: oby.slug,
+                    categoryId: oby.categoryId
+                })
+            return {
+                status: 201,
+                msg: 'subcategory name added',
+                msg_key: 'created',
+                detail: subcategory
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addFeatureService(oby) {
+        try {
+            const feature = await
+                Features.create({
+                    tm_name: oby.tm_name,
+                    ru_name: oby?.ru_name || null,
+                    en_name: oby?.en_name || null
+                })
+            return {
+                status: 201,
+                msg: 'feature name added',
+                msg_key: 'created',
+                detail: feature
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addFeatureDescriptionService(desc, featureId) {
+        try {
+            const featureDesc = await 
+                FeatureDescriptions.create({ desc: desc, featureId: featureId })
+            return {
+                status: 201,
+                msg: 'feature description name added',
+                msg_key: 'created',
+                detail: featureDesc
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addSubcategoryFeatureService(subcategoryId, featureId) {
+        try {
+            const subcategory_features = await 
+                SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId })
+            return {
+                status: 201,
+                msg: 'subcategory feature name added',
+                msg_key: 'created',
+                detail: subcategory_features
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addBrandService(oby, file) {
+        try {
+            oby.name = oby.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + oby.name.slice(1).toLowerCase()
+            const brands = await
+                Brands.create({
+                    name: oby.name,
+                    slug: oby.slug,
+                    img: file,
+                    desc: oby?.desc || null
+                })
+            return {
+                status: 201,
+                msg: 'brand name added',
+                msg_key: 'created',
+                detail: brands
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // DELETE
     async deleteAccessPathService(id) {
         try {
             const group = await GroupPermissions
