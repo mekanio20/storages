@@ -79,6 +79,63 @@ class UserController {
         }
     }
 
+    async allStorageList(req, res) {
+        try {
+            const data = await userService.allStorageListService()
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async allCategoryList(req, res) {
+        try {
+            const data = await userService.allCategoryService()
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async allBrandList(req, res) {
+        try {
+            const data = await userService.allBrandListService()
+            return res.status(data.status).json({
+                status: data.status,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
 }
 
 module.exports = new UserController()

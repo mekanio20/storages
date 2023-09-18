@@ -49,7 +49,7 @@ router.post('/add/subcategory/feature',
 
 router.post('/add/brand', 
     // authMiddleware, accessMiddleware(false),
-    imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
+    // imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
     valdidationMiddleware(adminSchema.addBrand, 'body'),
     adminController.addBrand)
 

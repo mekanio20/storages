@@ -18,4 +18,16 @@ router.get('/profile/:id',
     valdidationMiddleware(userSchema.profile, 'params'), 
     userController.userProfile)
 
+router.get('/storages', 
+    // authMiddleware, accessMiddleware(false),
+    userController.allStorageList)
+
+router.get('/categories', 
+    // authMiddleware, accessMiddleware(false),
+    userController.allCategoryList)
+
+router.get('/brands', 
+    // authMiddleware, accessMiddleware(false),
+    userController.allBrandList)
+
 module.exports = router

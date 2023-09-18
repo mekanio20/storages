@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const { Op } = require('sequelize')
-const { Users, Groups } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands } = require('../config/models')
 const jwt = require('jsonwebtoken')
 
 const generateJwt = (id, group) => {
@@ -31,11 +31,11 @@ class UserService {
         try {
             const user = await this.isExists(phone)
             if (user.length === 0) {
-                return { 
-                    status: 401, 
+                return {
+                    status: 401,
                     msg: 'user nod found',
                     msg_key: 'unauthorized',
-                    detail: [] 
+                    detail: []
                 }
             }
             const hash = await bcrypt.compare(password, user[0].password)
@@ -73,9 +73,9 @@ class UserService {
             }
             const hash = await bcrypt.hash(oby.password, 5)
             let group_id = await Groups.findOne({ where: { name: 'USERS' }, attributes: ['id'] })
-                group_id = JSON.stringify(group_id)
-                group_id = Number(JSON.parse(group_id).id)
-            const _user = await 
+            group_id = JSON.stringify(group_id)
+            group_id = Number(JSON.parse(group_id).id)
+            const _user = await
                 Users.create({
                     phone: oby.phone,
                     password: hash,
@@ -131,6 +131,97 @@ class UserService {
             throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
         }
     }
+
+    async allStorageListService() {
+        try {
+            const storages = await Storages.findAll({
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                where: { isActive: true },
+                include: {
+                    model: Categories,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    where: { isActive: true },
+                    include: {
+                        model: Subcategories,
+                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        where: { isActive: true }
+                    }
+                }
+            })
+            if (storages.length > 0) {
+                return {
+                    status: 200,
+                    msg: 'storages were sent',
+                    msg_key: 'success',
+                    detail: storages
+                }
+            }
+            return {
+                status: 404,
+                msg: 'storages nod found',
+                msg_key: 'unsuccess',
+                detail: storages
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async allCategoryService() {
+        try {
+            const categories = await Categories.findAll({
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                where: { isActive: true },
+                include: {
+                    model: Subcategories,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    where: { isActive: true }
+                }
+            })
+            if (categories.length > 0) {
+                return {
+                    status: 200,
+                    msg: 'categories were sent',
+                    msg_key: 'success',
+                    detail: categories
+                }
+            }
+            return {
+                status: 404,
+                msg: 'categories nod found',
+                msg_key: 'unsuccess',
+                detail: categories
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async allBrandListService() {
+        try {
+            const brands = await Brands.findAll({
+                attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] },
+                where: { isActive: true }
+            })
+            if (brands.length > 0) {
+                return {
+                    status: 200,
+                    msg: 'brands were sent',
+                    msg_key: 'success',
+                    detail: brands
+                }
+            }
+            return {
+                status: 404,
+                msg: 'brands nod found',
+                msg_key: 'unsuccess',
+                detail: brands
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
 }
 
 module.exports = new UserService()

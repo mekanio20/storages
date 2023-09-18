@@ -166,8 +166,8 @@ class AdminController {
     async addBrand(req, res) {
         try {
             const oby = req.body
-            const file = req.file.filename
-            const data = await adminService.addBrandService(oby, file)
+            // const file = req.file.filename
+            const data = await adminService.addBrandService(oby)
             return res.status(data.status).json({
                 status: data.status,
                 msg: data.msg,

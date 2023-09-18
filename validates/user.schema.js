@@ -16,7 +16,9 @@ const userSchema = {
 
     profile: Joi.object({
        id: Joi.number().positive().required() 
-    })
+    }),
+
+    
 
 }
 

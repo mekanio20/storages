@@ -1,7 +1,17 @@
 const { Op } = require('sequelize')
-const { Groups, GroupPermissions, Storages, Categories, Brands, Subcategories, Features, FeatureDescriptions, SubcategoryFeatures } = require('../config/models')
+const { Groups, GroupPermissions, Storages, Categories,
+    Brands, Subcategories, Features, FeatureDescriptions,
+    SubcategoryFeatures } = require('../config/models')
 
 class AdminService {
+
+    async isExists(Model, slug) {
+        try {
+            return Model.findAll({ where: { slug: slug } })
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
 
     // ADD
     async addGroupService(name) {
@@ -56,6 +66,15 @@ class AdminService {
 
     async addStorageService(oby) {
         try {
+            const _storage = await this.isExists(Storages, oby.slug)
+            if (_storage) {
+                return {
+                    status: 403,
+                    msg: 'storage found',
+                    msg_key: 'already exist',
+                    detail: []
+                }
+            }
             const storage = await
                 Storages.create({
                     tm_name: oby.tm_name,
@@ -76,6 +95,15 @@ class AdminService {
 
     async addCategoryService(oby) {
         try {
+            const _category = await this.isExists(Categories, oby.slug)
+            if (_category) {
+                return {
+                    status: 403,
+                    msg: 'category found',
+                    msg_key: 'already exist',
+                    detail: []
+                }
+            }
             const category = await
                 Categories.create({
                     tm_name: oby.tm_name,
@@ -97,6 +125,15 @@ class AdminService {
 
     async addSubcategoryService(oby) {
         try {
+            const _subcategory = await this.isExists(Subcategories, oby.slug)
+            if (_subcategory) {
+                return {
+                    status: 403,
+                    msg: 'subcategory found',
+                    msg_key: 'already exist',
+                    detail: []
+                }
+            }
             const subcategory = await
                 Subcategories.create({
                     tm_name: oby.tm_name,
@@ -137,7 +174,7 @@ class AdminService {
 
     async addFeatureDescriptionService(desc, featureId) {
         try {
-            const featureDesc = await 
+            const featureDesc = await
                 FeatureDescriptions.create({ desc: desc, featureId: featureId })
             return {
                 status: 201,
@@ -152,7 +189,7 @@ class AdminService {
 
     async addSubcategoryFeatureService(subcategoryId, featureId) {
         try {
-            const subcategory_features = await 
+            const subcategory_features = await
                 SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId })
             return {
                 status: 201,
@@ -165,14 +202,23 @@ class AdminService {
         }
     }
 
-    async addBrandService(oby, file) {
+    async addBrandService(oby) {
         try {
+            const brand = await Brands.findAll({ where: { name: oby.name } })
+            if (brand) {
+                return {
+                    status: 403,
+                    msg: 'brand found',
+                    msg_key: 'already exist',
+                    detail: []
+                }
+            }
             oby.name = oby.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + oby.name.slice(1).toLowerCase()
             const brands = await
                 Brands.create({
                     name: oby.name,
                     slug: oby.slug,
-                    img: file,
+                    img: 'test.jpg', // filename
                     desc: oby?.desc || null
                 })
             return {
