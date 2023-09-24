@@ -1,4 +1,5 @@
 const multer = require('multer')
+const uuid = require('uuid')
 const path = require('path')
 
 module.exports = (dest) => {
@@ -11,9 +12,10 @@ module.exports = (dest) => {
     }
     return multer({
         storage: multer.diskStorage({
-            destination: (req, file, cb) => { cb(null, path.join(__dirname + `/public/${dest}`)) },
+
+            destination: (req, file, cb) => { cb(null, path.resolve(__dirname, '..', 'public', dest)) },
             filename: (req, file, cb) => {
-                cb(null, `${Date.now()}-${file.originalname}`)
+                cb(null, `${uuid.v4()}-${file.originalname}`)
             }
         }),
         fileFilter: multerFilter

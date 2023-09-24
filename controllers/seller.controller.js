@@ -4,8 +4,16 @@ class SellerController {
     async sellerRegister(req, res) {
         try {
             const oby = req.body
-            // const [] = req.file
-            const data = await sellerService.sellerRegisterService(oby)
+            const { logo } = req.files
+            if (!logo) {
+                return {
+                    status: 403,
+                    msg: "logo required",
+                    msg_key: "empty fields",
+                    detail: []
+                }
+            }
+            const data = await sellerService.sellerRegisterService(oby, req.files)
             return res.status(data.status).json({
                 status: data.status,
                 msg: data.msg,

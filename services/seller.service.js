@@ -3,14 +3,23 @@ const { Sellers } = require('../config/models')
 
 class SellerService {
 
-    async sellerRegisterService(oby) {
+    async sellerRegisterService(oby, filenames) {
         try {
             const seller = await Sellers.findAll({ attributes: ['id'], where: { name: oby.name } })
+            const { logo, bg_img } = filenames
             if (seller.length > 0) {
                 return {
                     status: 403,
                     msg: 'user found',
                     msg_key: 'already exist',
+                    detail: []
+                }
+            }
+            if (oby.main_number === oby.second_number) {
+                return {
+                    status: 400,
+                    msg: 'phone numbers equal',
+                    msg_key: 'bad request',
                     detail: []
                 }
             }
@@ -20,8 +29,8 @@ class SellerService {
                     store_number: oby.store_number,
                     store_floor: oby.store_floor,
                     about: oby.about,
-                    logo: oby.logo || 'test.logo',
-                    bg_img: oby.bg_img || 'test.bg_img',
+                    logo: logo[0].filename,
+                    bg_img: bg_img[0].filename || 'bg.jpg',
                     color: oby.color,
                     seller_type: oby.seller_type,
                     sell_type: oby.sell_type,
