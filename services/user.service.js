@@ -1,7 +1,8 @@
 const bcrypt = require('bcrypt')
-const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands } = require('../config/models')
 const jwt = require('jsonwebtoken')
+const uuid = require('uuid')
+const { Op } = require('sequelize')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers } = require('../config/models')
 
 const generateJwt = (id, group) => {
     return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
@@ -94,16 +95,29 @@ class UserService {
         }
     }
 
+    async customerRegisterService(oby) {
+        try {
+            const { fullname, gender, email, userId } = oby
+            const customer = await Customers.create({ 
+                fullname: fullname, 
+                gender: gender, 
+                email: email, 
+                userId: userId 
+            })
+            return {
+                status: 201,
+                msg: 'customer registered',
+                msg_key: 'created',
+                detail: customer
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async userProfileService(id) {
         try {
-            const user = await
-                Users.findOne({
-                    where: { id: id },
-                    attributes: [
-                        'id',
-                        'phone'
-                    ]
-                })
+            const user = await Users.findOne({ where: { id: id }, attributes: ['id', 'phone'] })
             if (!user) {
                 return {
                     status: 403,
@@ -199,10 +213,7 @@ class UserService {
 
     async allBrandListService() {
         try {
-            const brands = await Brands.findAll({
-                attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] },
-                where: { isActive: true }
-            })
+            const brands = await Brands.findAll({ attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] }, where: { isActive: true } })
             if (brands.length > 0) {
                 return {
                     status: 200,
@@ -216,6 +227,39 @@ class UserService {
                 msg: 'brands nod found',
                 msg_key: 'unsuccess',
                 detail: brands
+            }
+        } catch (error) {
+            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async defaultCreateService() {
+        try {
+            await Groups.bulkCreate([
+                { name: 'USERS' },
+                { name: 'SELLERS' },
+                { name: 'STAFF' },
+                { name: 'ADMINS' },
+                { name: 'SUPERADMINS' }
+            ]).then(() => { console.log('Groups created') }).catch((err) => { console.log(err) })
+
+            await Users.bulkCreate([
+                { phone: '+99361111111', password: 'user1', last_ip: '127.0.0.1', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111112', password: 'user2', last_ip: '127.0.0.2', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111113', password: 'user3', last_ip: '127.0.0.3', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111114', password: 'user4', last_ip: '127.0.0.4', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111115', password: 'user5', last_ip: '127.0.0.5', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111116', password: 'user6', last_ip: '127.0.0.6', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111117', password: 'user7', last_ip: '127.0.0.7', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111118', password: 'user8', last_ip: '127.0.0.8', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111119', password: 'user9', last_ip: '127.0.0.9', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
+                { phone: '+99361111121', password: 'user10', last_ip: '127.0.0.10', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 }
+            ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
+            return {
+                status: 201,
+                msg: 'all registered',
+                msg_key: 'created',
+                detail: []
             }
         } catch (error) {
             throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }

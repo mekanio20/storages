@@ -645,3 +645,9 @@
 ::ffff:127.0.0.1 - - [24/Sep/2023:13:42:32 +0000] "POST /api/seller/register HTTP/1.1" 201 537
 ::ffff:127.0.0.1 - - [24/Sep/2023:13:43:04 +0000] "POST /api/seller/register HTTP/1.1" 500 26
 ::ffff:127.0.0.1 - - [24/Sep/2023:13:43:18 +0000] "POST /api/seller/register HTTP/1.1" 201 537
+::ffff:127.0.0.1 - - [24/Sep/2023:14:09:31 +0000] "POST /api/user/customer/register HTTP/1.1" 404 57
+::ffff:127.0.0.1 - - [24/Sep/2023:14:09:41 +0000] "POST /api/user/customer/register HTTP/1.1" 500 26
+::ffff:127.0.0.1 - - [24/Sep/2023:14:51:20 +0000] "GET /api/user/default HTTP/1.1" 500 100
+::ffff:127.0.0.1 - - [24/Sep/2023:14:51:30 +0000] "GET /api/user/default HTTP/1.1" 201 69
+::ffff:127.0.0.1 - - [24/Sep/2023:14:53:04 +0000] "GET /api/user/default HTTP/1.1" 201 69
+::ffff:127.0.0.1 - - [24/Sep/2023:15:21:09 +0000] "GET /api/user/default HTTP/1.1" 201 69

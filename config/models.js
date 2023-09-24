@@ -7,7 +7,7 @@ const Users = database.define('users', {
     password: { type: DataTypes.STRING(25), allowNull: false },
     last_ip: { type: DataTypes.STRING(15), allowNull: true }, // should be updated
     device_type: { type: DataTypes.STRING(100), allowNull: true }, // should be updated
-    uuid: { type: DataTypes.UUID, allowNull: true, unique: true }, // should be updated
+    uuid: { type: DataTypes.UUID, allowNull: false, unique: true }, // should be updated
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     isCustomer: { type: DataTypes.BOOLEAN, defaultValue: true },
     isSeller: { type: DataTypes.BOOLEAN, defaultValue: false },

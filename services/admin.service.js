@@ -31,14 +31,7 @@ class AdminService {
 
     async addAccessPathService(url, method, groupId) {
         try {
-            const isExist = await
-                GroupPermissions.findAll({
-                    where: {
-                        url: url,
-                        method: method,
-                        groupId: groupId
-                    }
-                })
+            const isExist = await GroupPermissions.findAll({ where: { url: url, method: method, groupId: groupId } })
             if (isExist.length > 0) {
                 return {
                     status: 403,
@@ -47,12 +40,7 @@ class AdminService {
                     detail: []
                 }
             }
-            const permission = await
-                GroupPermissions.create({
-                    url: url,
-                    method: method,
-                    groupId: groupId
-                })
+            const permission = await GroupPermissions.create({ url: url, method: method, groupId: groupId })
             return {
                 status: 201,
                 msg: 'group permission added',
@@ -66,7 +54,8 @@ class AdminService {
 
     async addStorageService(oby) {
         try {
-            const _storage = await this.isExists(Storages, oby.slug)
+            let slug = oby.tm_name.split(" ").toLowerCase().join('-')
+            const _storage = await this.isExists(Storages, slug)
             if (_storage) {
                 return {
                     status: 403,
@@ -75,13 +64,12 @@ class AdminService {
                     detail: []
                 }
             }
-            const storage = await
-                Storages.create({
-                    tm_name: oby.tm_name,
-                    ru_name: oby?.ru_name || null,
-                    en_name: oby?.en_name || null,
-                    slug: oby.slug
-                })
+            const storage = await Storages.create({
+                tm_name: oby.tm_name,
+                ru_name: oby?.ru_name || null,
+                en_name: oby?.en_name || null,
+                slug: slug
+            })
             return {
                 status: 201,
                 msg: 'storage name added',
@@ -95,7 +83,8 @@ class AdminService {
 
     async addCategoryService(oby) {
         try {
-            const _category = await this.isExists(Categories, oby.slug)
+            let slug = oby.tm_name.split(" ").toLowerCase().join('-')
+            const _category = await this.isExists(Categories, slug)
             if (_category) {
                 return {
                     status: 403,
@@ -104,14 +93,13 @@ class AdminService {
                     detail: []
                 }
             }
-            const category = await
-                Categories.create({
-                    tm_name: oby.tm_name,
-                    ru_name: oby?.ru_name || null,
-                    en_name: oby?.en_name || null,
-                    slug: oby.slug,
-                    storageId: oby.storageId
-                })
+            const category = await Categories.create({
+                tm_name: oby.tm_name,
+                ru_name: oby?.ru_name || null,
+                en_name: oby?.en_name || null,
+                slug: slug,
+                storageId: oby.storageId
+            })
             return {
                 status: 201,
                 msg: 'category name added',
@@ -125,7 +113,8 @@ class AdminService {
 
     async addSubcategoryService(oby) {
         try {
-            const _subcategory = await this.isExists(Subcategories, oby.slug)
+            let slug = oby.tm_name.split(" ").toLowerCase().join('-')
+            const _subcategory = await this.isExists(Subcategories, slug)
             if (_subcategory) {
                 return {
                     status: 403,
@@ -134,14 +123,13 @@ class AdminService {
                     detail: []
                 }
             }
-            const subcategory = await
-                Subcategories.create({
-                    tm_name: oby.tm_name,
-                    ru_name: oby?.ru_name || null,
-                    en_name: oby?.en_name || null,
-                    slug: oby.slug,
-                    categoryId: oby.categoryId
-                })
+            const subcategory = await Subcategories.create({
+                tm_name: oby.tm_name,
+                ru_name: oby?.ru_name || null,
+                en_name: oby?.en_name || null,
+                slug: slug,
+                categoryId: oby.categoryId
+            })
             return {
                 status: 201,
                 msg: 'subcategory name added',
@@ -155,12 +143,11 @@ class AdminService {
 
     async addFeatureService(oby) {
         try {
-            const feature = await
-                Features.create({
-                    tm_name: oby.tm_name,
-                    ru_name: oby?.ru_name || null,
-                    en_name: oby?.en_name || null
-                })
+            const feature = await Features.create({
+                tm_name: oby.tm_name,
+                ru_name: oby?.ru_name || null,
+                en_name: oby?.en_name || null
+            })
             return {
                 status: 201,
                 msg: 'feature name added',
@@ -174,8 +161,7 @@ class AdminService {
 
     async addFeatureDescriptionService(desc, featureId) {
         try {
-            const featureDesc = await
-                FeatureDescriptions.create({ desc: desc, featureId: featureId })
+            const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId })
             return {
                 status: 201,
                 msg: 'feature description name added',
@@ -189,8 +175,7 @@ class AdminService {
 
     async addSubcategoryFeatureService(subcategoryId, featureId) {
         try {
-            const subcategory_features = await
-                SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId })
+            const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId })
             return {
                 status: 201,
                 msg: 'subcategory feature name added',
@@ -204,7 +189,8 @@ class AdminService {
 
     async addBrandService(oby) {
         try {
-            const brand = await Brands.findAll({ where: { name: oby.name } })
+            let slug = oby.tm_name.split(" ").toLowerCase().join('-')
+            const brand = await this.isExists(Brands, slug)
             if (brand) {
                 return {
                     status: 403,
@@ -214,13 +200,7 @@ class AdminService {
                 }
             }
             oby.name = oby.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + oby.name.slice(1).toLowerCase()
-            const brands = await
-                Brands.create({
-                    name: oby.name,
-                    slug: oby.slug,
-                    img: 'test.jpg', // filename
-                    desc: oby?.desc || null
-                })
+            const brands = await Brands.create({ name: oby.name, slug: slug, img: 'test.jpg', desc: oby?.desc || null })
             return {
                 status: 201,
                 msg: 'brand name added',
@@ -235,8 +215,7 @@ class AdminService {
     // DELETE
     async deleteAccessPathService(id) {
         try {
-            const group = await GroupPermissions
-                .destroy({ where: { id: Number(id) } })
+            const group = await GroupPermissions.destroy({ where: { id: Number(id) } })
             return {
                 status: 200,
                 msg: 'group permission deleted',

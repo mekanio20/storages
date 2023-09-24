@@ -4,3 +4,4 @@
 *.log
 /package.json
 /test.js
+/default.js

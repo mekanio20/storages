@@ -5,6 +5,8 @@ const accessMiddleware = require('../middlewares/access.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const userSchema = require('../validates/user.schema')
 
+router.get('/default', userController.defaultCreate)
+
 router.post('/login', 
     valdidationMiddleware(userSchema.login, 'body'), 
     userController.userLogin)
@@ -12,6 +14,10 @@ router.post('/login',
 router.post('/register', 
     valdidationMiddleware(userSchema.register, 'body'), 
     userController.userRegister)
+
+router.post('/customer/register', 
+    valdidationMiddleware(userSchema.customerRegister, 'body'),
+    userController.customerRegister)
 
 router.get('/profile/:id', 
     // authMiddleware, accessMiddleware(true),
