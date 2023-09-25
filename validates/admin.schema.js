@@ -19,15 +19,13 @@ const adminSchema = {
     addStorage: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z]/).allow('', null),
-        slug: Joi.string().min(3).max(100).regex(/^[a-zA-Z!?@#$%^&-=+_]+$/).required()
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z]/).allow('', null)
     }),
 
     addCategory: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
         en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z-]/).allow('', null),
-        slug: Joi.string().min(3).max(100).regex(/^[a-zA-Z!?@#$%^&-=+_]+$/).required(),
         storageId: Joi.number().positive().required()
     }),
 
@@ -35,7 +33,6 @@ const adminSchema = {
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
         en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z-]/).allow('', null),
-        slug: Joi.string().min(3).max(100).regex(/^[a-zA-Z!?@#$%^&-=+_]+$/).required(),
         categoryId: Joi.number().positive().required()
     }),
     
@@ -57,8 +54,8 @@ const adminSchema = {
 
     addBrand: Joi.object({
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).required(),
-        slug: Joi.string().min(3).max(100).regex(/^[a-zA-Z!?@#$%^&-=+_]+$/).required(),
-        desc: Joi.string().min(10).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).allow('', null)
+        desc: Joi.string().min(10).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).allow('', null),
+        userId: Joi.number().positive().required()
     }),
 
     // DELETE

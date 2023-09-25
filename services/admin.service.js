@@ -54,9 +54,9 @@ class AdminService {
 
     async addStorageService(oby) {
         try {
-            let slug = oby.tm_name.split(" ").toLowerCase().join('-')
+            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
             const _storage = await this.isExists(Storages, slug)
-            if (_storage) {
+            if (_storage.length > 0) {
                 return {
                     status: 403,
                     msg: 'storage found',
@@ -83,7 +83,7 @@ class AdminService {
 
     async addCategoryService(oby) {
         try {
-            let slug = oby.tm_name.split(" ").toLowerCase().join('-')
+            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
             const _category = await this.isExists(Categories, slug)
             if (_category) {
                 return {
@@ -113,7 +113,7 @@ class AdminService {
 
     async addSubcategoryService(oby) {
         try {
-            let slug = oby.tm_name.split(" ").toLowerCase().join('-')
+            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
             const _subcategory = await this.isExists(Subcategories, slug)
             if (_subcategory) {
                 return {
@@ -187,9 +187,9 @@ class AdminService {
         }
     }
 
-    async addBrandService(oby) {
+    async addBrandService(oby, brand_img) {
         try {
-            let slug = oby.tm_name.split(" ").toLowerCase().join('-')
+            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
             const brand = await this.isExists(Brands, slug)
             if (brand) {
                 return {
@@ -200,7 +200,7 @@ class AdminService {
                 }
             }
             oby.name = oby.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + oby.name.slice(1).toLowerCase()
-            const brands = await Brands.create({ name: oby.name, slug: slug, img: 'test.jpg', desc: oby?.desc || null })
+            const brands = await Brands.create({ name: oby.name, slug: slug, img: brand_img, desc: oby?.desc || null, userId: oby.userId })
             return {
                 status: 201,
                 msg: 'brand name added',

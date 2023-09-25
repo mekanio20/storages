@@ -5,9 +5,9 @@ const Users = database.define('users', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     phone: { type: DataTypes.STRING(12), allowNull: false, unique: true },
     password: { type: DataTypes.STRING(25), allowNull: false },
-    last_ip: { type: DataTypes.STRING(15), allowNull: true }, // should be updated
-    device_type: { type: DataTypes.STRING(100), allowNull: true }, // should be updated
-    uuid: { type: DataTypes.UUID, allowNull: false, unique: true }, // should be updated
+    ip: { type: DataTypes.STRING(15), allowNull: true },
+    device: { type: DataTypes.STRING(100), allowNull: true },
+    uuid: { type: DataTypes.UUID, allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     isCustomer: { type: DataTypes.BOOLEAN, defaultValue: true },
     isSeller: { type: DataTypes.BOOLEAN, defaultValue: false },
@@ -427,6 +427,11 @@ Products.belongsTo(Subcategories)
 
 Brands.hasMany(Products)
 Products.belongsTo(Brands)
+
+// Brands -> UserId
+
+Users.hasMany(Brands)
+Brands.belongsTo(Users)
 
 // Products -> SellerId,
 

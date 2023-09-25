@@ -2,6 +2,8 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const session = require('express-session')
+const swaggerUI = require('swagger-ui-express')
+const swaggerJsDoc = require('swagger-jsdoc')
 const helmet = require('helmet')
 const path = require('path')
 const fs = require('fs')
@@ -30,7 +32,28 @@ app.use(session({
     saveUninitialized: true,
     cookie: { maxAge: 86400000 }
 }))
+
+const options = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Library API",
+            version: "1.0.0",
+            description: "Swagger Javascript document"
+        },
+        servers: [
+            {
+                url: `http://localhost:${port}`
+            }
+        ]
+    },
+    apis: ["./routers/*.js"]
+}
+
+const specs = swaggerJsDoc(options)
+
 app.use('/api', router)
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs))
 app.all('*', (req, res) => { return res.status(404).sendFile(`${path.join(__dirname + '/public/404.html')}`) })
 
 app.listen(port, async () => {

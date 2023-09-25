@@ -61,7 +61,7 @@ class UserService {
         }
     }
 
-    async userRegisterService(oby) {
+    async userRegisterService(oby, ip) {
         try {
             const user = await this.isExists(oby.phone)
             if (user.length > 0) {
@@ -73,15 +73,15 @@ class UserService {
                 }
             }
             const hash = await bcrypt.hash(oby.password, 5)
-            let group_id = await Groups.findOne({ where: { name: 'USERS' }, attributes: ['id'] })
-            group_id = JSON.stringify(group_id)
-            group_id = Number(JSON.parse(group_id).id)
-            const _user = await
-                Users.create({
-                    phone: oby.phone,
-                    password: hash,
-                    groupId: group_id
-                })
+            // let group_id = await Groups.findOne({ where: { name: 'USERS' }, attributes: ['id'] })
+            // group_id = JSON.stringify(group_id)
+            // group_id = Number(JSON.parse(group_id).id)
+            const _user = await Users.create({
+                phone: oby.phone,
+                password: hash,
+                last_ip: ip,
+                device: oby.device
+            })
             const token = generateJwt(_user.id, group_id)
             return {
                 status: 201,
@@ -98,11 +98,11 @@ class UserService {
     async customerRegisterService(oby) {
         try {
             const { fullname, gender, email, userId } = oby
-            const customer = await Customers.create({ 
-                fullname: fullname, 
-                gender: gender, 
-                email: email, 
-                userId: userId 
+            const customer = await Customers.create({
+                fullname: fullname,
+                gender: gender,
+                email: email,
+                userId: userId
             })
             return {
                 status: 201,
@@ -255,6 +255,35 @@ class UserService {
                 { phone: '+99361111119', password: 'user9', last_ip: '127.0.0.9', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
                 { phone: '+99361111121', password: 'user10', last_ip: '127.0.0.10', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 }
             ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
+
+            await Storages.bulkCreate([
+                { tm_name: 'Elektronika', ru_name: 'Электроника', en_name: 'Electronics', slug: 'elektronika' },
+                { tm_name: 'Supermarket', ru_name: 'Супермаркет', en_name: 'Supermarket', slug: 'supermarket' },
+                { tm_name: 'Aýakgap & Sumka', ru_name: 'Сумка & Обувь', en_name: 'Shoes & Bag', slug: 'aýakgap-&-sumka' },
+                { tm_name: 'Egin-Eşikler', ru_name: 'Одежда', en_name: 'Clothes', slug: 'egin-eşikler' },
+                { tm_name: 'Sport Geýimler', ru_name: 'Спортивная Одежда', en_name: 'Sportswear', slug: 'sport-geýimler' },
+                { tm_name: 'Kosmetika önümleri', ru_name: 'Косметическая Продукция', en_name: 'Cosmetic Products', slug: 'kosmetika-önümleri' }
+            ]).then(() => { console.log('Storages created') }).catch((err) => { console.log(err) })
+
+            await Categories.bulkCreate([
+                { tm_name: 'Gök we bakja önümleri', ru_name: 'Овощи и садовая продукция', en_name: 'Vegetables and garden products', slug: 'gök-we-bakja-önümleri', storageId: 2 },
+                { tm_name: 'Süýt önümleri', ru_name: 'Молочные продукты', en_name: 'Dairy products', slug: 'süýt-önümleri', storageId: 2 },
+                { tm_name: 'Telefon', ru_name: 'Телефон', en_name: 'Phone', slug: 'telefon', storageId: 1 },
+                { tm_name: 'Telewizor', ru_name: 'Телевидение', en_name: 'Television', slug: 'telewizor', storageId: 1 },
+                { tm_name: 'Oglan aýakgap', ru_name: 'Мужская обувь', en_name: 'Men shoes', slug: 'oglan-aýakgap', storageId: 3 },
+                { tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', storageId: 3 },
+                { tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', storageId: 4 }
+            ]).then(() => { console.log('Categories created') }).catch((err) => { console.log(err) })
+
+            await Subcategories.bulkCreate([
+                { tm_name: 'Miweler', ru_name: 'Фрукты', en_name: 'Fruits', slug: 'miweler', categoryId: 1 },
+                { tm_name: 'Gök önümler', ru_name: 'Овощи', en_name: 'Vegetables', slug: 'gök-önümler', categoryId: 1 },
+                { tm_name: 'Ýumurtga', ru_name: 'Яйцо', en_name: 'An egg', slug: 'ýumurtga', categoryId: 2 },
+                { tm_name: 'Peýnir', ru_name: 'Сыр', en_name: 'Cheese', slug: 'peýnir', categoryId: 2 },
+                { tm_name: 'Öýjükli telefon', ru_name: 'Мобильный телефон', en_name: 'Mobile phone', slug: 'öýjükli-telefon', categoryId: 3 },
+                { tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4 }
+            ]).then(() => { console.log('Subcategories created') }).catch((err) => { console.log(err) })
+
             return {
                 status: 201,
                 msg: 'all registered',

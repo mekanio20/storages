@@ -32,7 +32,8 @@ class UserController {
     async userRegister(req, res) {
         try {
             const oby = req.body
-            const data = await userService.userRegisterService(oby)
+            const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+            const data = await userService.userRegisterService(oby, ip)
             return res.status(data.status).json({
                 status: data.status,
                 msg: data.msg,
