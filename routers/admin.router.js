@@ -339,7 +339,7 @@ router.post('/add/subcategory/feature',
 router.post('/add/brand',
     // authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
-    // valdidationMiddleware(adminSchema.addBrand, 'body'),
+    valdidationMiddleware(adminSchema.addBrand, 'body'),
     adminController.addBrand)
 
 // DELETE
@@ -347,5 +347,10 @@ router.delete('/delete/permission/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.deleteGroup, 'params'),
     adminController.deleteAccessPath)
+
+router.delete('/delete/brand/:id',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.deleteBrand, 'params'),
+    adminController.deleteBrand)
 
 module.exports = router

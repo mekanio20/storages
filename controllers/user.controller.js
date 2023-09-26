@@ -14,6 +14,7 @@ class UserController {
             const data = await userService.userLoginService(password, phone)
             return res.status(data.status).json({
                 status: data.status,
+                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail,
@@ -22,6 +23,7 @@ class UserController {
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []
@@ -36,6 +38,7 @@ class UserController {
             const data = await userService.userRegisterService(oby, ip)
             return res.status(data.status).json({
                 status: data.status,
+                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail,
@@ -44,6 +47,7 @@ class UserController {
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []
@@ -57,6 +61,7 @@ class UserController {
             const data = await userService.customerRegisterService(oby)
             return res.status(data.status).json({
                 status: data.status,
+                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail,
@@ -65,6 +70,7 @@ class UserController {
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []
@@ -79,6 +85,7 @@ class UserController {
             if (!user) {
                 return res.status(403).json({
                     status: 403,
+                    type: 'error',
                     msg: 'user blocked',
                     msg_key: 'forbidden',
                     detail: []
@@ -87,6 +94,7 @@ class UserController {
             const data = await userService.userProfileService(id)
             return res.status(data.status).json({
                 status: data.status,
+                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail
@@ -94,6 +102,7 @@ class UserController {
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []
@@ -106,6 +115,7 @@ class UserController {
             const data = await userService.allStorageListService()
             return res.status(data.status).json({
                 status: data.status,
+                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail
@@ -113,6 +123,7 @@ class UserController {
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []
@@ -125,6 +136,7 @@ class UserController {
             const data = await userService.allCategoryService()
             return res.status(data.status).json({
                 status: data.status,
+                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail
@@ -132,6 +144,7 @@ class UserController {
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []
@@ -144,6 +157,7 @@ class UserController {
             const data = await userService.allBrandListService()
             return res.status(data.status).json({
                 status: data.status,
+                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail
@@ -151,6 +165,7 @@ class UserController {
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []
@@ -163,6 +178,7 @@ class UserController {
             const data = await userService.defaultCreateService()
             return res.status(data.status).json({
                 status: data.status,
+                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail
@@ -170,6 +186,7 @@ class UserController {
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []

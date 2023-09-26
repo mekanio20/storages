@@ -61,6 +61,10 @@ const adminSchema = {
     // DELETE
     deleteGroup: Joi.object({
        id: Joi.number().positive().required() 
+    }),
+
+    deleteBrand: Joi.object({
+       id: Joi.number().positive().required() 
     })
 
 }

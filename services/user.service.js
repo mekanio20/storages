@@ -24,7 +24,18 @@ class UserService {
                 attributes: ['id', 'password', 'phone', 'groupId']
             })
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async getGroupId(group) {
+        try {
+            let group_id = await Groups.findOne({ where: { name: group }, attributes: ['id'] })
+            group_id = JSON.stringify(group_id)
+            group_id = Number(JSON.parse(group_id).id)
+            return group_id
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -34,6 +45,7 @@ class UserService {
             if (user.length === 0) {
                 return {
                     status: 401,
+                    type: 'error',
                     msg: 'user nod found',
                     msg_key: 'unauthorized',
                     detail: []
@@ -44,6 +56,7 @@ class UserService {
                 const token = generateJwt(user[0].id, user.groupId)
                 return {
                     status: 200,
+                    type: 'success',
                     msg: 'token matched',
                     msg_key: 'password is correct',
                     detail: user,
@@ -52,12 +65,13 @@ class UserService {
             }
             return {
                 status: 401,
+                type: 'error',
                 msg: 'token did not match',
                 msg_key: 'password is incorrect',
                 detail: []
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -67,31 +81,32 @@ class UserService {
             if (user.length > 0) {
                 return {
                     status: 403,
+                    type: 'error',
                     msg: 'user found',
                     msg_key: 'already exist',
                     detail: []
                 }
             }
             const hash = await bcrypt.hash(oby.password, 5)
-            // let group_id = await Groups.findOne({ where: { name: 'USERS' }, attributes: ['id'] })
-            // group_id = JSON.stringify(group_id)
-            // group_id = Number(JSON.parse(group_id).id)
+            const groupId = await this.getGroupId('USERS')
             const _user = await Users.create({
                 phone: oby.phone,
                 password: hash,
                 last_ip: ip,
-                device: oby.device
+                device: oby.device,
+                groupId: groupId
             })
-            const token = generateJwt(_user.id, group_id)
+            const token = generateJwt(_user.id, groupId)
             return {
                 status: 201,
+                type: 'success',
                 msg: 'user registered',
                 msg_key: 'created',
                 detail: _user,
                 token: token
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -106,12 +121,13 @@ class UserService {
             })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'customer registered',
                 msg_key: 'created',
                 detail: customer
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -121,6 +137,7 @@ class UserService {
             if (!user) {
                 return {
                     status: 403,
+                    type: 'error',
                     msg: 'user nod found',
                     msg_key: 'unauthorized',
                     detail: []
@@ -128,12 +145,13 @@ class UserService {
             }
             return {
                 status: 200,
+                type: 'success',
                 msg: 'user found',
                 msg_key: 'authorized',
                 detail: user
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -142,7 +160,7 @@ class UserService {
             const _phone = phone
             const _otp = generateOTP()
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -165,19 +183,21 @@ class UserService {
             if (storages.length > 0) {
                 return {
                     status: 200,
+                    type: 'success',
                     msg: 'storages were sent',
-                    msg_key: 'success',
+                    msg_key: 'storages found',
                     detail: storages
                 }
             }
             return {
                 status: 404,
+                type: 'error',
                 msg: 'storages nod found',
-                msg_key: 'unsuccess',
+                msg_key: 'storages length 0',
                 detail: storages
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -195,19 +215,21 @@ class UserService {
             if (categories.length > 0) {
                 return {
                     status: 200,
+                    type: 'success',
                     msg: 'categories were sent',
-                    msg_key: 'success',
+                    msg_key: 'categories found',
                     detail: categories
                 }
             }
             return {
                 status: 404,
+                type: 'error',
                 msg: 'categories nod found',
-                msg_key: 'unsuccess',
+                msg_key: 'nod found',
                 detail: categories
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -217,19 +239,21 @@ class UserService {
             if (brands.length > 0) {
                 return {
                     status: 200,
+                    type: 'success',
                     msg: 'brands were sent',
-                    msg_key: 'success',
+                    msg_key: 'brands found',
                     detail: brands
                 }
             }
             return {
                 status: 404,
+                type: 'error',
                 msg: 'brands nod found',
-                msg_key: 'unsuccess',
+                msg_key: 'brands length 0',
                 detail: brands
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -286,12 +310,13 @@ class UserService {
 
             return {
                 status: 201,
+                type: 'success',
                 msg: 'all registered',
                 msg_key: 'created',
                 detail: []
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 

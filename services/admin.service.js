@@ -9,7 +9,7 @@ class AdminService {
         try {
             return Model.findAll({ where: { slug: slug } })
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -20,12 +20,13 @@ class AdminService {
             const group = await Groups.create({ name: name })
             return {
                 status: 201,
+                type: 'successs',
                 msg: 'group name added',
                 msg_key: 'created',
                 detail: group,
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -35,6 +36,7 @@ class AdminService {
             if (isExist.length > 0) {
                 return {
                     status: 403,
+                    type: 'error',
                     msg: 'group permission found',
                     msg_key: 'already exist',
                     detail: []
@@ -43,12 +45,13 @@ class AdminService {
             const permission = await GroupPermissions.create({ url: url, method: method, groupId: groupId })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'group permission added',
                 msg_key: 'created',
                 detail: permission
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -59,6 +62,7 @@ class AdminService {
             if (_storage.length > 0) {
                 return {
                     status: 403,
+                    type: 'error',
                     msg: 'storage found',
                     msg_key: 'already exist',
                     detail: []
@@ -72,12 +76,13 @@ class AdminService {
             })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'storage name added',
                 msg_key: 'created',
                 detail: storage
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -88,6 +93,7 @@ class AdminService {
             if (_category) {
                 return {
                     status: 403,
+                    type: 'error',
                     msg: 'category found',
                     msg_key: 'already exist',
                     detail: []
@@ -102,12 +108,13 @@ class AdminService {
             })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'category name added',
                 msg_key: 'created',
                 detail: category
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -118,6 +125,7 @@ class AdminService {
             if (_subcategory) {
                 return {
                     status: 403,
+                    type: 'error',
                     msg: 'subcategory found',
                     msg_key: 'already exist',
                     detail: []
@@ -132,12 +140,13 @@ class AdminService {
             })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'subcategory name added',
                 msg_key: 'created',
                 detail: subcategory
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -150,12 +159,13 @@ class AdminService {
             })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'feature name added',
                 msg_key: 'created',
                 detail: feature
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -164,12 +174,13 @@ class AdminService {
             const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'feature description name added',
                 msg_key: 'created',
                 detail: featureDesc
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -178,12 +189,13 @@ class AdminService {
             const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'subcategory feature name added',
                 msg_key: 'created',
                 detail: subcategory_features
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -194,6 +206,7 @@ class AdminService {
             if (brand) {
                 return {
                     status: 403,
+                    type: 'error',
                     msg: 'brand found',
                     msg_key: 'already exist',
                     detail: []
@@ -203,12 +216,28 @@ class AdminService {
             const brands = await Brands.create({ name: oby.name, slug: slug, img: brand_img, desc: oby?.desc || null, userId: oby.userId })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'brand name added',
                 msg_key: 'created',
                 detail: brands
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async staffRegisterService(userId) {
+        try {
+            await Users.update({ isStaff: true, isCustomer: false }, { where: { id: Number(userId) } })
+            return {
+                status: 200, 
+                type: 'success',
+                msg: 'staff registered',
+                msg_key: 'updated',
+                detail: []
+            }
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -218,12 +247,28 @@ class AdminService {
             const group = await GroupPermissions.destroy({ where: { id: Number(id) } })
             return {
                 status: 200,
+                type: 'success',
                 msg: 'group permission deleted',
                 msg_key: 'deleted',
                 detail: group
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteBrandService(id) {
+        try {
+            const brand = await Brands.destroy({ where: { id: Number(id) } })
+            return {
+                status: 200,
+                type: 'error',
+                msg: 'brand deleted',
+                msg_key: 'deleted',
+                detail: brand
+            }
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 

@@ -10,6 +10,7 @@ class SellerService {
             if (seller.length > 0) {
                 return {
                     status: 403,
+                    type: 'error',
                     msg: 'user found',
                     msg_key: 'already exist',
                     detail: []
@@ -18,6 +19,7 @@ class SellerService {
             if (oby.main_number === oby.second_number) {
                 return {
                     status: 400,
+                    type: 'error',
                     msg: 'phone numbers equal',
                     msg_key: 'bad request',
                     detail: []
@@ -47,12 +49,13 @@ class SellerService {
                 })
             return {
                 status: 201,
+                type: 'success',
                 msg: 'seller registered',
                 msg_key: 'created',
                 detail: _seller
             }
         } catch (error) {
-            throw { status: 500, msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
