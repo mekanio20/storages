@@ -7,9 +7,9 @@ const userSchema = require('../validates/user.schema')
 
 router.get('/default', userController.defaultCreate)
 
-router.post('/login', 
-    valdidationMiddleware(userSchema.login, 'body'), 
-    userController.userLogin)
+router.post('/login/otp', 
+    valdidationMiddleware(userSchema.loginOtp, 'body'), 
+    userController.userLoginOTP)
 
 router.post('/register', 
     valdidationMiddleware(userSchema.register, 'body'), 

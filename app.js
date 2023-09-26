@@ -2,8 +2,8 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const session = require('express-session')
-const swaggerUI = require('swagger-ui-express')
 const swaggerJsDoc = require('swagger-jsdoc')
+const swaggerUI = require('swagger-ui-express')
 const helmet = require('helmet')
 const path = require('path')
 const fs = require('fs')
@@ -14,7 +14,7 @@ const port = process.env.PORT || 5001
 
 require('./config/models')
 const database = require('./config/database')
-const router = require('./routers/index')
+const router = require('./routers/index.router')
 
 app.disable('x-powered-by')
 app.use(cors({ origin: true }))

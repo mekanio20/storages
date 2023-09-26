@@ -8,17 +8,16 @@ const userPermission = (reqId, userId) => {
 
 class UserController {
 
-    async userLogin(req, res) {
+    async userLoginOTP(req, res) {
         try {
             const { password, phone } = req.body
-            const data = await userService.userLoginService(password, phone)
+            const data = await userService.userLoginOTPService(password, phone)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
-                detail: data.detail,
-                token: data.token
+                detail: data.detail
             })
         } catch (error) {
             return res.status(500).json({
@@ -30,6 +29,28 @@ class UserController {
             })
         }
     }
+
+    // async userLoginOTPverify(req, res) {
+    //     try {
+    //         const { phone, code } = req.body
+    //         const data = await userService.userLoginOTPverifyService(phone, code)
+    //         return res.status(data.status).json({
+    //             status: data.status,
+    //             type: data.type,
+    //             msg: data.msg,
+    //             msg_key: data.msg_key,
+    //             detail: data.detail
+    //         })
+    //     } catch (error) {
+    //         return res.status(500).json({
+    //             status: 500,
+    //             type: 'error',
+    //             msg: error.message,
+    //             msg_key: error.name,
+    //             detail: []
+    //         })
+    //     }
+    // }
 
     async userRegister(req, res) {
         try {

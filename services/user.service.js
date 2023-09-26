@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, OTPS } = require('../config/models')
 
 const generateJwt = (id, group) => {
     return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
@@ -39,7 +39,7 @@ class UserService {
         }
     }
 
-    async userLoginService(password, phone) {
+    async userLoginOTPService(password, phone) {
         try {
             const user = await this.isExists(phone)
             if (user.length === 0) {
@@ -53,14 +53,19 @@ class UserService {
             }
             const hash = await bcrypt.compare(password, user[0].password)
             if (hash) {
-                const token = generateJwt(user[0].id, user.groupId)
+                const otpCode = generateOTP()
+                await OTPS.create({
+                    code: otpCode,
+                    start_date: Date.now(),
+                    end_date: Date.now() * 60000,
+                    phone: phone
+                })
                 return {
                     status: 200,
                     type: 'success',
-                    msg: 'token matched',
-                    msg_key: 'password is correct',
-                    detail: user,
-                    token: token
+                    msg: 'otp code send',
+                    msg_key: 'send',
+                    detail: []
                 }
             }
             return {
@@ -74,6 +79,44 @@ class UserService {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
+
+    // async userLoginOTPverifyService(phone, code) {
+    //     try {
+    //         const user = await this.isExists(phone)
+    //         if (user.length === 0) {
+    //             return {
+    //                 status: 401,
+    //                 type: 'error',
+    //                 msg: 'user nod found',
+    //                 msg_key: 'unauthorized',
+    //                 detail: []
+    //             }
+    //         }
+    //         let otpVerify = await OTPS.findAll({
+    //             where: {
+    //                 phone: phone
+    //             },
+    //             attributes: ['id', 'phone']
+    //         })
+            
+    //         return {
+    //             status: 200,
+    //             type: 'success',
+    //             msg: 'otp code send',
+    //             msg_key: 'send',
+    //             detail: []
+    //         }
+    //         return {
+    //             status: 401,
+    //             type: 'error',
+    //             msg: 'token did not match',
+    //             msg_key: 'password is incorrect',
+    //             detail: []
+    //         }
+    //     } catch (error) {
+    //         throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+    //     }
+    // }
 
     async userRegisterService(oby, ip) {
         try {

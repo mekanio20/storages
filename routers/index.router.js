@@ -1,7 +1,7 @@
 const router = require('express').Router()
-const userRouter = require('../routers/user.router')
-const adminRouter = require('../routers/admin.router')
-const sellerrouter = require('../routers/seller.router')
+const userRouter = require('./user.router')
+const adminRouter = require('./admin.router')
+const sellerrouter = require('./seller.router')
 
 router.use('/user', userRouter)
 router.use('/admin', adminRouter)

@@ -20,8 +20,8 @@ const Users = database.define('users', {
 const OTPS = database.define('otps', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     code: { type: DataTypes.STRING(6), allowNull: false },
-    star_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
-    end_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
+    star_date: { type: DataTypes.BIGINT, allowNull: false },
+    end_date: { type: DataTypes.BIGINT, allowNull: false },
     phone: { type: DataTypes.STRING(12), allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { updatedAt: false } )
