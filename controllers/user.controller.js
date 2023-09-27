@@ -8,10 +8,10 @@ const userPermission = (reqId, userId) => {
 
 class UserController {
 
-    async userLoginOTP(req, res) {
+    async userLogin(req, res) {
         try {
-            const { password, phone } = req.body
-            const data = await userService.userLoginOTPService(password, phone)
+            const { phone, password } = req.body
+            const data = await userService.userLoginService(phone, password)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -30,32 +30,55 @@ class UserController {
         }
     }
 
-    // async userLoginOTPverify(req, res) {
-    //     try {
-    //         const { phone, code } = req.body
-    //         const data = await userService.userLoginOTPverifyService(phone, code)
-    //         return res.status(data.status).json({
-    //             status: data.status,
-    //             type: data.type,
-    //             msg: data.msg,
-    //             msg_key: data.msg_key,
-    //             detail: data.detail
-    //         })
-    //     } catch (error) {
-    //         return res.status(500).json({
-    //             status: 500,
-    //             type: 'error',
-    //             msg: error.message,
-    //             msg_key: error.name,
-    //             detail: []
-    //         })
-    //     }
-    // }
+    async forgotPassword(req, res) {
+        try {
+            const { phone, orgPass, verifPass } = req.body
+            const data = await userService.forgotPasswordService(phone, orgPass, verifPass)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async userLoginOTPverify(req, res) {
+        try {
+            const { phone, code } = req.body
+            const data = await userService.userLoginOTPverifyService(phone, code)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
 
     async userRegister(req, res) {
         try {
             const oby = req.body
-            const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+            let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+            ip = ip.substr(7)
             const data = await userService.userRegisterService(oby, ip)
             return res.status(data.status).json({
                 status: data.status,

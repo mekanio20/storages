@@ -8,11 +8,16 @@ const sellerSchema = require('../validates/seller.schema')
 
 router.post('/register', 
     // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(sellerSchema.sellerRegister),
+    valdidationMiddleware(sellerSchema.sellerRegister, 'body'),
     imagesMiddleware(process.env.SELLER_PATH).fields([
         { name: "logo", maxCount: 1 },
         { name: "bg_img", maxCount: 1 }
     ]),
     sellerController.sellerRegister)
+
+router.get('/seller/:id',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(sellerSchema.fetchOneSeller, 'params'),
+    sellerController.fetchSellerOne)
 
 module.exports = router

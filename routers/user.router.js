@@ -7,32 +7,36 @@ const userSchema = require('../validates/user.schema')
 
 router.get('/default', userController.defaultCreate)
 
-router.post('/login/otp', 
-    valdidationMiddleware(userSchema.loginOtp, 'body'), 
-    userController.userLoginOTP)
+router.post('/login', 
+    valdidationMiddleware(userSchema.login, 'body'), 
+    userController.userLogin)
 
-router.post('/register', 
+router.post('/forgot', // should be updated
+    valdidationMiddleware(userSchema.forgotPassword, 'body'), 
+    userController.forgotPassword)
+
+router.post('/register',
     valdidationMiddleware(userSchema.register, 'body'), 
     userController.userRegister)
 
-router.post('/customer/register', 
+router.post('/customer/register',
     valdidationMiddleware(userSchema.customerRegister, 'body'),
     userController.customerRegister)
 
-router.get('/profile/:id', 
+router.get('/profile/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.profile, 'params'), 
     userController.userProfile)
 
-router.get('/storages', 
+router.get('/storages',
     // authMiddleware, accessMiddleware(false),
     userController.allStorageList)
 
-router.get('/categories', 
+router.get('/categories',
     // authMiddleware, accessMiddleware(false),
     userController.allCategoryList)
 
-router.get('/brands', 
+router.get('/brands',
     // authMiddleware, accessMiddleware(false),
     userController.allBrandList)
 

@@ -8,15 +8,14 @@ module.exports = (params) => {
                 req.originalUrl.pop()
                 req.originalUrl = req.originalUrl.join('/')
             }
-            const permission = await
-                GroupPermissions.findOne({
-                    where: {
-                        method: req.method,
-                        url: req.originalUrl,
-                        groupId: req.user.group
-                    },
-                    attributes: ['url', 'method']
-                })
+            const permission = await GroupPermissions.findOne({
+                where: {
+                    method: req.method,
+                    url: req.originalUrl,
+                    groupId: req.user.group
+                },
+                attributes: ['url', 'method']
+            })
             if (permission) { return next() }
             return res.status(403).json({
                 status: 403,

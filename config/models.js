@@ -4,9 +4,9 @@ const database = require('./database')
 const Users = database.define('users', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     phone: { type: DataTypes.STRING(12), allowNull: false, unique: true },
-    password: { type: DataTypes.STRING(25), allowNull: false },
+    password: { type: DataTypes.STRING(150), allowNull: false },
     ip: { type: DataTypes.STRING(15), allowNull: true },
-    device: { type: DataTypes.STRING(100), allowNull: true },
+    device: { type: DataTypes.STRING(25), allowNull: true },
     uuid: { type: DataTypes.UUID, allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     isCustomer: { type: DataTypes.BOOLEAN, defaultValue: true },

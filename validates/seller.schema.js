@@ -17,6 +17,10 @@ const sellerSchema = {
         categoryId: Joi.number().positive().required(),
         subscriptionId: Joi.number().positive().required()
     }),
+
+    fetchOneSeller: Joi.object({
+        id: Joi.number().positive().required()
+    })
 }
 
 module.exports = sellerSchema

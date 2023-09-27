@@ -1,14 +1,21 @@
 const Joi = require('joi')
 
 const userSchema = {
-    loginOtp: Joi.object({
+    login: Joi.object({
+        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required(),
         password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
-        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required()
+    }),
+
+    forgotPassword: Joi.object({
+        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required(),
+        orgPass: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
+        verifPass: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required()
     }),
     
     register: Joi.object({
+        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required(),
         password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
-        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required()
+        device: Joi.string().max(50).alphanum().required()
     }),
 
     customerRegister: Joi.object({
@@ -19,7 +26,7 @@ const userSchema = {
     }),
 
     profile: Joi.object({
-       id: Joi.number().positive().required() 
+       id: Joi.number().positive().required()
     }),
 
     

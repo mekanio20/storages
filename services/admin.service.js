@@ -37,8 +37,8 @@ class AdminService {
                 return {
                     status: 403,
                     type: 'error',
-                    msg: 'group permission found',
-                    msg_key: 'already exist',
+                    msg: 'already exist',
+                    msg_key: 'forbidden',
                     detail: []
                 }
             }
@@ -63,8 +63,8 @@ class AdminService {
                 return {
                     status: 403,
                     type: 'error',
-                    msg: 'storage found',
-                    msg_key: 'already exist',
+                    msg: 'already exist',
+                    msg_key: 'forbidden',
                     detail: []
                 }
             }
@@ -94,8 +94,8 @@ class AdminService {
                 return {
                     status: 403,
                     type: 'error',
-                    msg: 'category found',
-                    msg_key: 'already exist',
+                    msg: 'already exist',
+                    msg_key: 'forbidden',
                     detail: []
                 }
             }
@@ -126,8 +126,8 @@ class AdminService {
                 return {
                     status: 403,
                     type: 'error',
-                    msg: 'subcategory found',
-                    msg_key: 'already exist',
+                    msg: 'already exist',
+                    msg_key: 'forbidden',
                     detail: []
                 }
             }
@@ -190,7 +190,7 @@ class AdminService {
             return {
                 status: 201,
                 type: 'success',
-                msg: 'subcategory feature name added',
+                msg: 'subcategory feature added',
                 msg_key: 'created',
                 detail: subcategory_features
             }
@@ -207,8 +207,8 @@ class AdminService {
                 return {
                     status: 403,
                     type: 'error',
-                    msg: 'brand found',
-                    msg_key: 'already exist',
+                    msg: 'already exist',
+                    msg_key: 'forbidden',
                     detail: []
                 }
             }

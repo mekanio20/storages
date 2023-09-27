@@ -31,6 +31,7 @@ class UserService {
     async getGroupId(group) {
         try {
             let group_id = await Groups.findOne({ where: { name: group }, attributes: ['id'] })
+            if (!group_id) { group_id = await Groups.create({ name: group }) }
             group_id = JSON.stringify(group_id)
             group_id = Number(JSON.parse(group_id).id)
             return group_id
@@ -39,7 +40,7 @@ class UserService {
         }
     }
 
-    async userLoginOTPService(password, phone) {
+    async userLoginService(phone, password) {
         try {
             const user = await this.isExists(phone)
             if (user.length === 0) {
@@ -53,26 +54,21 @@ class UserService {
             }
             const hash = await bcrypt.compare(password, user[0].password)
             if (hash) {
-                const otpCode = generateOTP()
-                await OTPS.create({
-                    code: otpCode,
-                    start_date: Date.now(),
-                    end_date: Date.now() * 60000,
-                    phone: phone
-                })
+                const token = generateJwt(user.id, user.groupId)
                 return {
                     status: 200,
                     type: 'success',
-                    msg: 'otp code send',
-                    msg_key: 'send',
-                    detail: []
+                    msg: 'password correct',
+                    msg_key: 'authorized',
+                    detail: [],
+                    token: token
                 }
             }
             return {
                 status: 401,
                 type: 'error',
                 msg: 'token did not match',
-                msg_key: 'password is incorrect',
+                msg_key: 'unauthorized',
                 detail: []
             }
         } catch (error) {
@@ -80,43 +76,35 @@ class UserService {
         }
     }
 
-    // async userLoginOTPverifyService(phone, code) {
-    //     try {
-    //         const user = await this.isExists(phone)
-    //         if (user.length === 0) {
-    //             return {
-    //                 status: 401,
-    //                 type: 'error',
-    //                 msg: 'user nod found',
-    //                 msg_key: 'unauthorized',
-    //                 detail: []
-    //             }
-    //         }
-    //         let otpVerify = await OTPS.findAll({
-    //             where: {
-    //                 phone: phone
-    //             },
-    //             attributes: ['id', 'phone']
-    //         })
-            
-    //         return {
-    //             status: 200,
-    //             type: 'success',
-    //             msg: 'otp code send',
-    //             msg_key: 'send',
-    //             detail: []
-    //         }
-    //         return {
-    //             status: 401,
-    //             type: 'error',
-    //             msg: 'token did not match',
-    //             msg_key: 'password is incorrect',
-    //             detail: []
-    //         }
-    //     } catch (error) {
-    //         throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-    //     }
-    // }
+    async forgotPasswordService(phone, orgPass, verifPass) {
+        try {
+            if (orgPass !== verifPass) {
+                return {
+                    status: 400,
+                    type: 'error',
+                    msg: 'password is incorrect',
+                    msg_key: 'bad request',
+                    detail: []
+                }
+            }
+            const user = await this.isExists(phone)
+            if (user.length === 0) {
+                return {
+                    status: 401,
+                    type: 'error',
+                    msg: 'user nod found',
+                    msg_key: 'unauthorized',
+                    detail: []
+                }
+            }
+            return {}
+            // send otp
+            // -------------
+            // -------------
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
 
     async userRegisterService(oby, ip) {
         try {
@@ -125,8 +113,8 @@ class UserService {
                 return {
                     status: 403,
                     type: 'error',
-                    msg: 'user found',
-                    msg_key: 'already exist',
+                    msg: 'already exist',
+                    msg_key: 'forbidden',
                     detail: []
                 }
             }
@@ -135,8 +123,9 @@ class UserService {
             const _user = await Users.create({
                 phone: oby.phone,
                 password: hash,
-                last_ip: ip,
+                ip: ip,
                 device: oby.device,
+                uuid: uuid.v4(),
                 groupId: groupId
             })
             const token = generateJwt(_user.id, groupId)
@@ -156,7 +145,17 @@ class UserService {
     async customerRegisterService(oby) {
         try {
             const { fullname, gender, email, userId } = oby
-            const customer = await Customers.create({
+            const customer = await Customers.findOne({ where: { email: email } })
+            if (customer.length > 0) {
+                return {
+                    status: 403,
+                    type: 'error',
+                    msg: 'already exist',
+                    msg_key: 'forbidden',
+                    detail: []
+                }
+            }
+            const _customer = await Customers.create({
                 fullname: fullname,
                 gender: gender,
                 email: email,
@@ -167,7 +166,7 @@ class UserService {
                 type: 'success',
                 msg: 'customer registered',
                 msg_key: 'created',
-                detail: customer
+                detail: _customer
             }
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -176,7 +175,14 @@ class UserService {
 
     async userProfileService(id) {
         try {
-            const user = await Users.findOne({ where: { id: id }, attributes: ['id', 'phone'] })
+            const user = await Customers.findOne({ 
+                where: { userId: id }, 
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                include: {
+                    model: Users,
+                    attributes: ['id', 'phone']
+                }
+            })
             if (!user) {
                 return {
                     status: 403,
@@ -221,14 +227,15 @@ class UserService {
                         attributes: { exclude: ['createdAt', 'updatedAt'] },
                         where: { isActive: true }
                     }
-                }
+                },
+                order: [['id', 'DESC']]
             })
             if (storages.length > 0) {
                 return {
                     status: 200,
                     type: 'success',
                     msg: 'storages were sent',
-                    msg_key: 'storages found',
+                    msg_key: 'ok',
                     detail: storages
                 }
             }
@@ -236,7 +243,7 @@ class UserService {
                 status: 404,
                 type: 'error',
                 msg: 'storages nod found',
-                msg_key: 'storages length 0',
+                msg_key: 'ok',
                 detail: storages
             }
         } catch (error) {
@@ -253,14 +260,15 @@ class UserService {
                     model: Subcategories,
                     attributes: { exclude: ['createdAt', 'updatedAt'] },
                     where: { isActive: true }
-                }
+                },
+                order: [['id', 'DESC']]
             })
             if (categories.length > 0) {
                 return {
                     status: 200,
                     type: 'success',
                     msg: 'categories were sent',
-                    msg_key: 'categories found',
+                    msg_key: 'ok',
                     detail: categories
                 }
             }
@@ -268,7 +276,7 @@ class UserService {
                 status: 404,
                 type: 'error',
                 msg: 'categories nod found',
-                msg_key: 'nod found',
+                msg_key: 'not found',
                 detail: categories
             }
         } catch (error) {
@@ -278,21 +286,25 @@ class UserService {
 
     async allBrandListService() {
         try {
-            const brands = await Brands.findAll({ attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] }, where: { isActive: true } })
+            const brands = await Brands.findAll({ 
+                attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] }, 
+                where: { isActive: true },
+                order: [['id', 'DESC']] 
+            })
             if (brands.length > 0) {
                 return {
                     status: 200,
                     type: 'success',
                     msg: 'brands were sent',
-                    msg_key: 'brands found',
+                    msg_key: 'ok',
                     detail: brands
                 }
             }
             return {
                 status: 404,
                 type: 'error',
-                msg: 'brands nod found',
-                msg_key: 'brands length 0',
+                msg: 'brands length 0',
+                msg_key: 'not found',
                 detail: brands
             }
         } catch (error) {
@@ -306,8 +318,7 @@ class UserService {
                 { name: 'USERS' },
                 { name: 'SELLERS' },
                 { name: 'STAFF' },
-                { name: 'ADMINS' },
-                { name: 'SUPERADMINS' }
+                { name: 'SUPERADMIN' }
             ]).then(() => { console.log('Groups created') }).catch((err) => { console.log(err) })
 
             await Users.bulkCreate([
