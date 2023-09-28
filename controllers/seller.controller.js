@@ -71,6 +71,39 @@ class SellerController {
             
         }
     }
+
+    async updateSellerProfile(req, res) {
+        try {
+            const oby = req.body
+            // const user = userPermission(req.user.id, oby.id)
+            // if (!user) {
+            //     return res.status(403).json({
+            //         status: 403,
+            //         type: 'error',
+            //         msg: 'user blocked',
+            //         msg_key: 'forbidden',
+            //         detail: []
+            //     })
+            // }
+            const data = await sellerService.updateSellerProfileService(oby)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: data.type,
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+            
+        }
+    }
 }
 
 module.exports = new SellerController()

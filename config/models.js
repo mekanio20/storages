@@ -54,7 +54,7 @@ const Sellers = database.define('sellers', {
     store_number: { type: DataTypes.SMALLINT, allowNull: false },
     store_floor: { type: DataTypes.SMALLINT, allowNull: false },
     about: { type: DataTypes.STRING, allowNull: true },
-    logo: { type: DataTypes.STRING(100), allowNull: false },
+    logo: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     bg_img: { type: DataTypes.STRING(100), defaultValue: 'bg.jpg' },
     color: { type: DataTypes.STRING(10), allowNull: false },
     seller_type: { type: DataTypes.ENUM({ values: ['in-opt', 'out-opt'] }), allowNull: false },

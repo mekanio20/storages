@@ -216,6 +216,29 @@ class AdminController {
         }
     }
 
+    async addBanner(req, res) {
+        try {
+            const oby = req.body
+            const data = await adminService.addBannerService(oby)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+                token: data.token
+            })
+        } catch (error) {
+            return res.status(500).json({ 
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     async staffRegister(req, res) {
         try {
             const { userId } = req.body
@@ -226,6 +249,7 @@ class AdminController {
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail,
+                token: data.token
             })
         } catch (error) {
             return res.status(500).json({ 

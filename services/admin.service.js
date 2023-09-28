@@ -3,11 +3,27 @@ const { Groups, GroupPermissions, Storages, Categories,
     Brands, Subcategories, Features, FeatureDescriptions,
     SubcategoryFeatures } = require('../config/models')
 
+const generateJwt = (id, group) => {
+    return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
+}
+
 class AdminService {
 
     async isExists(Model, slug) {
         try {
             return Model.findAll({ where: { slug: slug } })
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async getGroupId(group) {
+        try {
+            let group_id = await Groups.findOne({ where: { name: group }, attributes: ['id'] })
+            if (!group_id) { group_id = await Groups.create({ name: group }) }
+            group_id = JSON.stringify(group_id)
+            group_id = Number(JSON.parse(group_id).id)
+            return group_id
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -226,15 +242,33 @@ class AdminService {
         }
     }
 
+    async addBannerService(oby) {
+        try {
+            return oby
+            return {
+                status: 201,
+                type: 'success',
+                msg: 'brand name added',
+                msg_key: 'created',
+                detail: brands
+            }
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async staffRegisterService(userId) {
         try {
-            await Users.update({ isStaff: true, isCustomer: false }, { where: { id: Number(userId) } })
+            const groupId = await this.getGroupId('STAFF')
+            await Users.update({ isStaff: true, isCustomer: false, groupId: groupId }, { where: { id: Number(userId) } })
+            const token = generateJwt(userId, groupId)
             return {
-                status: 200, 
+                status: 200,
                 type: 'success',
                 msg: 'staff registered',
                 msg_key: 'updated',
-                detail: []
+                detail: [],
+                token: token
             }
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

@@ -15,9 +15,14 @@ router.post('/register',
     ]),
     sellerController.sellerRegister)
 
-router.get('/seller/:id',
+router.get('/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.fetchOneSeller, 'params'),
     sellerController.fetchSellerOne)
+
+router.put('/',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(sellerSchema.updateSellerProfile, 'body'),
+    sellerController.updateSellerProfile)
 
 module.exports = router

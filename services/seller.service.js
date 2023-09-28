@@ -100,6 +100,27 @@ class SellerService {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
+    
+    async updateSellerProfileService(oby) {
+        try {
+            let newDto = {}
+            for (const key in oby) {
+                if (oby[key].length > 0) {
+                    newDto[key] = oby[key]
+                }
+            }
+            await Sellers.update({ newDto }, { where: { id: oby.id }})
+            return {
+                status: 200,
+                type: 'success',
+                msg: '1',
+                msg_key: '1',
+                detail: newDto
+            }
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
 
 }
 

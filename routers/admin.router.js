@@ -342,6 +342,16 @@ router.post('/add/brand',
     valdidationMiddleware(adminSchema.addBrand, 'body'),
     adminController.addBrand)
 
+router.post('/add/banner',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.addBanner, 'body'),
+    adminController.addBanner)
+
+router.post('/staff/register',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.staffRegister, 'body'),
+    adminController.staffRegister)
+
 // DELETE
 router.delete('/delete/permission/:id',
     // authMiddleware, accessMiddleware(true),
