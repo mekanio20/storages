@@ -1,4 +1,4 @@
-const { Op } = require('sequelize')
+const Response = require('../services/response.service')
 const { Groups, GroupPermissions, Storages, Categories,
     Brands, Subcategories, Features, FeatureDescriptions,
     SubcategoryFeatures } = require('../config/models')
@@ -34,13 +34,7 @@ class AdminService {
         try {
             name = name.trim().toUpperCase()
             const group = await Groups.create({ name: name })
-            return {
-                status: 201,
-                type: 'successs',
-                msg: 'group name added',
-                msg_key: 'created',
-                detail: group,
-            }
+            return Response.Created('Grupba döredildi!', group)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -50,22 +44,10 @@ class AdminService {
         try {
             const isExist = await GroupPermissions.findAll({ where: { url: url, method: method, groupId: groupId } })
             if (isExist.length > 0) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'already exist',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Forbidden('Maglumat döredilen!', [])
             }
             const permission = await GroupPermissions.create({ url: url, method: method, groupId: groupId })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'group permission added',
-                msg_key: 'created',
-                detail: permission
-            }
+            return Response.Created('Maglumat döredildi!', permission)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -76,13 +58,7 @@ class AdminService {
             let slug = oby.tm_name.split(" ").join('-').toLowerCase()
             const _storage = await this.isExists(Storages, slug)
             if (_storage.length > 0) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'already exist',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Forbidden('Maglumat döredilen!', [])
             }
             const storage = await Storages.create({
                 tm_name: oby.tm_name,
@@ -90,13 +66,7 @@ class AdminService {
                 en_name: oby?.en_name || null,
                 slug: slug
             })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'storage name added',
-                msg_key: 'created',
-                detail: storage
-            }
+            return Response.Created('Maglumat döredildi!', storage)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -107,13 +77,7 @@ class AdminService {
             let slug = oby.tm_name.split(" ").join('-').toLowerCase()
             const _category = await this.isExists(Categories, slug)
             if (_category) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'already exist',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Forbidden('Maglumat döredilen!', [])
             }
             const category = await Categories.create({
                 tm_name: oby.tm_name,
@@ -122,30 +86,18 @@ class AdminService {
                 slug: slug,
                 storageId: oby.storageId
             })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'category name added',
-                msg_key: 'created',
-                detail: category
-            }
+            return Response.Created('Maglumat döredildi!', category)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-
+    
     async addSubcategoryService(oby) {
         try {
             let slug = oby.tm_name.split(" ").join('-').toLowerCase()
             const _subcategory = await this.isExists(Subcategories, slug)
             if (_subcategory) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'already exist',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Forbidden('Maglumat döredilen!', [])
             }
             const subcategory = await Subcategories.create({
                 tm_name: oby.tm_name,
@@ -154,13 +106,7 @@ class AdminService {
                 slug: slug,
                 categoryId: oby.categoryId
             })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'subcategory name added',
-                msg_key: 'created',
-                detail: subcategory
-            }
+            return Response.Created('Maglumat döredildi!', subcategory)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -168,18 +114,8 @@ class AdminService {
 
     async addFeatureService(oby) {
         try {
-            const feature = await Features.create({
-                tm_name: oby.tm_name,
-                ru_name: oby?.ru_name || null,
-                en_name: oby?.en_name || null
-            })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'feature name added',
-                msg_key: 'created',
-                detail: feature
-            }
+            const feature = await Features.create({ tm_name: oby.tm_name, ru_name: oby?.ru_name || null, en_name: oby?.en_name || null })
+            return Response.Created('Maglumat döredildi!', feature)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -188,13 +124,7 @@ class AdminService {
     async addFeatureDescriptionService(desc, featureId) {
         try {
             const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'feature description name added',
-                msg_key: 'created',
-                detail: featureDesc
-            }
+            return Response.Created('Maglumat döredildi!', featureDesc)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -203,13 +133,7 @@ class AdminService {
     async addSubcategoryFeatureService(subcategoryId, featureId) {
         try {
             const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'subcategory feature added',
-                msg_key: 'created',
-                detail: subcategory_features
-            }
+            return Response.Created('Maglumat döredildi!', subcategory_features)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -220,23 +144,11 @@ class AdminService {
             let slug = oby.tm_name.split(" ").join('-').toLowerCase()
             const brand = await this.isExists(Brands, slug)
             if (brand) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'already exist',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Forbidden('Maglumat döredilen!', [])
             }
             oby.name = oby.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + oby.name.slice(1).toLowerCase()
             const brands = await Brands.create({ name: oby.name, slug: slug, img: brand_img, desc: oby?.desc || null, userId: oby.userId })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'brand name added',
-                msg_key: 'created',
-                detail: brands
-            }
+            return Response.Created('Maglumat döredildi!', brands)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -244,14 +156,7 @@ class AdminService {
 
     async addBannerService(oby) {
         try {
-            return oby
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'brand name added',
-                msg_key: 'created',
-                detail: brands
-            }
+            return oby // should be updated
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -262,14 +167,9 @@ class AdminService {
             const groupId = await this.getGroupId('STAFF')
             await Users.update({ isStaff: true, isCustomer: false, groupId: groupId }, { where: { id: Number(userId) } })
             const token = generateJwt(userId, groupId)
-            return {
-                status: 200,
-                type: 'success',
-                msg: 'staff registered',
-                msg_key: 'updated',
-                detail: [],
-                token: token
-            }
+            let response = Response.Created('Admin hasaba alyndy!', [])
+            response.token = token
+            return response
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -278,29 +178,17 @@ class AdminService {
     // DELETE
     async deleteAccessPathService(id) {
         try {
-            const group = await GroupPermissions.destroy({ where: { id: Number(id) } })
-            return {
-                status: 200,
-                type: 'success',
-                msg: 'group permission deleted',
-                msg_key: 'deleted',
-                detail: group
-            }
+            await GroupPermissions.destroy({ where: { id: Number(id) } })
+            return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-
+    
     async deleteBrandService(id) {
         try {
-            const brand = await Brands.destroy({ where: { id: Number(id) } })
-            return {
-                status: 200,
-                type: 'error',
-                msg: 'brand deleted',
-                msg_key: 'deleted',
-                detail: brand
-            }
+            await Brands.destroy({ where: { id: Number(id) } })
+            return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

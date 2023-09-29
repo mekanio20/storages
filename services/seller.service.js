@@ -1,4 +1,4 @@
-const { Op } = require('sequelize')
+const Response = require('./response.service')
 const { Sellers, Users } = require('../config/models')
 
 class SellerService {
@@ -8,22 +8,10 @@ class SellerService {
             const seller = await Sellers.findAll({ attributes: ['id'], where: { name: oby.name } })
             const { logo, bg_img } = filenames
             if (seller.length > 0) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'already exist',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Forbidden('Satyjy registrasiýa bolan!', [])
             }
             if (oby.main_number === oby.second_number) {
-                return {
-                    status: 400,
-                    type: 'error',
-                    msg: 'phone numbers equal',
-                    msg_key: 'bad request',
-                    detail: []
-                }
+                return Response.BadRequest('Telefon belgi nädogry!', [])
             }
             const _seller = await Sellers.create({
                 name: oby.name,
@@ -46,13 +34,7 @@ class SellerService {
                 categoryId: oby.categoryId,
                 subscriptionId: oby.subscriptionId
             })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'seller registered',
-                msg_key: 'created',
-                detail: _seller
-            }
+            return Response.Created('Satyjy hasaba alyndy!', _seller)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -69,54 +51,33 @@ class SellerService {
                         id: id, 
                         isSeller: true 
                     }
-                } 
+                }
             })
-            if (seller.length > 0) {
-                return {
-                    status: 201,
-                    type: 'success',
-                    msg: 'seller found',
-                    msg_key: 'ok',
-                    detail: seller
-                }
-            }
             if (seller.isVerified === false) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'seller not verified',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Unauthorized('Satyjy tassyklanmady!', [])
             }
-            return {
-                status: 404,
-                type: 'error',
-                msg: 'seller not found',
-                msg_key: 'not found',
-                detail: []
+            if (seller.length > 0) {
+                return Response.Success('Üstünlikli!', seller)
             }
+            return Response.NotFound('Satyjy tapylmady!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-    
+
     async updateSellerProfileService(oby) {
         try {
-            let newDto = {}
+            let newObj = {}
             for (const key in oby) {
                 if (oby[key].length > 0) {
-                    newDto[key] = oby[key]
+                    newObj[key] = oby[key]
                 }
             }
-            await Sellers.update({ newDto }, { where: { id: oby.id }})
-            return {
-                status: 200,
-                type: 'success',
-                msg: '1',
-                msg_key: '1',
-                detail: newDto
-            }
+            await Sellers.update({ newObj }, { where: { id: oby.id } })
+                .then(() => { return Response.Success('Satyjy maglumatlary täzelendi!', []) })
+                .catch((err) => {
+                    console.log(err)
+                })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

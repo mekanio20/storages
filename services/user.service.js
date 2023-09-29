@@ -1,5 +1,6 @@
-const bcrypt = require('bcrypt')
+const Response = require('../services/response.service')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
 const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, OTPS, Sellers } = require('../config/models')
@@ -40,62 +41,33 @@ class UserService {
         }
     }
 
-    async userLoginService(phone, password) {
+    async userLoginService(phone, password) { // should be updated
         try {
             const user = await this.isExists(phone)
             if (user.length === 0) {
-                return {
-                    status: 401,
-                    type: 'error',
-                    msg: 'user nod found',
-                    msg_key: 'unauthorized',
-                    detail: []
-                }
+                return Response.Unauthorized('Ulanyjy tapylmady!', [])
             }
             const hash = await bcrypt.compare(password, user[0].password)
             if (hash) {
                 const token = generateJwt(user.id, user.groupId)
-                return {
-                    status: 200,
-                    type: 'success',
-                    msg: 'password correct',
-                    msg_key: 'authorized',
-                    detail: [],
-                    token: token
-                }
+                let response = Response.Success('Üstünlikli!', user)
+                response.token = token
+                return response
             }
-            return {
-                status: 401,
-                type: 'error',
-                msg: 'token did not match',
-                msg_key: 'unauthorized',
-                detail: []
-            }
+            return Response.Unauthorized('Parol nädogry!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async forgotPasswordService(phone, orgPass, verifPass) {
+    async forgotPasswordService(phone, orgPass, verifPass) { // should be updated
         try {
             if (orgPass !== verifPass) {
-                return {
-                    status: 400,
-                    type: 'error',
-                    msg: 'password is incorrect',
-                    msg_key: 'bad request',
-                    detail: []
-                }
+                return Response.BadRequest('Parol nädogry!', [])
             }
             const user = await this.isExists(phone)
             if (user.length === 0) {
-                return {
-                    status: 401,
-                    type: 'error',
-                    msg: 'user nod found',
-                    msg_key: 'unauthorized',
-                    detail: []
-                }
+                return Response.Unauthorized('Ulanyjy tapylmady!', [])
             }
             return {}
             // send otp
@@ -106,17 +78,11 @@ class UserService {
         }
     }
 
-    async userRegisterService(oby, ip) {
+    async userRegisterService(oby, ip) { // should be updated
         try {
             const user = await this.isExists(oby.phone)
             if (user.length > 0) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'already exist',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Forbidden('Ulanyjy hasaba alynan!', [])
             }
             const hash = await bcrypt.hash(oby.password, 5)
             const groupId = await this.getGroupId('USERS')
@@ -129,14 +95,9 @@ class UserService {
                 groupId: groupId
             })
             const token = generateJwt(_user.id, groupId)
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'user registered',
-                msg_key: 'created',
-                detail: _user,
-                token: token
-            }
+            let response = Response.Created('Ulanyjy hasaba alyndy!', user)
+            response.token = token
+            return response
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -147,13 +108,7 @@ class UserService {
             const { fullname, gender, email, userId } = oby
             const customer = await Customers.findOne({ where: { email: email } })
             if (customer.length > 0) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'already exist',
-                    msg_key: 'forbidden',
-                    detail: []
-                }
+                return Response.Forbidden('Ulanyjy registrasiýa bolan!', [])
             }
             const _customer = await Customers.create({
                 fullname: fullname,
@@ -161,13 +116,7 @@ class UserService {
                 email: email,
                 userId: userId
             })
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'customer registered',
-                msg_key: 'created',
-                detail: _customer
-            }
+            return Response.Created('Ulanyjy hasaba alyndy!', _customer)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -175,36 +124,22 @@ class UserService {
 
     async userProfileService(id) {
         try {
-            const user = await Customers.findOne({ 
-                where: { userId: id }, 
+            const user = await Customers.findOne({
+                where: { userId: id },
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 include: {
                     model: Users,
                     attributes: ['id', 'phone']
                 }
             })
-            if (!user) {
-                return {
-                    status: 403,
-                    type: 'error',
-                    msg: 'user nod found',
-                    msg_key: 'unauthorized',
-                    detail: []
-                }
-            }
-            return {
-                status: 200,
-                type: 'success',
-                msg: 'user found',
-                msg_key: 'authorized',
-                detail: user
-            }
+            if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            return Response.Success('Üstünlikli!', user)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async sendOtpService(phone) {
+    async sendOtpService(phone) { // should be updated
         try {
             const _phone = phone
             const _otp = generateOTP()
@@ -231,26 +166,14 @@ class UserService {
                 order: [['id', 'DESC']]
             })
             if (storages.length > 0) {
-                return {
-                    status: 200,
-                    type: 'success',
-                    msg: 'storages were sent',
-                    msg_key: 'ok',
-                    detail: storages
-                }
+                return Response.Success('Üstünlikli!', storages)
             }
-            return {
-                status: 404,
-                type: 'error',
-                msg: 'storages nod found',
-                msg_key: 'ok',
-                detail: storages
-            }
+            return Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-
+    
     async allCategoryService() {
         try {
             const categories = await Categories.findAll({
@@ -264,49 +187,25 @@ class UserService {
                 order: [['id', 'DESC']]
             })
             if (categories.length > 0) {
-                return {
-                    status: 200,
-                    type: 'success',
-                    msg: 'categories were sent',
-                    msg_key: 'ok',
-                    detail: categories
-                }
+                return Response.Success('Üstünlikli!', categories)
             }
-            return {
-                status: 404,
-                type: 'error',
-                msg: 'categories nod found',
-                msg_key: 'not found',
-                detail: categories
-            }
+            return Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-
+    
     async allBrandListService() {
         try {
-            const brands = await Brands.findAll({ 
-                attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] }, 
+            const brands = await Brands.findAll({
+                attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] },
                 where: { isActive: true },
-                order: [['id', 'DESC']] 
+                order: [['id', 'DESC']]
             })
             if (brands.length > 0) {
-                return {
-                    status: 200,
-                    type: 'success',
-                    msg: 'brands were sent',
-                    msg_key: 'ok',
-                    detail: brands
-                }
+                return Response.Success('Üstünlikli!', brands)
             }
-            return {
-                status: 404,
-                type: 'error',
-                msg: 'brands length 0',
-                msg_key: 'not found',
-                detail: brands
-            }
+            return Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -369,14 +268,9 @@ class UserService {
                 { name: 'Mekan dukan4', store_number: 4, store_floor: 1, about: 'hosh geldiniz!', logo: 'test4.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755733', second_number: '+99363755734' },
                 { name: 'Mekan dukan5', store_number: 5, store_floor: 1, about: 'hosh geldiniz!', logo: 'test5.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755735', second_number: '+99363755736' }
             ]).then(() => { console.log('Sellers created') }).catch((err) => { console.log(err) })
-            
-            return {
-                status: 201,
-                type: 'success',
-                msg: 'all registered',
-                msg_key: 'created',
-                detail: []
-            }
+
+            return Response.Created('Default maglumatlar döredildi!', [])
+
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

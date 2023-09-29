@@ -188,15 +188,7 @@ class AdminController {
             console.log(oby);
             const { brand_img } = req.files
             console.log(brand_img);
-            if (!brand_img) {
-                return res.status(400).json({
-                    status: 400,
-                    type: 'error',
-                    msg: 'brand image required',
-                    msg_key: "bad request",
-                    detail: []
-                }) 
-            }
+            if (!brand_img) { return Response.BadRequest('brand logo gerekli!', []) }
             const data = await adminService.addBrandService(oby, brand_img)
             return res.status(data.status).json({
                 status: data.status,

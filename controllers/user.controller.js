@@ -126,15 +126,7 @@ class UserController {
         try {
             const { id } = req.params
             const user = userPermission(req.user.id, id)
-            if (!user) {
-                return res.status(403).json({
-                    status: 403,
-                    type: 'error',
-                    msg: 'user blocked',
-                    msg_key: 'forbidden',
-                    detail: []
-                })
-            }
+            if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
             const data = await userService.userProfileService(id)
             return res.status(data.status).json({
                 status: data.status,

@@ -18,7 +18,7 @@ router.post('/register',
 router.get('/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.fetchOneSeller, 'params'),
-    sellerController.fetchSellerOne)
+    sellerController.fetchOneSeller)
 
 router.put('/',
     // authMiddleware, accessMiddleware(true),
