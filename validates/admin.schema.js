@@ -58,10 +58,6 @@ const adminSchema = {
         userId: Joi.number().positive().required()
     }),
 
-    addBanner: Joi.object({
-        
-    }),
-
     staffRegister: Joi.object({
         userId: Joi.number().positive().required() 
     }),

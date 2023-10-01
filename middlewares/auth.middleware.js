@@ -13,6 +13,7 @@ module.exports = (req, res, next) => {
     } catch (error) {
         return res.json({ 
             status: 500,
+            type: 'error',
             msg: error.message,
             msg_key: error.name,
             detail: []

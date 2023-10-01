@@ -1,14 +1,19 @@
 const multer = require('multer')
 const uuid = require('uuid')
 const path = require('path')
+const fs = require('fs')
 
 module.exports = (dest) => {
+    const filepath = path.resolve(__dirname, '..', 'public', dest)
+    if (!fs.existsSync(filepath)) {
+        fs.mkdirSync(filepath, { recursive: true })
+    }
     const multerFilter = (req, file, cb) => {
         if (file.mimetype.startsWith('image')) {
             cb(null, true)
         } else {
             cb(new Error('The file is not an image!'))
-        }    
+        }
     }
     return multer({
         storage: multer.diskStorage({

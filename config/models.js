@@ -197,13 +197,13 @@ const Notifications = database.define('notifications', {
 
 const Banners = database.define('banners', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    tm_image: { type: DataTypes.STRING(100) },
-    ru_image: { type: DataTypes.STRING(100) },
-    en_image: { type: DataTypes.STRING(100) },
+    tm_img: { type: DataTypes.STRING(100), allowNull: false },
+    ru_img: { type: DataTypes.STRING(100), allowNull: true },
+    en_img: { type: DataTypes.STRING(100), allowNull: true },
     url: { type: DataTypes.STRING(100), allowNull: false, validate: { isUrl: true } },
     type: { type: DataTypes.ENUM({ values: ['home', 'product', 'profile', 'ad', 'category', 'etc'] }), allowNull: false },
     sort_order: { type: DataTypes.SMALLINT, allowNull: false },
-    star_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
+    start_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
     end_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }

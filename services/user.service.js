@@ -108,7 +108,7 @@ class UserService {
             const { fullname, gender, email, userId } = oby
             const customer = await Customers.findOne({ where: { email: email } })
             if (customer.length > 0) {
-                return Response.Forbidden('Ulanyjy registrasiýa bolan!', [])
+                return Response.Forbidden('Ulanyjy hasaba bolan!', [])
             }
             const _customer = await Customers.create({
                 fullname: fullname,

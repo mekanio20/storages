@@ -9,7 +9,7 @@ const sellerSchema = require('../validates/seller.schema')
 router.post('/register', 
     // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(sellerSchema.sellerRegister, 'body'),
-    imagesMiddleware(process.env.SELLER_PATH).fields([
+    imagesMiddleware(process.env.SELLERS_PATH).fields([
         { name: "logo", maxCount: 1 },
         { name: "bg_img", maxCount: 1 }
     ]),

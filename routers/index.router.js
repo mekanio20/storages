@@ -1,10 +1,12 @@
 const router = require('express').Router()
 const userRouter = require('./user.router')
 const adminRouter = require('./admin.router')
-const sellerrouter = require('./seller.router')
+const sellerRouter = require('./seller.router')
+const bannerRouter = require('./banner.router')
 
 router.use('/user', userRouter)
 router.use('/admin', adminRouter)
-router.use('/seller', sellerrouter)
+router.use('/seller', sellerRouter)
+router.use('/banner', bannerRouter)
 
 module.exports = router

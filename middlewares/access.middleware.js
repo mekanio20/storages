@@ -19,13 +19,15 @@ module.exports = (params) => {
             if (permission) { return next() }
             return res.status(403).json({
                 status: 403,
-                msg: 'user blocked',
+                type: 'error',
+                msg: 'Rugsat edilmedi!',
                 msg_key: 'forbidden',
                 detail: []
             })
         } catch (error) {
             return res.status(500).json({
                 status: 500,
+                type: 'error',
                 msg: error.message,
                 msg_key: error.name,
                 detail: []
