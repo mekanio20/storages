@@ -149,9 +149,8 @@ const Products = database.define('products', {
 
 const ProductImages = database.define('product_images', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    name: { type: DataTypes.STRING(100), allowNull: true },
+    img: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     order: { type: DataTypes.SMALLINT, allowNull: false },
-    image: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
@@ -179,7 +178,6 @@ const Contacts = database.define('contacts', {
     email: { type: DataTypes.STRING(50), allowNull: false, unique: true, validate: { isEmail: true } },
     fullname: { type: DataTypes.STRING(40), allowNull: false },
     message: { type: DataTypes.STRING, allowNull: false },
-    status: { type: DataTypes.ENUM({ values: ['new', 'ignored', 'spam', 'replied'], allowNull: false }) },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
@@ -418,7 +416,7 @@ Customers.belongsToMany(Sellers, { through: Chats })
 Chats.hasMany(Messages),
 Messages.belongsTo(Chats)
 
-// Products -> SubctegoryId,
+// Products -> SubcategoryId,
 
 Subcategories.hasMany(Products)
 Products.belongsTo(Subcategories)

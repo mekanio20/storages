@@ -23,9 +23,9 @@ app.use(helmet())
 let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 app.use(morgan('common', { stream: accessLogStream }))
 
-app.use(express.static('public'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(express.static('public'))
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -39,7 +39,7 @@ const options = {
         info: {
             title: "Library API",
             version: "1.0.0",
-            description: "Swagger Javascript document"
+            description: "Swagger JavaScript document"
         },
         servers: [
             {

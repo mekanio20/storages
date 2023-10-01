@@ -1,7 +1,15 @@
 const Response = require('./response.service')
-const { Sellers, Users } = require('../config/models')
+const { Sellers, Users, Products, ProductImages } = require('../config/models')
 
 class SellerService {
+    
+    async isExists(Model, slug) {
+        try {
+            return Model.findAll({ where: { slug: slug } })
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
 
     async sellerRegisterService(oby, filenames) {
         try {
@@ -35,6 +43,43 @@ class SellerService {
                 subscriptionId: oby.subscriptionId
             })
             return Response.Created('Satyjy hasaba alyndy!', _seller)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addProductService(oby, filenames) {
+        try {
+            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
+            const _product = await this.isExists(Products, slug)
+            if (_product.length > 0) { return Response.Forbidden('Maglumat döredilen!', []) }
+            const product = await Products.create({
+                tm_name: oby.tm_name,
+                ru_name: oby.ru_name || null,
+                en_name: oby.en_name || null,
+                tm_desc: oby.tm_desc,
+                ru_desc: oby.ru_desc || null,
+                en_desc: oby.en_desc || null,
+                slug: slug,
+                barcode: oby.barcode,
+                stock_code: oby.stock_code,
+                quantity: oby.quantity,
+                org_price: oby.org_price,
+                sale_price: oby.sale_price,
+                gender: oby.gender
+            })
+            if (filenames.img) {
+                filenames.img.forEach( async (item, index) => {
+                    await ProductImages.create({
+                        img: item.filename,
+                        order: index + 1,
+                        productId: product.id
+                    })
+                    .then(() => { console.log('success') })
+                    .catch((err) => { console.log(err) })
+                })
+            }
+            return Response.Created('Haryt goýuldy!', product)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

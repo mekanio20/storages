@@ -23,21 +23,19 @@ router.post('/customer/register',
     valdidationMiddleware(userSchema.customerRegister, 'body'),
     userController.customerRegister)
 
+router.post('/add/contact',
+    valdidationMiddleware(userSchema.addContact, 'body'),
+    userController.addContact)
+
 router.get('/profile/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.profile, 'params'), 
     userController.userProfile)
 
-router.get('/storages',
-    // authMiddleware, accessMiddleware(false),
-    userController.allStorageList)
+router.get('/storages', userController.allStorageList)
 
-router.get('/categories',
-    // authMiddleware, accessMiddleware(false),
-    userController.allCategoryList)
+router.get('/categories', userController.allCategoryList)
 
-router.get('/brands',
-    // authMiddleware, accessMiddleware(false),
-    userController.allBrandList)
+router.get('/brands', userController.allBrandList)
 
 module.exports = router

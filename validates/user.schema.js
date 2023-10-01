@@ -25,6 +25,14 @@ const userSchema = {
         userId: Joi.number().positive().required()
     }),
 
+    addContact: Joi.object({
+        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required(),
+        email: Joi.string().email().required(),
+        fullname: Joi.string().min(3).max(30).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).messages({'string.pattern.base': 'Invalid fullname'}).required(),
+        message: Joi.string().min(5).max(255).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý.!?-\s]+$/).required(),
+        userId: Joi.number().positive().required()
+    }),
+
     profile: Joi.object({
        id: Joi.number().positive().required()
     }),
