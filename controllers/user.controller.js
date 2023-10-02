@@ -102,14 +102,14 @@ class UserController {
     async customerRegister(req, res) {
         try {
             const oby = req.body
-            const data = await userService.customerRegisterService(oby)
+            const userId = req.user.id
+            const data = await userService.customerRegisterService(oby, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
-                detail: data.detail,
-                token: data.token
+                detail: data.detail
             })
         } catch (error) {
             return res.status(500).json({

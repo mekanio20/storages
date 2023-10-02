@@ -17,7 +17,7 @@ router.post('/register',
 
 router.post('/add/product',
     // authMiddleware, accessMiddleware(true),
-    // valdidationMiddleware(sellerSchema.addProduct, 'body'),
+    valdidationMiddleware(sellerSchema.addProduct, 'body'),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
         { name: "img", maxCount: 5 }
     ]),
@@ -33,5 +33,10 @@ router.put('/',
     valdidationMiddleware(sellerSchema.updateSellerProfile, 'body'),
     sellerController.updateSellerProfile)
 
+// DELETE
+router.delete('/delete/product/:id',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(sellerSchema.deleteProduct, 'params'),
+    sellerController.deleteProduct)
 
 module.exports = router

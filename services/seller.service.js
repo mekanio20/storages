@@ -66,7 +66,10 @@ class SellerService {
                 quantity: oby.quantity,
                 org_price: oby.org_price,
                 sale_price: oby.sale_price,
-                gender: oby.gender
+                gender: oby.gender,
+                subscriptionId: oby.subscriptionId,
+                brandId: oby.brandId,
+                sellerId: oby.sellerId
             })
             if (filenames.img) {
                 filenames.img.forEach( async (item, index) => {
@@ -110,6 +113,7 @@ class SellerService {
         }
     }
 
+    // PUT
     async updateSellerProfileService(oby) {
         try {
             let newObj = {}
@@ -123,6 +127,28 @@ class SellerService {
                 .catch((err) => {
                     console.log(err)
                 })
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // DELETE
+    async deleteProductService(productId, userId) {
+        try {
+            const sellerId = await Sellers.findOne({
+                attributes: ['id'],
+                where: { userId: userId },
+                include: {
+                    model: Users,
+                    attributes: ['isSeller'],
+                    where: {
+                        id: userId,
+                        isSeller: true
+                    }
+                }
+            })
+            await Products.destroy({ where: { sellerId: sellerId.id, id: productId } })
+            return Response.Success('Haryt pozuldy!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

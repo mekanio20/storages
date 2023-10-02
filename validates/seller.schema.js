@@ -54,7 +54,11 @@ const sellerSchema = {
         subcategoryId: Joi.number().positive().required(),
         brandId: Joi.number().positive().required(),
         sellerId: Joi.number().positive().required()
-    })
+    }),
+
+    deleteProduct: Joi.object({
+        id: Joi.number().positive().required()
+    }),
 }
 
 module.exports = sellerSchema

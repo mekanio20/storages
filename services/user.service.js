@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, OTPS, Sellers, Contacts } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, OTPS, Sellers, Contacts, Subscriptions } = require('../config/models')
 
 const generateJwt = (id, group) => {
     return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
@@ -95,7 +95,7 @@ class UserService {
                 groupId: groupId
             })
             const token = generateJwt(_user.id, groupId)
-            let response = Response.Created('Ulanyjy hasaba alyndy!', user)
+            let response = await Response.Created('Ulanyjy hasaba alyndy!', _user)
             response.token = token
             return response
         } catch (error) {
@@ -103,9 +103,9 @@ class UserService {
         }
     }
 
-    async customerRegisterService(oby) {
+    async customerRegisterService(oby, userId) {
         try {
-            const { fullname, gender, email, userId } = oby
+            const { fullname, gender, email } = oby
             const customer = await Customers.findOne({ where: { email: email } })
             if (customer.length > 0) {
                 return Response.Forbidden('Ulanyjy hasaba bolan!', [])
@@ -116,6 +116,7 @@ class UserService {
                 email: email,
                 userId: userId
             })
+            await Users.update({ isCustomer: true }, { where: { id: userId } })
             return Response.Created('Ulanyjy hasaba alyndy!', _customer)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -240,12 +241,12 @@ class UserService {
                 { phone: '+99361111112', password: 'user2', last_ip: '127.0.0.2', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
                 { phone: '+99361111113', password: 'user3', last_ip: '127.0.0.3', device_type: 'mobile', uuid: uuid.v4(), groupId: 3 },
                 { phone: '+99361111114', password: 'user4', last_ip: '127.0.0.4', device_type: 'mobile', uuid: uuid.v4(), groupId: 4 },
-                { phone: '+99361111115', password: 'user5', last_ip: '127.0.0.5', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
-                { phone: '+99361111116', password: 'user6', last_ip: '127.0.0.6', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
-                { phone: '+99361111117', password: 'user7', last_ip: '127.0.0.7', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
-                { phone: '+99361111118', password: 'user8', last_ip: '127.0.0.8', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
-                { phone: '+99361111119', password: 'user9', last_ip: '127.0.0.9', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
-                { phone: '+99361111121', password: 'user10', last_ip: '127.0.0.10', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 }
+                { phone: '+99361111115', password: 'user5', last_ip: '127.0.0.5', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
+                { phone: '+99361111116', password: 'user6', last_ip: '127.0.0.6', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
+                { phone: '+99361111117', password: 'user7', last_ip: '127.0.0.7', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
+                { phone: '+99361111118', password: 'user8', last_ip: '127.0.0.8', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
+                { phone: '+99361111119', password: 'user9', last_ip: '127.0.0.9', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
+                { phone: '+99361111121', password: 'user10', last_ip: '127.0.0.10', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 }
             ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
             
             await Brands.bulkCreate([
@@ -281,12 +282,18 @@ class UserService {
                 { tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4 }
             ]).then(() => { console.log('Subcategories created') }).catch((err) => { console.log(err) })
 
+            await Subscriptions.bulkCreate([
+                { name: 'simple', order: 1, p_limit: 100, p_img_limit: 100, seller_banner_limit: 10, main_banner_limit: 1, ntf_limit: 10, smm_support: false, tech_support: false, voucher_limit: 10 },
+                { name: 'middle', order: 2, p_limit: 200, p_img_limit: 200, seller_banner_limit: 20, main_banner_limit: 2, ntf_limit: 20, smm_support: false, tech_support: false, voucher_limit: 20 },
+                { name: 'big', order: 3, p_limit: 300, p_img_limit: 300, seller_banner_limit: 30, main_banner_limit: 3, ntf_limit: 30, smm_support: false, tech_support: false, voucher_limit: 30 },
+            ]).then(() => { console.log('Subscriptions created') }).catch((err) => { console.log(err) })
+
             await Sellers.bulkCreate([
-                { name: 'Mekan dukan1', store_number: 1, store_floor: 1, about: 'hosh geldiniz!', logo: 'test1.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755727', second_number: '+99363755728' },
-                { name: 'Mekan dukan2', store_number: 2, store_floor: 1, about: 'hosh geldiniz!', logo: 'test2.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755729', second_number: '+99363755730' },
-                { name: 'Mekan dukan3', store_number: 3, store_floor: 1, about: 'hosh geldiniz!', logo: 'test3.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755731', second_number: '+99363755732' },
-                { name: 'Mekan dukan4', store_number: 4, store_floor: 1, about: 'hosh geldiniz!', logo: 'test4.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755733', second_number: '+99363755734' },
-                { name: 'Mekan dukan5', store_number: 5, store_floor: 1, about: 'hosh geldiniz!', logo: 'test5.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755735', second_number: '+99363755736' }
+                { name: 'Mekan dukan1', store_number: 1, store_floor: 1, about: 'hosh geldiniz!', logo: 'test1.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755727', second_number: '+99363755728', userId: 2, categoryId: 1, subscriptionId: 1 },
+                { name: 'Mekan dukan2', store_number: 2, store_floor: 1, about: 'hosh geldiniz!', logo: 'test2.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755729', second_number: '+99363755730', userId: 5, categoryId: 2, subscriptionId: 2 },
+                { name: 'Mekan dukan3', store_number: 3, store_floor: 1, about: 'hosh geldiniz!', logo: 'test3.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755731', second_number: '+99363755732', userId: 6, categoryId: 3, subscriptionId: 2 },
+                { name: 'Mekan dukan4', store_number: 4, store_floor: 1, about: 'hosh geldiniz!', logo: 'test4.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755733', second_number: '+99363755734', userId: 7, categoryId: 4, subscriptionId: 2 },
+                { name: 'Mekan dukan5', store_number: 5, store_floor: 1, about: 'hosh geldiniz!', logo: 'test5.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755735', second_number: '+99363755736', userId: 8, categoryId: 5, subscriptionId: 3 }
             ]).then(() => { console.log('Sellers created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])
