@@ -38,4 +38,6 @@ router.get('/categories', userController.allCategoryList)
 
 router.get('/brands', userController.allBrandList)
 
+router.get('/product/search', userController.productSearch)
+
 module.exports = router

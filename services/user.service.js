@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, OTPS, Sellers, Contacts, Subscriptions } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, OTPS, Sellers, Contacts, Subscriptions, Products } = require('../config/models')
 
 const generateJwt = (id, group) => {
     return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
@@ -174,7 +174,7 @@ class UserService {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-    
+
     async allCategoryService() {
         try {
             const categories = await Categories.findAll({
@@ -195,7 +195,7 @@ class UserService {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-    
+
     async allBrandListService() {
         try {
             const brands = await Brands.findAll({
@@ -227,6 +227,37 @@ class UserService {
         }
     }
 
+    async productSearchService(search) {
+        try {
+            let page = search.page || 1
+            let limit = search.limit || 10
+            let offset = page * limit - limit
+            if (search.name) {
+                search = [
+                    { tm_name: { [Op.iLike]: `%${search.name}%` } },
+                    { ru_name: { [Op.iLike]: `%${search.name}%` } },
+                    { en_name: { [Op.iLike]: `%${search.name}%` } },
+                    { tm_desc: { [Op.iLike]: `%${search.name}%` } },
+                    { ru_desc: { [Op.iLike]: `%${search.name}%` } },
+                    { en_desc: { [Op.iLike]: `%${search.name}%` } }
+                ]
+            } else { search = [] }
+            const product = await Products.findAll({
+                where: {
+                    isActive: true,
+                    [Op.or]: search
+                },
+                attributes: { exclude: ['gender', 'isActive', 'createdAt', 'updatedAt'] },
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'DESC']]
+            })
+            return Response.Success('Gozleg netijesi...', product)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async defaultCreateService() {
         try {
             await Groups.bulkCreate([
@@ -248,7 +279,7 @@ class UserService {
                 { phone: '+99361111119', password: 'user9', last_ip: '127.0.0.9', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
                 { phone: '+99361111121', password: 'user10', last_ip: '127.0.0.10', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 }
             ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
-            
+
             await Brands.bulkCreate([
                 { name: 'addidas', slug: 'addidas', img: 'test1.jpg', desc: 'abcdefg', userId: 1 },
                 { name: 'pumma', slug: 'pumma', img: 'test2.jpg', desc: 'abcdefg', userId: 2 }
@@ -295,6 +326,12 @@ class UserService {
                 { name: 'Mekan dukan4', store_number: 4, store_floor: 1, about: 'hosh geldiniz!', logo: 'test4.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755733', second_number: '+99363755734', userId: 7, categoryId: 4, subscriptionId: 2 },
                 { name: 'Mekan dukan5', store_number: 5, store_floor: 1, about: 'hosh geldiniz!', logo: 'test5.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755735', second_number: '+99363755736', userId: 8, categoryId: 5, subscriptionId: 3 }
             ]).then(() => { console.log('Sellers created') }).catch((err) => { console.log(err) })
+
+            await Products.bulkCreate([
+                { tm_name: 'alma', ru_name: 'яблоко', en_name: 'apple', tm_desc: 'alma1', ru_desc: 'яблоко1', en_desc: 'apple1', slug: 'alma', barcode: 11111, stock_code: 'aaaaaa', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 },
+                { tm_name: 'apelsin', ru_name: 'апельсин', en_name: 'orange', tm_desc: 'apelsin1', ru_desc: 'апельсин1', en_desc: 'orange1', slug: 'apelsin', barcode: 22222, stock_code: 'bbbbb', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 },
+                { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 }
+            ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])
 
