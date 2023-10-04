@@ -5,8 +5,6 @@ const accessMiddleware = require('../middlewares/access.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const userSchema = require('../validates/user.schema')
 
-router.get('/default', userController.defaultCreate)
-
 router.post('/login', 
     valdidationMiddleware(userSchema.login, 'body'), 
     userController.userLogin)

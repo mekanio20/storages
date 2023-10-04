@@ -347,6 +347,10 @@ router.post('/staff/register',
     valdidationMiddleware(adminSchema.staffRegister, 'body'),
     adminController.staffRegister)
 
+router.post('/add/subscription',
+    valdidationMiddleware(adminSchema.addSubscription, 'body'),
+    adminController.addSubscription)
+
 // DELETE
 router.delete('/delete/permission/:id',
     // authMiddleware, accessMiddleware(true),
@@ -357,5 +361,8 @@ router.delete('/delete/brand/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.deleteBrand, 'params'),
     adminController.deleteBrand)
+
+// DEFAULT
+router.get('/default', adminController.defaultCreate)
 
 module.exports = router
