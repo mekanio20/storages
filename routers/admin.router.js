@@ -342,10 +342,87 @@ router.post('/add/brand',
     valdidationMiddleware(adminSchema.addBrand, 'body'),
     adminController.addBrand)
 
+/**
+* @swagger
+*  /api/admin/staff/register:
+*    post:
+*      summary: Create a new staff
+*      tags: [Admin]
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: object
+*              properties:
+*                userId:
+*                  type: number
+*                  description: User id
+*      responses:
+*        201:
+*          description: Staff created successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
 router.post('/staff/register',
     // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.staffRegister, 'body'),
     adminController.staffRegister)
+
+/**
+* @swagger
+*  /api/admin/add/subscription:
+*    post:
+*      summary: Create a new subscription
+*      tags: [Admin]
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: object
+*              properties:
+*                name:
+*                  type: string
+*                  description: Subscription name
+*                order:
+*                  type: number
+*                  description: Subscription order
+*                p_limit:
+*                  type: number
+*                  description: Subscription product limit
+*                p_img_limit:
+*                  type: number
+*                  description: Subscription product image limit
+*                seller_banner_limit:
+*                  type: number
+*                  description: Subscription seller banner limit
+*                main_banner_limit:
+*                  type: number
+*                  description: Subscription main banner limit
+*                ntf_limit:
+*                  type: number
+*                  description: Subscription notification limit
+*                voucher_limit:
+*                  type: number
+*                  description: Subscription voucher limit
+*                smm_support:
+*                  type: boolean
+*                  description: Subscription smm_support
+*                tech_support:
+*                  type: boolean
+*                  description: Subscription tech_support
+*      responses:
+*        201:
+*          description: Subscription created successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
 
 router.post('/add/subscription',
     valdidationMiddleware(adminSchema.addSubscription, 'body'),
