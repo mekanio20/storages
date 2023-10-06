@@ -185,10 +185,7 @@ class AdminController {
     async addBrand(req, res) {
         try {
             const oby = req.body
-            console.log(oby);
-            const { brand_img } = req.files
-            console.log(brand_img);
-            if (!brand_img) { return Response.BadRequest('brand logo gerekli!', []) }
+            const brand_img = req.file
             const data = await adminService.addBrandService(oby, brand_img)
             return res.status(data.status).json({
                 status: data.status,

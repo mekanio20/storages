@@ -299,34 +299,35 @@ router.post('/add/subcategory/feature',
     adminController.addSubcategoryFeature)
 
 /**
+ * @swagger
+ * components:
+ *   schemas:
+ *     FileUpload:
+ *       type: object
+ *       properties:
+ *         brand_img:
+ *           type: string
+ *           format: binary
+ *         name:
+ *           type: string 
+ *         desc:
+ *           type: string
+ *         userId:
+ *           type: number
+ */
+
+/**
 * @swagger
 *  /api/admin/add/brand:
 *    post:
 *      summary: Create a new brand
 *      tags: [Admin]
-*      consumes:        
-*        - multipart/form-data
-*      parameters:
-*        - in: formData
-*          name: name
-*          type: string
-*          required: true
-*          description: Brand name
-*        - in: formData
-*          name: brand_img
-*          type: file
-*          required: true
-*          description: Brand image  
-*        - in: formData
-*          name: desc
-*          type: string
-*          required: false
-*          description: Brand description
-*        - in: formData
-*          name: userId
-*          type: number
-*          required: true
-*          description: User id
+*      requestBody:
+*        required: true
+*        content:
+*          multipart/form-data:
+*            schema:
+*              $ref: '#/components/schemas/FileUpload'
 *      responses:
 *        201:
 *          description: Brand created successfully

@@ -37,9 +37,9 @@ const adminSchema = {
     }),
 
     addFeature: Joi.object({
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z-]/).allow('', null)
+        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
+        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9-]+$/).allow('', null),
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9-]/).allow('', null)
     }),
 
     addFeatureDescription: Joi.object({
