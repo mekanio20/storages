@@ -16,6 +16,7 @@ module.exports = (params) => {
                 },
                 attributes: ['url', 'method']
             })
+            console.log(JSON.stringify(permission, null, 2));
             if (permission) { return next() }
             return res.status(403).json({
                 status: 403,

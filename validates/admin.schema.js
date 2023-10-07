@@ -58,7 +58,7 @@ const adminSchema = {
         userId: Joi.number().positive().required()
     }),
 
-    staffRegister: Joi.object({
+    addStaff: Joi.object({
         userId: Joi.number().positive().required()
     }),
 
@@ -77,6 +77,10 @@ const adminSchema = {
 
     // DELETE
     deleteGroup: Joi.object({
+        id: Joi.number().positive().required()
+    }),
+    
+    deletePermission: Joi.object({
         id: Joi.number().positive().required()
     }),
 

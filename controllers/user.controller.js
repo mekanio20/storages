@@ -1,3 +1,4 @@
+const Response = require('../services/response.service')
 const userService = require('../services/user.service')
 
 const userPermission = (reqId, userId) => {
@@ -17,7 +18,8 @@ class UserController {
                 type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
-                detail: data.detail
+                detail: data.detail,
+                token: data.token
             })
         } catch (error) {
             return res.status(500).json({
@@ -79,7 +81,12 @@ class UserController {
             const oby = req.body
             let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
             ip = ip.substr(7)
-            const data = await userService.userRegisterService(oby, ip)
+            let userAgent = req.headers['user-agent']
+            console.log(userAgent);
+            let regex = /(\bAndroid\b|\biPhone\b|\biPad\b|\biPod\b)/
+            let device = userAgent.match(regex) || 'WEB'
+            console.log(oby, ip, device);
+            const data = await userService.userRegisterService(oby, ip, device)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -102,8 +109,7 @@ class UserController {
     async customerRegister(req, res) {
         try {
             const oby = req.body
-            const userId = req.user.id
-            const data = await userService.customerRegisterService(oby, userId)
+            const data = await userService.customerRegisterService(oby)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -131,8 +137,7 @@ class UserController {
                 type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
-                detail: data.detail,
-                token: data.token
+                detail: data.detail
             })
         } catch (error) {
             return res.status(500).json({

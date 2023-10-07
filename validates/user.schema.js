@@ -14,8 +14,7 @@ const userSchema = {
     
     register: Joi.object({
         phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required(),
-        password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
-        device: Joi.string().max(50).alphanum().required()
+        password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required()
     }),
 
     customerRegister: Joi.object({

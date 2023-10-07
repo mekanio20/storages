@@ -172,7 +172,7 @@ class AdminService {
         }
     }
 
-    async staffRegisterService(userId) {
+    async addStaffService(userId) {
         try {
             const groupId = await this.getGroupId('STAFF')
             await Users.update({ isStaff: true, isCustomer: false, groupId: groupId }, { where: { id: Number(userId) } })
@@ -208,7 +208,10 @@ class AdminService {
     // DELETE
     async deleteAccessPathService(id) {
         try {
-            await GroupPermissions.destroy({ where: { id: Number(id) } })
+            const permission = await GroupPermissions.destroy({ where: { id: Number(id) } })
+            if (!permission) {
+                return Response.NotFound('Permission tapylmady!', [])
+            }
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -217,7 +220,10 @@ class AdminService {
 
     async deleteBrandService(id) {
         try {
-            await Brands.destroy({ where: { id: Number(id) } })
+            const brand = await Brands.destroy({ where: { id: Number(id) } })
+            if (!brand) {
+                return Response.NotFound('Brand tapylmady!', [])
+            }
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -228,23 +234,23 @@ class AdminService {
     async defaultCreateService() {
         try {
             await Groups.bulkCreate([
-                { name: 'USERS' },
-                { name: 'SELLERS' },
+                { name: 'SUPERADMIN' },
                 { name: 'STAFF' },
-                { name: 'SUPERADMIN' }
+                { name: 'SELLERS' },
+                { name: 'USERS' },
             ]).then(() => { console.log('Groups created') }).catch((err) => { console.log(err) })
 
             await Users.bulkCreate([
-                { phone: '+99361111111', password: 'user1', last_ip: '127.0.0.1', device_type: 'mobile', uuid: uuid.v4(), groupId: 1 },
-                { phone: '+99361111112', password: 'user2', last_ip: '127.0.0.2', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
-                { phone: '+99361111113', password: 'user3', last_ip: '127.0.0.3', device_type: 'mobile', uuid: uuid.v4(), groupId: 3 },
-                { phone: '+99361111114', password: 'user4', last_ip: '127.0.0.4', device_type: 'mobile', uuid: uuid.v4(), groupId: 4 },
-                { phone: '+99361111115', password: 'user5', last_ip: '127.0.0.5', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
-                { phone: '+99361111116', password: 'user6', last_ip: '127.0.0.6', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
-                { phone: '+99361111117', password: 'user7', last_ip: '127.0.0.7', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
-                { phone: '+99361111118', password: 'user8', last_ip: '127.0.0.8', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
-                { phone: '+99361111119', password: 'user9', last_ip: '127.0.0.9', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 },
-                { phone: '+99361111121', password: 'user10', last_ip: '127.0.0.10', device_type: 'mobile', uuid: uuid.v4(), groupId: 2 }
+                { phone: '61111111', password: 'user1', ip: '127.0.0.1', device: 'Android', uuid: uuid.v4(), groupId: 1 },
+                { phone: '61111112', password: 'user2', ip: '127.0.0.2', device: 'Android', uuid: uuid.v4(), groupId: 2 },
+                { phone: '61111113', password: 'user3', ip: '127.0.0.3', device: 'iPhone', uuid: uuid.v4(), groupId: 3 },
+                { phone: '61111114', password: 'user4', ip: '127.0.0.4', device: 'Android', uuid: uuid.v4(), groupId: 4 },
+                { phone: '61111115', password: 'user5', ip: '127.0.0.5', device: 'Android', uuid: uuid.v4(), groupId: 2 },
+                { phone: '61111116', password: 'user6', ip: '127.0.0.6', device: 'iPhone', uuid: uuid.v4(), groupId: 2 },
+                { phone: '61111117', password: 'user7', ip: '127.0.0.7', device: 'Android', uuid: uuid.v4(), groupId: 2 },
+                { phone: '61111118', password: 'user8', ip: '127.0.0.8', device: 'iPhone', uuid: uuid.v4(), groupId: 2 },
+                { phone: '61111119', password: 'user9', ip: '127.0.0.9', device: 'Android', uuid: uuid.v4(), groupId: 2 },
+                { phone: '61111121', password: 'user10', ip: '127.0.0.10', device: 'Android', uuid: uuid.v4(), groupId: 2 }
             ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
 
             await Brands.bulkCreate([
@@ -299,6 +305,30 @@ class AdminService {
                 { tm_name: 'apelsin', ru_name: 'апельсин', en_name: 'orange', tm_desc: 'apelsin1', ru_desc: 'апельсин1', en_desc: 'orange1', slug: 'apelsin', barcode: 22222, stock_code: 'bbbbb', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 },
                 { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 }
             ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
+
+            await GroupPermissions.bulkCreate([
+                { url: '/api/admin/add/group', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/permission', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/storage', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/storage', method: 'POST', groupId: 2 },
+                { url: '/api/admin/add/category', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/category', method: 'POST', groupId: 2 },
+                { url: '/api/admin/add/subcategory', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/subcategory', method: 'POST', groupId: 2 },
+                { url: '/api/admin/add/feature', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/feature', method: 'POST', groupId: 2 },
+                { url: '/api/admin/add/feature/desc', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/feature/desc', method: 'POST', groupId: 2 },
+                { url: '/api/admin/add/subcategory/feature', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/subcategory/feature', method: 'POST', groupId: 2 },
+                { url: '/api/admin/add/brand', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/brand', method: 'POST', groupId: 2 },
+                { url: '/api/admin/add/brand', method: 'POST', groupId: 3 },
+                { url: '/api/admin/add/staff', method: 'POST', groupId: 1 },
+                { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
+                { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 }
+            ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])
 

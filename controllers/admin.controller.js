@@ -228,10 +228,10 @@ class AdminController {
         }
     }
 
-    async staffRegister(req, res) {
+    async addStaff(req, res) {
         try {
             const { userId } = req.body
-            const data = await adminService.staffRegisterService(userId)
+            const data = await adminService.addStaffService(userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

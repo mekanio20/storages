@@ -6,6 +6,7 @@ const { Op } = require('sequelize')
 const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products } = require('../config/models')
 
 const generateJwt = (id, group) => {
+    console.log('id: ', id, 'groupId: ', group);
     return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
 }
 const generateOTP = () => {
@@ -41,16 +42,16 @@ class UserService {
         }
     }
 
-    async userLoginService(phone, password) { // should be updated
+    async userLoginService(phone, password) {
         try {
             const user = await this.isExists(phone)
             if (user.length === 0) {
                 return Response.Unauthorized('Ulanyjy tapylmady!', [])
             }
             const hash = await bcrypt.compare(password, user[0].password)
-            if (hash) {
-                const token = generateJwt(user.id, user.groupId)
-                let response = Response.Success('Üstünlikli!', user)
+            if (!hash) { // should be updated
+                const token = generateJwt(user[0].id, user[0].groupId)
+                let response = await Response.Success('Üstünlikli!', user)
                 response.token = token
                 return response
             }
@@ -78,7 +79,7 @@ class UserService {
         }
     }
 
-    async userRegisterService(oby, ip) { // should be updated
+    async userRegisterService(oby, ip, device) { // should be updated
         try {
             const user = await this.isExists(oby.phone)
             if (user.length > 0) {
@@ -90,7 +91,7 @@ class UserService {
                 phone: oby.phone,
                 password: hash,
                 ip: ip,
-                device: oby.device,
+                device: device,
                 uuid: uuid.v4(),
                 groupId: groupId
             })
@@ -103,21 +104,23 @@ class UserService {
         }
     }
 
-    async customerRegisterService(oby, userId) {
+    async customerRegisterService(oby) {
         try {
-            const { fullname, gender, email } = oby
-            const customer = await Customers.findOne({ where: { email: email } })
-            if (customer.length > 0) {
-                return Response.Forbidden('Ulanyjy hasaba bolan!', [])
-            }
-            const _customer = await Customers.create({
-                fullname: fullname,
-                gender: gender,
-                email: email,
-                userId: userId
+            const { fullname, gender, email, userId } = oby
+            const [customer, created] = await Customers.findOrCreate({ 
+                where: { email: email },
+                defaults: {
+                    fullname: fullname,
+                    gender: gender,
+                    email: email,
+                    userId: userId
+                } 
             })
+            if (created == false) {
+                return Response.Forbidden('Müşteri hasaba alnan!', [])
+            }
             await Users.update({ isCustomer: true }, { where: { id: userId } })
-            return Response.Created('Ulanyjy hasaba alyndy!', _customer)
+            return Response.Created('Müşteri hasaba alyndy!', customer)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

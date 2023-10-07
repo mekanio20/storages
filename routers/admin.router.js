@@ -32,7 +32,7 @@ const adminSchema = require('../validates/admin.schema')
  */
 
 router.post('/add/group',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addGroup, 'body'),
     adminController.addGroup)
 
@@ -68,7 +68,7 @@ router.post('/add/group',
 */
 
 router.post('/add/permission',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addPermission, 'body'),
     adminController.addAccessPath)
 
@@ -106,7 +106,7 @@ router.post('/add/permission',
 */
 
 router.post('/add/storage',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addStorage, 'body'),
     adminController.addStorage)
 
@@ -148,7 +148,7 @@ router.post('/add/storage',
 */
 
 router.post('/add/category',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addCategory, 'body'),
     adminController.addCategory)
 
@@ -190,7 +190,7 @@ router.post('/add/category',
 */
 
 router.post('/add/subcateogory',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubcategory, 'body'),
     adminController.addSubcategory)
 
@@ -228,7 +228,7 @@ router.post('/add/subcateogory',
 */
 
 router.post('/add/feature',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addFeature, 'body'),
     adminController.addFeature)
 
@@ -261,7 +261,7 @@ router.post('/add/feature',
 */
 
 router.post('/add/feature/desc',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addFeatureDescription, 'body'),
     adminController.addFeatureDescription)
 
@@ -294,7 +294,7 @@ router.post('/add/feature/desc',
 */
 
 router.post('/add/subcategory/feature',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubcategoryFeature, 'body'),
     adminController.addSubcategoryFeature)
 
@@ -338,14 +338,14 @@ router.post('/add/subcategory/feature',
 */
 
 router.post('/add/brand',
-    // authMiddleware, accessMiddleware(false),
-    imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addBrand, 'body'),
+    imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
     adminController.addBrand)
 
 /**
 * @swagger
-*  /api/admin/staff/register:
+*  /api/admin/add/staff:
 *    post:
 *      summary: Create a new staff
 *      tags: [Admin]
@@ -368,10 +368,10 @@ router.post('/add/brand',
 *          description: Internal server error
 */
 
-router.post('/staff/register',
-    // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(adminSchema.staffRegister, 'body'),
-    adminController.staffRegister)
+router.post('/add/staff',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.addStaff, 'body'),
+    adminController.addStaff)
 
 /**
 * @swagger
@@ -426,17 +426,60 @@ router.post('/staff/register',
 */
 
 router.post('/add/subscription',
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubscription, 'body'),
     adminController.addSubscription)
 
 // DELETE
+/**
+* @swagger
+* /api/admin/delete/permission/{id}:
+*   delete:
+*     tags: [Admin]
+*     description: Delete permission
+*     parameters:
+*       - name: id
+*         description: Permission id
+*         in: path
+*         required: true
+*         type: integer
+*     responses:
+*       200:
+*         description: Permission deleted successfully
+*       400:
+*         description: Invalid request body
+*       500:
+*         description: Internal server error
+*/
+
 router.delete('/delete/permission/:id',
-    // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(adminSchema.deleteGroup, 'params'),
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.deletePermission, 'params'),
     adminController.deleteAccessPath)
 
+/**
+* @swagger
+* /api/admin/delete/brand/{id}:
+*   delete:
+*     tags: [Admin]
+*     description: Delete brand
+*     parameters:
+*       - name: id
+*         description: Brand id
+*         in: path
+*         required: true
+*         type: integer
+*     responses:
+*       200:
+*         description: Brand deleted successfully
+*       400:
+*         description: Invalid request body
+*       500:
+*         description: Internal server error
+*/
+
 router.delete('/delete/brand/:id',
-    // authMiddleware, accessMiddleware(true),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.deleteBrand, 'params'),
     adminController.deleteBrand)
 
