@@ -2,11 +2,11 @@ const Joi = require('joi')
 
 const sellerSchema = {
     sellerRegister: Joi.object({
-        name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).required(),
+        name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/),
         store_number: Joi.number().positive().required(),
         store_floor: Joi.number().positive().required(),
         about: Joi.string().min(10).max(255).allow(null, ''),
-        color: Joi.string().regex(/^[a-zA-Z0-9#]+$/).required(),
+        color: Joi.string().regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/).required(),
         seller_type: Joi.string().valid('in-opt', 'out-opt').required(),
         sell_type: Joi.string().valid('wholesale', 'partial', 'both').required(),
         instagram: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).allow(null, ''),

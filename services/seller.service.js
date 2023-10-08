@@ -14,7 +14,6 @@ class SellerService {
     async sellerRegisterService(oby, filenames) {
         try {
             const seller = await Sellers.findAll({ attributes: ['id'], where: { name: oby.name } })
-            const { logo, bg_img } = filenames
             if (seller.length > 0) {
                 return Response.Forbidden('Satyjy registrasiýa bolan!', [])
             }
@@ -26,8 +25,8 @@ class SellerService {
                 store_number: oby.store_number,
                 store_floor: oby.store_floor,
                 about: oby.about,
-                logo: logo[0].filename,
-                bg_img: bg_img[0].filename || 'bg.jpg',
+                logo: filenames.logo[0].filename,
+                bg_img: filenames.logo[0].filename || 'bg.jpg',
                 color: oby.color,
                 seller_type: oby.seller_type,
                 sell_type: oby.sell_type,

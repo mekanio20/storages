@@ -153,8 +153,8 @@ class UserController {
     async userProfile(req, res) {
         try {
             const { id } = req.params
-            const user = userPermission(req.user.id, id)
-            if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            // const user = userPermission(req.user.id, id)
+            // if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
             const data = await userService.userProfileService(id)
             return res.status(data.status).json({
                 status: data.status,

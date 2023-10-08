@@ -183,16 +183,114 @@ router.post('/add/contact',
     valdidationMiddleware(userSchema.addContact, 'body'),
     userController.addContact)
 
+// GET
+/**
+* @swagger
+*  /api/user/profile/{id}:
+*    get:
+*      summary: Get profile
+*      tags: [User]
+*      parameters:
+*        - name: id
+*          in: path
+*          required: true
+*          description: User id
+*          type: integer
+*      responses:
+*        200:
+*          description: Profile fetched successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
 router.get('/profile/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.profile, 'params'),
     userController.userProfile)
 
+/**
+* @swagger
+*  /api/user/storages:
+*    get:
+*      summary: Get all storages
+*      tags: [User]
+*      responses:
+*        200:
+*          description: Storages fetched successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
 router.get('/storages', userController.allStorageList)
+
+/**
+* @swagger
+*  /api/user/categories:
+*    get:
+*      summary: Get all categories
+*      tags: [User]
+*      responses:
+*        200:
+*          description: Categories fetched successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
 
 router.get('/categories', userController.allCategoryList)
 
+/**
+* @swagger
+*  /api/user/brands:
+*    get:
+*      summary: Get all brands
+*      tags: [User]
+*      responses:
+*        200:
+*          description: Brands fetched successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
 router.get('/brands', userController.allBrandList)
+
+/**
+* @swagger
+*  /api/user/product/search:
+*    get:
+*      summary: Product search
+*      tags: [User]
+*      parameters:
+*        - name: name
+*          in: query
+*          required: true
+*          description: Search name
+*          type: string
+*        - name: page
+*          in: query
+*          required: false
+*          description: Search page
+*          type: number
+*        - name: limit
+*          in: query
+*          required: false
+*          description: Search limit
+*          type: number
+*      responses:
+*        200:
+*          description: Search operation successful
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
 
 router.get('/product/search', userController.productSearch)
 

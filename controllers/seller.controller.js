@@ -12,7 +12,10 @@ class SellerController {
         try {
             const oby = req.body
             const { logo } = req.files
-            if (!logo) { return Response.BadRequest('logo gerek!', []) }
+            if (!logo) { 
+                let result = await Response.BadRequest('logo gerek!', [])
+                return res.json(result)
+            }
             const data = await sellerService.sellerRegisterService(oby, req.files)
             return res.status(data.status).json({
                 status: data.status,

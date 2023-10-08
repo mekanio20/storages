@@ -128,12 +128,12 @@ class UserService {
 
     async userProfileService(id) {
         try {
-            const user = await Customers.findOne({
-                where: { userId: id },
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
+            const user = await Users.findOne({
+                where: { id: id },
+                attributes: ['id', 'phone'],
                 include: {
-                    model: Users,
-                    attributes: ['id', 'phone']
+                    model: Customers,
+                    attributes: ['id', 'fullname', 'email']
                 }
             })
             if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
@@ -159,11 +159,11 @@ class UserService {
                 where: { isActive: true },
                 include: {
                     model: Categories,
-                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'storageId'] },
                     where: { isActive: true },
                     include: {
                         model: Subcategories,
-                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        attributes: { exclude: ['createdAt', 'updatedAt', 'categoryId'] },
                         where: { isActive: true }
                     }
                 },
@@ -181,11 +181,11 @@ class UserService {
     async allCategoryService() {
         try {
             const categories = await Categories.findAll({
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                attributes: { exclude: ['createdAt', 'updatedAt', 'storageId'] },
                 where: { isActive: true },
                 include: {
                     model: Subcategories,
-                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'categoryId'] },
                     where: { isActive: true }
                 },
                 order: [['id', 'DESC']]

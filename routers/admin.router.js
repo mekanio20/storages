@@ -302,7 +302,7 @@ router.post('/add/subcategory/feature',
  * @swagger
  * components:
  *   schemas:
- *     FileUpload:
+ *     BrandImageUpload:
  *       type: object
  *       properties:
  *         brand_img:
@@ -327,7 +327,7 @@ router.post('/add/subcategory/feature',
 *        content:
 *          multipart/form-data:
 *            schema:
-*              $ref: '#/components/schemas/FileUpload'
+*              $ref: '#/components/schemas/BrandImageUpload'
 *      responses:
 *        201:
 *          description: Brand created successfully
@@ -338,7 +338,7 @@ router.post('/add/subcategory/feature',
 */
 
 router.post('/add/brand',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addBrand, 'body'),
     imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
     adminController.addBrand)
