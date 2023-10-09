@@ -8,7 +8,6 @@ class ResponseService {
             detail: detail
         }
     }
-
     async Created (msg, detail)  {
         return {
             status: 201,
@@ -17,8 +16,7 @@ class ResponseService {
             msg_key: 'created',
             detail: detail
         }
-    }
-    
+    }    
     async BadRequest (msg, detail) {
         return {
             status: 400,
@@ -28,7 +26,6 @@ class ResponseService {
             detail: detail
         }
     }
-
     async Unauthorized (msg, detail) {
         return {
             status: 401,
@@ -38,7 +35,6 @@ class ResponseService {
             detail: detail
         }
     }
-
     async Forbidden (msg, detail) {
         return {
             status: 403,
@@ -48,7 +44,6 @@ class ResponseService {
             detail: detail
         }
     }
-
     async NotFound (msg, detail) {
         return {
             status: 404,
@@ -59,5 +54,4 @@ class ResponseService {
         }
     }
 }
-
 module.exports = new ResponseService()

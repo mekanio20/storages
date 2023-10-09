@@ -1,7 +1,6 @@
 module.exports = (schema, property) => {
     return (req, res, next) => {
-        let obj = JSON.parse(JSON.stringify(req[property]))
-        const { error } = schema.validate(obj)
+        const { error } = schema.validate(req[property])
         const valid = error == null
         if (valid) {
             next();

@@ -20,13 +20,14 @@ class SellerService {
             if (oby.main_number === oby.second_number) {
                 return Response.BadRequest('Telefon belgi nädogry!', [])
             }
+            console.log(oby);
             const _seller = await Sellers.create({
                 name: oby.name,
                 store_number: oby.store_number,
                 store_floor: oby.store_floor,
                 about: oby.about,
                 logo: filenames.logo[0].filename,
-                bg_img: filenames.logo[0].filename || 'bg.jpg',
+                bg_img: filenames.bg_img[0].filename || 'bg.jpg',
                 color: oby.color,
                 seller_type: oby.seller_type,
                 sell_type: oby.sell_type,
@@ -36,11 +37,8 @@ class SellerService {
                 second_number: oby.second_number,
                 userId: oby.userId,
                 categoryId: oby.categoryId,
-                subscriptionId: oby.subscriptionId,
-                userId: oby.userId,
-                categoryId: oby.categoryId,
                 subscriptionId: oby.subscriptionId
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Satyjy hasaba alyndy!', _seller)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -69,7 +67,7 @@ class SellerService {
                 subscriptionId: oby.subscriptionId,
                 brandId: oby.brandId,
                 sellerId: oby.sellerId
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             if (filenames.img) {
                 filenames.img.forEach( async (item, index) => {
                     await ProductImages.create({
@@ -95,11 +93,12 @@ class SellerService {
                     model: Users,
                     attributes: ['id'],
                     where: {
-                        id: id, 
-                        isSeller: true 
+                        id: id
+                        // isSeller: true
                     }
                 }
             })
+            console.log(JSON.stringify(seller, null, 2));
             if (seller.isVerified === false) {
                 return Response.Unauthorized('Satyjy tassyklanmady!', [])
             }

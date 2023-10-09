@@ -436,7 +436,7 @@ router.post('/add/subscription',
 * /api/admin/delete/permission/{id}:
 *   delete:
 *     tags: [Admin]
-*     description: Delete permission
+*     summary: Delete permission
 *     parameters:
 *       - name: id
 *         description: Permission id
@@ -462,7 +462,7 @@ router.delete('/delete/permission/:id',
 * /api/admin/delete/brand/{id}:
 *   delete:
 *     tags: [Admin]
-*     description: Delete brand
+*     summary: Delete brand
 *     parameters:
 *       - name: id
 *         description: Brand id

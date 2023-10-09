@@ -1,8 +1,6 @@
-const Response = require('../services/response.service')
 const notificationService = require('../services/notification.service')
 
 class NotificationController {
-
     async addNotification(req, res) {
         try {
             const oby = req.body

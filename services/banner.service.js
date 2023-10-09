@@ -15,7 +15,7 @@ class BannerService {
                 start_date: oby.start_date,
                 end_date: oby.end_date,
                 userId: oby.userId
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Banner döredildi!', banner)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

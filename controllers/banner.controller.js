@@ -2,7 +2,6 @@ const Response = require('../services/response.service')
 const bannerService = require('../services/banner.service')
 
 class BannerController {
-
     async addBanner(req, res) {
         try {
             const oby = req.body

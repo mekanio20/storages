@@ -70,7 +70,7 @@ class AdminService {
                 ru_name: oby.ru_name || null,
                 en_name: oby.en_name || null,
                 slug: slug
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', storage)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -90,7 +90,7 @@ class AdminService {
                 en_name: oby.en_name || null,
                 slug: slug,
                 storageId: oby.storageId
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', category)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -110,7 +110,7 @@ class AdminService {
                 en_name: oby.en_name || null,
                 slug: slug,
                 categoryId: oby.categoryId
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', subcategory)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -198,7 +198,7 @@ class AdminService {
                 voucher_limit: oby.voucher_limit,
                 smm_support: oby.smm_support,
                 tech_support: oby.tech_support
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Subscription döredildi!', subscription)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

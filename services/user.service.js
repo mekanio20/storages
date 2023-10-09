@@ -94,7 +94,7 @@ class UserService {
                 device: device,
                 uuid: uuid.v4(),
                 groupId: groupId
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             const token = generateJwt(_user.id, groupId)
             let response = await Response.Created('Ulanyjy hasaba alyndy!', _user)
             response.token = token
@@ -115,7 +115,7 @@ class UserService {
                     email: email,
                     userId: userId
                 } 
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             if (created == false) {
                 return Response.Forbidden('Müşteri hasaba alnan!', [])
             }
@@ -223,7 +223,7 @@ class UserService {
                 fullname: oby.fullname,
                 message: oby.message,
                 userId: oby.userId || null
-            })
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat ugradyldy!', contact)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

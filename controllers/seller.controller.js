@@ -60,8 +60,9 @@ class SellerController {
     async fetchOneSeller(req, res) {
         try {
             const { id } = req.params
-            const user = userPermission(req.user.id, id)
-            if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            console.log(id);
+            // const user = userPermission(req.user.id, id)
+            // if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
             const data = await sellerService.fetchOneSellerService(id)
             return res.status(data.status).json({
                 status: data.status,
