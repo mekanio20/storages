@@ -183,6 +183,11 @@ router.post('/add/contact',
     valdidationMiddleware(userSchema.addContact, 'body'),
     userController.addContact)
 
+
+router.post('/add/product/review',
+    valdidationMiddleware(userSchema.addProductReview, 'body'),
+    userController.addProductReview)
+
 // GET
 /**
 * @swagger

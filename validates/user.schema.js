@@ -36,7 +36,11 @@ const userSchema = {
        id: Joi.number().positive().required()
     }),
 
-    
+    addProductReview: Joi.object({
+        star: Joi.string().valid('1', '2', '3', '4', '5').required(),
+        productId: Joi.number().positive().required(),
+        customerId: Joi.number().positive().required()
+    })
 
 }
 

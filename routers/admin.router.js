@@ -32,7 +32,7 @@ const adminSchema = require('../validates/admin.schema')
  */
 
 router.post('/add/group',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addGroup, 'body'),
     adminController.addGroup)
 
@@ -68,7 +68,7 @@ router.post('/add/group',
 */
 
 router.post('/add/permission',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addPermission, 'body'),
     adminController.addAccessPath)
 
@@ -106,7 +106,7 @@ router.post('/add/permission',
 */
 
 router.post('/add/storage',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addStorage, 'body'),
     adminController.addStorage)
 
@@ -148,7 +148,7 @@ router.post('/add/storage',
 */
 
 router.post('/add/category',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addCategory, 'body'),
     adminController.addCategory)
 
@@ -190,7 +190,7 @@ router.post('/add/category',
 */
 
 router.post('/add/subcateogory',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubcategory, 'body'),
     adminController.addSubcategory)
 
@@ -228,7 +228,7 @@ router.post('/add/subcateogory',
 */
 
 router.post('/add/feature',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addFeature, 'body'),
     adminController.addFeature)
 
@@ -261,7 +261,7 @@ router.post('/add/feature',
 */
 
 router.post('/add/feature/desc',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addFeatureDescription, 'body'),
     adminController.addFeatureDescription)
 
@@ -294,7 +294,7 @@ router.post('/add/feature/desc',
 */
 
 router.post('/add/subcategory/feature',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubcategoryFeature, 'body'),
     adminController.addSubcategoryFeature)
 
@@ -339,8 +339,8 @@ router.post('/add/subcategory/feature',
 
 router.post('/add/brand',
     // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(adminSchema.addBrand, 'body'),
     imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
+    valdidationMiddleware(adminSchema.addBrand, 'body'),
     adminController.addBrand)
 
 /**
@@ -369,7 +369,7 @@ router.post('/add/brand',
 */
 
 router.post('/add/staff',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addStaff, 'body'),
     adminController.addStaff)
 
@@ -426,7 +426,7 @@ router.post('/add/staff',
 */
 
 router.post('/add/subscription',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubscription, 'body'),
     adminController.addSubscription)
 
@@ -453,7 +453,7 @@ router.post('/add/subscription',
 */
 
 router.delete('/delete/permission/:id',
-    authMiddleware, accessMiddleware(true),
+    // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.deletePermission, 'params'),
     adminController.deleteAccessPath)
 
@@ -479,7 +479,7 @@ router.delete('/delete/permission/:id',
 */
 
 router.delete('/delete/brand/:id',
-    authMiddleware, accessMiddleware(true),
+    // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.deleteBrand, 'params'),
     adminController.deleteBrand)
 

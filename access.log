@@ -1997,3 +1997,14 @@
 ::1 - - [09/Oct/2023:14:48:28 +0000] "GET /api-docs/swagger-ui-bundle.js HTTP/1.1" 304 -
 ::1 - - [09/Oct/2023:14:48:28 +0000] "GET /api-docs/swagger-ui-standalone-preset.js HTTP/1.1" 304 -
 ::1 - - [09/Oct/2023:14:48:28 +0000] "GET /api-docs/favicon-32x32.png HTTP/1.1" 304 -
+::1 - - [10/Oct/2023:13:27:01 +0000] "GET / HTTP/1.1" 404 280
+::1 - - [10/Oct/2023:13:27:01 +0000] "GET /favicon.ico HTTP/1.1" 404 280
+::1 - - [10/Oct/2023:13:27:06 +0000] "GET /api-docs HTTP/1.1" 301 183
+::1 - - [10/Oct/2023:13:27:06 +0000] "GET /api-docs/ HTTP/1.1" 200 3106
+::1 - - [10/Oct/2023:13:27:06 +0000] "GET /api-docs/swagger-ui-init.js HTTP/1.1" 200 38347
+::1 - - [10/Oct/2023:13:27:06 +0000] "GET /api-docs/swagger-ui-standalone-preset.js HTTP/1.1" 200 230640
+::1 - - [10/Oct/2023:13:27:06 +0000] "GET /api-docs/swagger-ui.css HTTP/1.1" 200 151211
+::1 - - [10/Oct/2023:13:27:06 +0000] "GET /api-docs/swagger-ui-bundle.js HTTP/1.1" 200 1385016
+::1 - - [10/Oct/2023:13:27:08 +0000] "GET /api-docs/favicon-32x32.png HTTP/1.1" 200 628
+::1 - - [10/Oct/2023:13:27:57 +0000] "POST /api/admin/add/group HTTP/1.1" 200 113
+::1 - - [10/Oct/2023:13:28:29 +0000] "POST /api/admin/add/group HTTP/1.1" 201 205

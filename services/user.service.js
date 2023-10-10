@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews } = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -49,7 +49,7 @@ class UserService {
                 return Response.Unauthorized('Ulanyjy tapylmady!', [])
             }
             const hash = await bcrypt.compare(password, user[0].password)
-            if (!hash) { // should be updated
+            if (hash) {
                 const token = generateJwt(user[0].id, user[0].groupId)
                 let response = await Response.Success('Üstünlikli!', user)
                 response.token = token
@@ -225,6 +225,19 @@ class UserService {
                 userId: oby.userId || null
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat ugradyldy!', contact)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addProductReviewService(oby) {
+        try {
+            const review = await ProductReviews.create({
+                star: oby.star,
+                productId: oby.productId,
+                customerId: oby.customerId
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            return Response.Created('Maglumat ugradyldy!', review)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
