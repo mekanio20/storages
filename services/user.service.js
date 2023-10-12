@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews, Likes } = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -243,6 +243,18 @@ class UserService {
         }
     }
 
+    async addProductLikeService(oby) {
+        try {
+            const likes = await Likes.create({
+                userId: oby.userId,
+                productId: oby.productId
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            return Response.Created('Like goyuldy!', likes)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async productSearchService(search) {
         try {
             let page = search.page || 1
@@ -269,6 +281,16 @@ class UserService {
                 order: [['id', 'DESC']]
             })
             return Response.Success('Gozleg netijesi...', product)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteProductService(userId, productId) {
+        try {
+            await Likes.destroy({ where: { userId: userId, productId: productId } })
+                .then(() => { return Response.Success('Haryt pozuldy!', []) })
+                .catch((err) => { console.log(err) })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

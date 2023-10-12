@@ -43,11 +43,6 @@ const Addresses = database.define('adresses', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
-const Favorites = database.define('favorites', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
-}, { updatedAt: false })
-
 const Sellers = database.define('sellers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     name: { type: DataTypes.STRING(50), allowNull: false, unique: true },
@@ -376,11 +371,6 @@ Customers.belongsTo(Users)
 Customers.hasMany(Addresses)
 Addresses.belongsTo(Customers)
 
-// Favorites -> CustomerId, CategoryId
-
-Customers.belongsToMany(Categories, { through: Favorites })
-Categories.belongsToMany(Customers, { through: Favorites })
-
 // Seller -> UserId
 
 Users.hasMany(Sellers)
@@ -516,15 +506,10 @@ FeatureDescriptions.belongsToMany(Products, { through: ProductsFeatures })
 Features.hasMany(FeatureDescriptions)
 FeatureDescriptions.belongsTo(Features)
 
-// Likes -> ProductId 
+// Likes -> UserId, ProductId
 
-Products.hasMany(Likes)
-Likes.belongsTo(Products)
-
-// Likes -> UserId 
-
-Users.hasMany(Likes)
-Likes.belongsTo(Users)
+Users.belongsToMany(Products, { through: Likes })
+Products.belongsToMany(Users, { through: Likes })
 
 // GroupPermissions -> GroupId 
 
@@ -547,7 +532,7 @@ Products.hasMany(Offers)
 Offers.belongsTo(Products)
 
 module.exports = {
-    Users, OTPS, Customers, Addresses, Favorites,
+    Users, OTPS, Customers, Addresses,
     Sellers, Orders, Subscriptions, Chats, Messages,
     Brands, Products, ProductImages, ProductReviews,
     ProductReviewImages, Contacts, Notifications, Banners,

@@ -40,8 +40,12 @@ const userSchema = {
         star: Joi.string().valid('1', '2', '3', '4', '5').required(),
         productId: Joi.number().positive().required(),
         customerId: Joi.number().positive().required()
-    })
+    }),
 
+    addProductLike: Joi.object({
+        productId: Joi.number().positive().required(),
+        userId: Joi.number().positive().required()
+    })
 }
 
 module.exports = userSchema

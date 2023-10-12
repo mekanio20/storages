@@ -5,6 +5,7 @@ const accessMiddleware = require('../middlewares/access.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const userSchema = require('../validates/user.schema')
 
+// POST
 /**
  * @swagger
  *  /api/user/login:
@@ -183,10 +184,72 @@ router.post('/add/contact',
     valdidationMiddleware(userSchema.addContact, 'body'),
     userController.addContact)
 
+/**
+* @swagger
+*  /api/user/add/product/review:
+*    post:
+*      summary: Add Review
+*      tags: [User]
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: object
+*              properties:
+*                star:
+*                  type: string
+*                  description: Review star
+*                productId:
+*                  type: number
+*                  description: Product id
+*                customerId:
+*                  type: number
+*                  description: Customer id
+*      responses:
+*        201:
+*          description: Review add successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
 
 router.post('/add/product/review',
     valdidationMiddleware(userSchema.addProductReview, 'body'),
     userController.addProductReview)
+
+/**
+* @swagger
+*  /api/user/add/product/like:
+*    post:
+*      summary: Add Like
+*      tags: [User]
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: object
+*              properties:
+*                productId:
+*                  type: number
+*                  description: Product id
+*                userId:
+*                  type: number
+*                  description: Customer id
+*      responses:
+*        201:
+*          description: Like add successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
+router.post('/add/product/like',
+    valdidationMiddleware(userSchema.addProductLike, 'body'),
+    userController.addProductLike)
 
 // GET
 /**
@@ -298,5 +361,12 @@ router.get('/brands', userController.allBrandList)
 */
 
 router.get('/product/search', userController.productSearch)
+
+// DELETE
+
+router.delete('/delete/product/:productId/user/:userId',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(userSchema.addProductLike, 'params'),
+    userController.deleteProduct)
 
 module.exports = router
