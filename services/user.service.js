@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews, Likes } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews, Likes, Comments, Orders } = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -232,24 +232,91 @@ class UserService {
 
     async addProductReviewService(oby) {
         try {
-            const review = await ProductReviews.create({
-                star: oby.star,
-                productId: oby.productId,
-                customerId: oby.customerId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-            return Response.Created('Maglumat ugradyldy!', review)
+            const order = await Orders.findOne({
+                attributes: ['id'],
+                where: {
+                    customerId: oby.customerId,
+                    productId: oby.productId,
+                    status: 'completed'
+                }
+            })
+            if (order.id) {
+                const review = await ProductReviews.create({
+                    star: oby.star,
+                    productId: oby.productId,
+                    customerId: oby.customerId
+                }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+                return Response.Created('Maglumat ugradyldy!', review)
+            }
+            return Response.Forbidden('Harydy sargyt etmediniz!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async addProductLikeService(oby) {
+    async addLikeService(oby) {
         try {
             const likes = await Likes.create({
                 userId: oby.userId,
                 productId: oby.productId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Like goyuldy!', likes)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addCommentService(oby) {
+        try {
+            const order = await Orders.findOne({
+                attributes: ['id'],
+                where: {
+                    customerId: oby.customerId,
+                    productId: oby.productId,
+                    status: 'completed'
+                }
+            })
+            if (order.id) {
+                const comments = await Comments.create({
+                    customerId: oby.customerId,
+                    productId: oby.productId,
+                    comment: oby.comment
+                }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+                return Response.Created('Teswir goyuldy!', comments)
+            }
+            return Response.Forbidden('Harydy sargyt etmediniz!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addOrderService(oby) {
+        try {
+            let order_id = null
+            let today = new Date()
+            const numbers = '0123456789'
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+            today = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear()
+            for (let i = 0; i < 4; i++) {
+                order_id += characters.charAt(Math.floor(Math.random() * characters.length))
+            }
+            for (let i = 0; i < 4; i++) {
+                order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
+            }
+            const order = await Orders.create({
+                fullname: oby.fullname,
+                phone: oby.phone,
+                address: oby.address,
+                order_id: order_id,
+                status: 'inprocess',
+                payment: oby.payment,
+                amount: oby.amount,
+                time: today,
+                note: oby.note,
+                customerId: oby.customerId,
+                productId: oby.productId
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            return Response.Created('Hasaba alyndy!', order)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -286,7 +353,7 @@ class UserService {
         }
     }
 
-    async deleteProductService(userId, productId) {
+    async deleteLikeService(userId, productId) {
         try {
             await Likes.destroy({ where: { userId: userId, productId: productId } })
                 .then(() => { return Response.Success('Haryt pozuldy!', []) })

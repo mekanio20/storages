@@ -68,11 +68,11 @@ const Orders = database.define('orders', {
     fullname: { type: DataTypes.STRING(40), allowNull: false },
     phone: { type: DataTypes.STRING(12), allowNull: false },
     address: { type: DataTypes.STRING(50), allowNull: false },
-    order_id: { type: DataTypes.STRING(20), allowNull: false },
+    order_id: { type: DataTypes.STRING(30), allowNull: false },
     status: { type: DataTypes.ENUM({ values: ['new', 'inprocess', 'ondelivery', 'completed', 'cancelled'] }), allowNull: false },
     payment: { type: DataTypes.ENUM({ values: ['online', 'cash', 'terminal']} ), allowNull: false },
-    amount: { type: DataTypes.FLOAT(2), allowNull: false },
-    delivery: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
+    amount: { type: DataTypes.INTEGER, allowNull: false },
+    time: { type: DataTypes.DATE, allowNull: false },
     note: { type: DataTypes.STRING, allowNull: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
@@ -403,7 +403,7 @@ Customers.belongsToMany(Sellers, { through: Chats })
 
 // Messages -> ChatId
 
-Chats.hasMany(Messages),
+Chats.hasMany(Messages)
 Messages.belongsTo(Chats)
 
 // Products -> SubcategoryId,
@@ -510,6 +510,16 @@ FeatureDescriptions.belongsTo(Features)
 
 Users.belongsToMany(Products, { through: Likes })
 Products.belongsToMany(Users, { through: Likes })
+
+// Comments -> UserId
+
+Customers.hasMany(Comments)
+Comments.belongsTo(Customers)
+
+// Comments -> ProductId
+
+Products.hasMany(Comments)
+Comments.belongsTo(Products)
 
 // GroupPermissions -> GroupId 
 

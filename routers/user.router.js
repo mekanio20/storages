@@ -216,12 +216,13 @@ router.post('/add/contact',
 */
 
 router.post('/add/product/review',
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.addProductReview, 'body'),
     userController.addProductReview)
 
 /**
 * @swagger
-*  /api/user/add/product/like:
+*  /api/user/add/like:
 *    post:
 *      summary: Add Like
 *      tags: [User]
@@ -247,9 +248,97 @@ router.post('/add/product/review',
 *          description: Internal server error
 */
 
-router.post('/add/product/like',
-    valdidationMiddleware(userSchema.addProductLike, 'body'),
-    userController.addProductLike)
+router.post('/add/like',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.addLike, 'body'),
+    userController.addLike)
+
+/**
+* @swagger
+*  /api/user/add/comment:
+*    post:
+*      summary: Add Comments
+*      tags: [User]
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: object
+*              properties:
+*                customerId:
+*                  type: number
+*                  description: Customer id
+*                productId:
+*                  type: number
+*                  description: Product id
+*                comment:
+*                  type: string
+*                  description: Comment
+*      responses:
+*        201:
+*          description: Comment add successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
+router.post('/add/comment',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.addComment, 'body'),
+    userController.addComment)
+
+/**
+* @swagger
+*  /api/user/add/order:
+*    post:
+*      summary: Add Orders
+*      tags: [User]
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: object
+*              properties:
+*                fullname:
+*                  type: string
+*                  description: Fullname
+*                phone:
+*                  type: number
+*                  description: Customer phone
+*                address:
+*                  type: string
+*                  description: Customer address
+*                payment:
+*                  type: string
+*                  description: Customer payment
+*                amount:
+*                  type: string
+*                  description: Customer amount
+*                note:
+*                  type: string
+*                  description: Customer note
+*                customerId:
+*                  type: number
+*                  description: CustomerId
+*                productId:
+*                  type: number
+*                  description: ProductId
+*      responses:
+*        201:
+*          description: Order add successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
+router.post('/add/order',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.addOrder, 'body'),
+    userController.addOrder)
 
 // GET
 /**
@@ -364,9 +453,34 @@ router.get('/product/search', userController.productSearch)
 
 // DELETE
 
+/**
+* @swagger
+* /api/user/product/{productId}/user/{userId}:
+*   delete:
+*     tags: [User]
+*     summary: Delete product like
+*     parameters:
+*       - name: productId
+*         description: Product id
+*         in: path
+*         required: true
+*         type: integer
+*       - name: userId
+*         description: User id
+*         in: path
+*         required: true
+*         type: integer
+*     responses:
+*       200:
+*         description: Product like deleted successfully
+*       400:
+*         description: Invalid request body
+*       500:
+*         description: Internal server error
+*/
 router.delete('/delete/product/:productId/user/:userId',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.addProductLike, 'params'),
-    userController.deleteProduct)
+    userController.deleteLike)
 
 module.exports = router

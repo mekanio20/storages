@@ -172,10 +172,54 @@ class UserController {
         }
     }
 
-    async addProductLike(req, res) {
+    async addLike(req, res) {
         try {
             const oby = req.body
-            const data = await userService.addProductLikeService(oby)
+            const data = await userService.addLikeService(oby)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async addComment(req, res) {
+        try {
+            const oby = req.body
+            const data = await userService.addCommentService(oby)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async addOrder(req, res) {
+        try {
+            const oby = req.body
+            const data = await userService.addOrderService(oby)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -303,10 +347,10 @@ class UserController {
         }
     }
 
-    async deleteProduct(req, res) {
+    async deleteLike(req, res) {
         try {
             const { userId, productId } = req.params
-            const data = await userService.deleteProductService(userId, productId)
+            const data = await userService.deleteLikeService(userId, productId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

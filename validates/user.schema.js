@@ -42,9 +42,26 @@ const userSchema = {
         customerId: Joi.number().positive().required()
     }),
 
-    addProductLike: Joi.object({
+    addLike: Joi.object({
         productId: Joi.number().positive().required(),
         userId: Joi.number().positive().required()
+    }),
+
+    addComment: Joi.object({
+        userId: Joi.number().positive().required(),
+        productId: Joi.number().positive().required(),
+        comment: Joi.string().min(2).required()
+    }),
+
+    addOrder: Joi.object({
+        fullname: Joi.string().min(3).max(100).regex(/^[A-Za-z]+ [A-Za-z]+$/).required(),
+        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required(),
+        address: Joi.string().min(4).required(),
+        payment: Joi.string().valid('online', 'cash', 'terminal').required(),
+        amount: Joi.number().positive().required(),
+        note: Joi.string().min(10).allow(null, ''),
+        customerId: Joi.number().positive().required(),
+        productId: Joi.number().positive().required()
     })
 }
 
