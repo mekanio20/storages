@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews, Likes, Comments, Orders } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews, Likes, Comments, Orders, Baskets, ProductImages } = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -322,6 +322,19 @@ class UserService {
         }
     }
 
+    async addBasketService(oby) {
+        try {
+            const basket = await Baskets.create({
+                quantity: oby.quantity,
+                productId: oby.productId,
+                customerId: oby.customerId
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            return Response.Created('Harydynyz sebede goshuldy!', basket)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async productSearchService(search) {
         try {
             let page = search.page || 1
@@ -353,6 +366,36 @@ class UserService {
         }
     }
 
+    async fetchOneBasketService(id) {
+        try {
+            const basket = await Baskets.findOne({
+                where: {
+                    isActive: true,
+                    customerId: Number(id)
+                },
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                include: {
+                    model: Products,
+                    where: { isActive: true },
+                    attributes: [
+                        'id', 'tm_name', 'ru_name', 'en_name', 
+                        'tm_desc', 'ru_desc', 'en_desc', 
+                        'quantity', 'sale_price'
+                    ],
+                    include: {
+                        model: ProductImages,
+                        where: { isActive: true },
+                        attributes: ['id', 'img', 'order']
+                    }
+                }
+            })
+            return Response.Success('Sebedim', basket)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // DELETE
     async deleteLikeService(userId, productId) {
         try {
             await Likes.destroy({ where: { userId: userId, productId: productId } })

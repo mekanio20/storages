@@ -62,6 +62,12 @@ const userSchema = {
         note: Joi.string().min(10).allow(null, ''),
         customerId: Joi.number().positive().required(),
         productId: Joi.number().positive().required()
+    }),
+
+    addBasket: Joi.object({
+        quantity: Joi.number().positive().required(),
+        productId: Joi.number().positive().required(),
+        customerId: Joi.number().positive().required()
     })
 }
 

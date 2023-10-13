@@ -4,8 +4,6 @@ const express = require('express')
 const session = require('express-session')
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
-// const { Server } = require('socket.io');
-const { createServer } = require('node:http');
 const helmet = require('helmet')
 const path = require('path')
 const fs = require('fs')
@@ -13,7 +11,6 @@ const fs = require('fs')
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5001
-const server = createServer(app)
 
 require('./config/models')
 const database = require('./config/database')
@@ -58,7 +55,7 @@ app.use('/api', router)
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs))
 app.all('*', (req, res) => { return res.status(404).sendFile(`${path.join(__dirname + '/public/404.html')}`) })
 
-server.listen(port, async () => {
+app.listen(port, async () => {
     try {
         await database.authenticate()
         await database.sync({})

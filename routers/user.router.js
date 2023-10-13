@@ -46,6 +46,11 @@ router.post('/add/order',
     valdidationMiddleware(userSchema.addOrder, 'body'),
     userController.addOrder)
 
+router.post('/add/basket',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.addBasket, 'body'),
+    userController.addBasket)
+
 // GET
 router.get('/profile/:id',
     // authMiddleware, accessMiddleware(true),
@@ -56,6 +61,11 @@ router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)
 router.get('/brands', userController.allBrandList)
 router.get('/product/search', userController.productSearch)
+
+router.get('/basket/:id',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(userSchema.profile, 'params'),
+    userController.fetchOneBasket)
 
 // DELETE
 router.delete('/delete/product/:productId/user/:userId',
