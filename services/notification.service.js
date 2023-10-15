@@ -2,15 +2,15 @@ const Response = require('../services/response.service')
 const { Notifications } = require('../config/models')
 
 class NotificationService {
-    async addNotificationService(oby) {
+    async addNotificationService(body) {
         try {
             const ntf = await Notifications.create({
-                receivers: oby.receivers,
-                title: oby.title,
-                desc: oby.desc,
-                status: oby.status || 'on-wait',
-                send_date: oby.send_date,
-                userId: oby.userId
+                receivers: body.receivers,
+                title: body.title,
+                desc: body.desc,
+                status: body.status || 'on-wait',
+                send_date: body.send_date,
+                userId: body.userId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Bildiriş hasaba alyndy!', ntf)
         } catch (error) {

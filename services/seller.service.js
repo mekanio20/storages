@@ -11,33 +11,33 @@ class SellerService {
         }
     }
 
-    async sellerRegisterService(oby, filenames) {
+    async sellerRegisterService(body, filenames) {
         try {
-            const seller = await Sellers.findAll({ attributes: ['id'], where: { name: oby.name } })
+            const seller = await Sellers.findAll({ attributes: ['id'], where: { name: body.name } })
             if (seller.length > 0) {
                 return Response.Forbidden('Satyjy registrasiýa bolan!', [])
             }
-            if (oby.main_number === oby.second_number) {
+            if (body.main_number === body.second_number) {
                 return Response.BadRequest('Telefon belgi nädogry!', [])
             }
-            console.log(oby);
+            console.log(body);
             const _seller = await Sellers.create({
-                name: oby.name,
-                store_number: oby.store_number,
-                store_floor: oby.store_floor,
-                about: oby.about,
+                name: body.name,
+                store_number: body.store_number,
+                store_floor: body.store_floor,
+                about: body.about,
                 logo: filenames.logo[0].filename,
                 bg_img: filenames.bg_img[0].filename || 'bg.jpg',
-                color: oby.color,
-                seller_type: oby.seller_type,
-                sell_type: oby.sell_type,
-                instagram: oby.instagram,
-                tiktok: oby.tiktok,
-                main_number: oby.main_number,
-                second_number: oby.second_number,
-                userId: oby.userId,
-                categoryId: oby.categoryId,
-                subscriptionId: oby.subscriptionId
+                color: body.color,
+                seller_type: body.seller_type,
+                sell_type: body.sell_type,
+                instagram: body.instagram,
+                tiktok: body.tiktok,
+                main_number: body.main_number,
+                second_number: body.second_number,
+                userId: body.userId,
+                categoryId: body.categoryId,
+                subscriptionId: body.subscriptionId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Satyjy hasaba alyndy!', _seller)
         } catch (error) {
@@ -45,28 +45,28 @@ class SellerService {
         }
     }
 
-    async addProductService(oby, filenames) {
+    async addProductService(body, filenames) {
         try {
-            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
+            let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _product = await this.isExists(Products, slug)
             if (_product.length > 0) { return Response.Forbidden('Maglumat döredilen!', []) }
             const product = await Products.create({
-                tm_name: oby.tm_name,
-                ru_name: oby.ru_name || null,
-                en_name: oby.en_name || null,
-                tm_desc: oby.tm_desc,
-                ru_desc: oby.ru_desc || null,
-                en_desc: oby.en_desc || null,
+                tm_name: body.tm_name,
+                ru_name: body.ru_name || null,
+                en_name: body.en_name || null,
+                tm_desc: body.tm_desc,
+                ru_desc: body.ru_desc || null,
+                en_desc: body.en_desc || null,
                 slug: slug,
-                barcode: oby.barcode,
-                stock_code: oby.stock_code,
-                quantity: oby.quantity,
-                org_price: oby.org_price,
-                sale_price: oby.sale_price,
-                gender: oby.gender,
-                subscriptionId: oby.subscriptionId,
-                brandId: oby.brandId,
-                sellerId: oby.sellerId
+                barcode: body.barcode,
+                stock_code: body.stock_code,
+                quantity: body.quantity,
+                org_price: body.org_price,
+                sale_price: body.sale_price,
+                gender: body.gender,
+                subscriptionId: body.subscriptionId,
+                brandId: body.brandId,
+                sellerId: body.sellerId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             if (filenames.img) {
                 filenames.img.forEach( async (item, index) => {
@@ -112,15 +112,15 @@ class SellerService {
     }
 
     // PUT
-    async updateSellerProfileService(oby) {
+    async updateSellerProfileService(body) {
         try {
             let newObj = {}
-            for (const key in oby) {
-                if (oby[key].length > 0) {
-                    newObj[key] = oby[key]
+            for (const key in body) {
+                if (body[key].length > 0) {
+                    newObj[key] = body[key]
                 }
             }
-            await Sellers.update({ newObj }, { where: { id: oby.id } })
+            await Sellers.update({ newObj }, { where: { id: body.id } })
                 .then(() => { return Response.Success('Satyjy maglumatlary täzelendi!', []) })
                 .catch((err) => {
                     console.log(err)

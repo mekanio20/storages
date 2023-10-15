@@ -4,10 +4,10 @@ const bannerService = require('../services/banner.service')
 class BannerController {
     async addBanner(req, res) {
         try {
-            const oby = req.body
+            const body = req.body
             const { tm_img } = req.files
             if (!tm_img) { return Response.BadRequest('banner gerek!', []) }
-            const data = await bannerService.addBannerService(oby, req.files)
+            const data = await bannerService.addBannerService(body, req.files)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

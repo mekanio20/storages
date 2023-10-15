@@ -51,8 +51,8 @@ class AdminController {
 
     async addStorage(req, res) {
         try {
-            const oby = req.body
-            const data = await adminService.addStorageService(oby)
+            const body = req.body
+            const data = await adminService.addStorageService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -74,8 +74,8 @@ class AdminController {
 
     async addCategory(req, res) {
         try {
-            const oby = req.body
-            const data = await adminService.addCategoryService(oby)
+            const body = req.body
+            const data = await adminService.addCategoryService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -96,8 +96,8 @@ class AdminController {
     
     async addSubcategory(req, res) {
         try {
-            const oby = req.body
-            const data = await adminService.addSubcategoryService(oby)
+            const body = req.body
+            const data = await adminService.addSubcategoryService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -118,8 +118,8 @@ class AdminController {
 
     async addFeature(req, res) {
         try {
-            const oby = req.body
-            const data = await adminService.addFeatureService(oby)
+            const body = req.body
+            const data = await adminService.addFeatureService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -140,8 +140,8 @@ class AdminController {
 
     async addFeatureDescription(req, res) {
         try {
-            const oby = req.body
-            const data = await adminService.addFeatureDescriptionService(oby)
+            const body = req.body
+            const data = await adminService.addFeatureDescriptionService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -162,8 +162,8 @@ class AdminController {
 
     async addSubcategoryFeature(req, res) {
         try {
-            const oby = req.body
-            const data = await adminService.addSubcategoryFeatureService(oby)
+            const body = req.body
+            const data = await adminService.addSubcategoryFeatureService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -184,9 +184,9 @@ class AdminController {
 
     async addBrand(req, res) {
         try {
-            const oby = req.body
+            const body = req.body
             const brand_img = req.file
-            const data = await adminService.addBrandService(oby, brand_img)
+            const data = await adminService.addBrandService(body, brand_img)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -207,8 +207,8 @@ class AdminController {
 
     async addBanner(req, res) {
         try {
-            const oby = req.body
-            const data = await adminService.addBannerService(oby)
+            const body = req.body
+            const data = await adminService.addBannerService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -253,8 +253,8 @@ class AdminController {
 
     async addSubscription(req, res) {
         try {
-            const oby = req.body
-            const data = await adminService.addSubscriptionService(oby)
+            const body = req.body
+            const data = await adminService.addSubscriptionService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

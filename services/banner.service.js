@@ -2,19 +2,19 @@ const Response = require('../services/response.service')
 const { Banners } = require('../config/models')
 
 class BannerService {
-    async addBannerService(oby, filenames) {
+    async addBannerService(body, filenames) {
         try {
             const { tm_img, ru_img, en_img } = filenames
             const banner = await Banners.create({
                 tm_img: tm_img[0].filename,
                 ru_img: ru_img[0].filename || null,
                 en_img: en_img[0].filename || null,
-                url: oby.url,
-                type: oby.type,
-                sort_order: oby.sort_order,
-                start_date: oby.start_date,
-                end_date: oby.end_date,
-                userId: oby.userId
+                url: body.url,
+                type: body.type,
+                sort_order: body.sort_order,
+                start_date: body.start_date,
+                end_date: body.end_date,
+                userId: body.userId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Banner döredildi!', banner)
         } catch (error) {

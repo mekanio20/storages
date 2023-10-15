@@ -59,19 +59,19 @@ class AdminService {
         }
     }
 
-    async addStorageService(oby) {
+    async addStorageService(body) {
         try {
-            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
+            let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _storage = await this.isExists(Storages, slug)
             if (_storage.length > 0) {
                 return Response.Forbidden('Maglumat döredilen!', [])
             }
             const storage = await Storages.create({
-                tm_name: oby.tm_name,
-                ru_name: oby.ru_name || null,
-                en_name: oby.en_name || null,
+                tm_name: body.tm_name,
+                ru_name: body.ru_name || null,
+                en_name: body.en_name || null,
                 slug: slug,
-                userId: oby.userId
+                userId: body.userId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', storage)
         } catch (error) {
@@ -79,20 +79,20 @@ class AdminService {
         }
     }
 
-    async addCategoryService(oby) {
+    async addCategoryService(body) {
         try {
-            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
+            let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _category = await this.isExists(Categories, slug)
             if (_category) {
                 return Response.Forbidden('Maglumat döredilen!', [])
             }
             const category = await Categories.create({
-                tm_name: oby.tm_name,
-                ru_name: oby.ru_name || null,
-                en_name: oby.en_name || null,
+                tm_name: body.tm_name,
+                ru_name: body.ru_name || null,
+                en_name: body.en_name || null,
                 slug: slug,
-                storageId: oby.storageId,
-                userId: oby.userId
+                storageId: body.storageId,
+                userId: body.userId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', category)
         } catch (error) {
@@ -100,20 +100,20 @@ class AdminService {
         }
     }
 
-    async addSubcategoryService(oby) {
+    async addSubcategoryService(body) {
         try {
-            let slug = oby.tm_name.split(" ").join('-').toLowerCase()
+            let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _subcategory = await this.isExists(Subcategories, slug)
             if (_subcategory) {
                 return Response.Forbidden('Maglumat döredilen!', [])
             }
             const subcategory = await Subcategories.create({
-                tm_name: oby.tm_name,
-                ru_name: oby.ru_name || null,
-                en_name: oby.en_name || null,
+                tm_name: body.tm_name,
+                ru_name: body.ru_name || null,
+                en_name: body.en_name || null,
                 slug: slug,
-                categoryId: oby.categoryId,
-                userId: oby.userId
+                categoryId: body.categoryId,
+                userId: body.userId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', subcategory)
         } catch (error) {
@@ -121,17 +121,17 @@ class AdminService {
         }
     }
 
-    async addFeatureService(oby) {
+    async addFeatureService(body) {
         try {
-            const _features = await Features.findAll({ where: { tm_name: oby.tm_name } })
+            const _features = await Features.findAll({ where: { tm_name: body.tm_name } })
             if (_features.length > 0) {
                 return Response.Forbidden('Feature döredilen!', [])
             }
             const feature = await Features.create({ 
-                tm_name: oby.tm_name, 
-                ru_name: oby.ru_name || null, 
-                en_name: oby.en_name || null, 
-                userId: oby.userId 
+                tm_name: body.tm_name, 
+                ru_name: body.ru_name || null, 
+                en_name: body.en_name || null, 
+                userId: body.userId 
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', feature)
         } catch (error) {
@@ -139,9 +139,9 @@ class AdminService {
         }
     }
 
-    async addFeatureDescriptionService(oby) {
+    async addFeatureDescriptionService(body) {
         try {
-            const { desc, featureId, userId } = oby
+            const { desc, featureId, userId } = body
             const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', featureDesc)
         } catch (error) {
@@ -149,9 +149,9 @@ class AdminService {
         }
     }
 
-    async addSubcategoryFeatureService(oby) {
+    async addSubcategoryFeatureService(body) {
         try {
-            const { subcategoryId, featureId, userId } = oby
+            const { subcategoryId, featureId, userId } = body
             const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', subcategory_features)
         } catch (error) {
@@ -159,25 +159,25 @@ class AdminService {
         }
     }
 
-    async addBrandService(oby, brand_img) {
+    async addBrandService(body, brand_img) {
         try {
             if (!brand_img) { return Response.BadRequest('logo gerek!', []) }
-            let slug = oby.name.split(" ").join('-').toLowerCase()
+            let slug = body.name.split(" ").join('-').toLowerCase()
             const brand = await this.isExists(Brands, slug)
             if (brand.length > 0) {
                 return Response.Forbidden('Maglumat döredilen!', [])
             }
-            oby.name = oby.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + oby.name.slice(1).toLowerCase()
-            const brands = await Brands.create({ name: oby.name, slug: slug, img: brand_img.filename, desc: oby.desc || null, userId: oby.userId })
+            body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
+            const brands = await Brands.create({ name: body.name, slug: slug, img: brand_img.filename, desc: body.desc || null, userId: body.userId })
             return Response.Created('Maglumat döredildi!', brands)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async addBannerService(oby) {
+    async addBannerService(body) {
         try {
-            return oby // should be updated
+            return body // should be updated
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -196,19 +196,19 @@ class AdminService {
         }
     }
 
-    async addSubscriptionService(oby) {
+    async addSubscriptionService(body) {
         try {
             const subscription = await Subscriptions.create({
-                name: oby.name,
-                order: oby.order,
-                p_limit: oby.p_limit,
-                p_img_limit: oby.p_img_limit,
-                seller_banner_limit: oby.seller_banner_limit,
-                main_banner_limit: oby.main_banner_limit,
-                ntf_limit: oby.ntf_limit,
-                voucher_limit: oby.voucher_limit,
-                smm_support: oby.smm_support,
-                tech_support: oby.tech_support
+                name: body.name,
+                order: body.order,
+                p_limit: body.p_limit,
+                p_img_limit: body.p_img_limit,
+                seller_banner_limit: body.seller_banner_limit,
+                main_banner_limit: body.main_banner_limit,
+                ntf_limit: body.ntf_limit,
+                voucher_limit: body.voucher_limit,
+                smm_support: body.smm_support,
+                tech_support: body.tech_support
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Subscription döredildi!', subscription)
         } catch (error) {

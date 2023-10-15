@@ -10,13 +10,13 @@ const userPermission = (reqId, userId) => {
 class SellerController {
     async sellerRegister(req, res) {
         try {
-            const oby = req.body
+            const body = req.body
             const { logo } = req.files
             if (!logo) { 
                 let result = await Response.BadRequest('logo gerek!', [])
                 return res.json(result)
             }
-            const data = await sellerService.sellerRegisterService(oby, req.files)
+            const data = await sellerService.sellerRegisterService(body, req.files)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -37,8 +37,8 @@ class SellerController {
 
     async addProduct(req, res) {
         try {
-            const oby = req.body
-            const data = await sellerService.addProductService(oby, req.files)
+            const body = req.body
+            const data = await sellerService.addProductService(body, req.files)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -86,10 +86,10 @@ class SellerController {
     // PUT
     async updateSellerProfile(req, res) {
         try {
-            const oby = req.body
-            const user = userPermission(req.user.id, oby.id)
+            const body = req.body
+            const user = userPermission(req.user.id, body.id)
             if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
-            const data = await sellerService.updateSellerProfileService(oby)
+            const data = await sellerService.updateSellerProfileService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

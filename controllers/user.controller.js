@@ -78,15 +78,15 @@ class UserController {
 
     async userRegister(req, res) {
         try {
-            const oby = req.body
+            const body = req.body
             let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
             ip = ip.substr(7)
             let userAgent = req.headers['user-agent']
             console.log(userAgent);
             let regex = /(\bAndroid\b|\biPhone\b|\biPad\b|\biPod\b)/
             let device = userAgent.match(regex) ? userAgent.match(regex) : 'WEB'
-            console.log(oby, ip, device);
-            const data = await userService.userRegisterService(oby, ip, device)
+            console.log(body, ip, device);
+            const data = await userService.userRegisterService(body, ip, device)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -108,8 +108,8 @@ class UserController {
 
     async customerRegister(req, res) {
         try {
-            const oby = req.body
-            const data = await userService.customerRegisterService(oby)
+            const body = req.body
+            const data = await userService.customerRegisterService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -130,8 +130,8 @@ class UserController {
 
     async addContact(req, res) {
         try {
-            const oby = req.body
-            const data = await userService.addContactService(oby)
+            const body = req.body
+            const data = await userService.addContactService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -152,8 +152,8 @@ class UserController {
 
     async addProductReview(req, res) {
         try {
-            const oby = req.body
-            const data = await userService.addProductReviewService(oby)
+            const body = req.body
+            const data = await userService.addProductReviewService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -174,8 +174,8 @@ class UserController {
 
     async addLike(req, res) {
         try {
-            const oby = req.body
-            const data = await userService.addLikeService(oby)
+            const body = req.body
+            const data = await userService.addLikeService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -196,8 +196,8 @@ class UserController {
 
     async addComment(req, res) {
         try {
-            const oby = req.body
-            const data = await userService.addCommentService(oby)
+            const body = req.body
+            const data = await userService.addCommentService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -218,8 +218,8 @@ class UserController {
 
     async addOrder(req, res) {
         try {
-            const oby = req.body
-            const data = await userService.addOrderService(oby)
+            const body = req.body
+            const data = await userService.addOrderService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -240,8 +240,8 @@ class UserController {
 
     async addBasket(req, res) {
         try {
-            const oby = req.body
-            const data = await userService.addBasketService(oby)
+            const body = req.body
+            const data = await userService.addBasketService(body)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

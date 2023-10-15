@@ -79,16 +79,16 @@ class UserService {
         }
     }
 
-    async userRegisterService(oby, ip, device) { // should be updated
+    async userRegisterService(body, ip, device) { // should be updated
         try {
-            const user = await this.isExists(oby.phone)
+            const user = await this.isExists(body.phone)
             if (user.length > 0) {
                 return Response.Forbidden('Ulanyjy hasaba alynan!', [])
             }
-            const hash = await bcrypt.hash(oby.password, 5)
+            const hash = await bcrypt.hash(body.password, 5)
             const groupId = await this.getGroupId('USERS')
             const _user = await Users.create({
-                phone: oby.phone,
+                phone: body.phone,
                 password: hash,
                 ip: ip,
                 device: device,
@@ -104,9 +104,9 @@ class UserService {
         }
     }
 
-    async customerRegisterService(oby) {
+    async customerRegisterService(body) {
         try {
-            const { fullname, gender, email, userId } = oby
+            const { fullname, gender, email, userId } = body
             const [customer, created] = await Customers.findOrCreate({ 
                 where: { email: email },
                 defaults: {
@@ -215,14 +215,14 @@ class UserService {
         }
     }
 
-    async addContactService(oby) {
+    async addContactService(body) {
         try {
             const contact = await Contacts.create({
-                phone: oby.phone,
-                email: oby.email,
-                fullname: oby.fullname,
-                message: oby.message,
-                userId: oby.userId || null
+                phone: body.phone,
+                email: body.email,
+                fullname: body.fullname,
+                message: body.message,
+                userId: body.userId || null
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat ugradyldy!', contact)
         } catch (error) {
@@ -230,21 +230,21 @@ class UserService {
         }
     }
 
-    async addProductReviewService(oby) {
+    async addProductReviewService(body) {
         try {
             const order = await Orders.findOne({
                 attributes: ['id'],
                 where: {
-                    customerId: oby.customerId,
-                    productId: oby.productId,
+                    customerId: body.customerId,
+                    productId: body.productId,
                     status: 'completed'
                 }
             })
             if (order.id) {
                 const review = await ProductReviews.create({
-                    star: oby.star,
-                    productId: oby.productId,
-                    customerId: oby.customerId
+                    star: body.star,
+                    productId: body.productId,
+                    customerId: body.customerId
                 }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
                 return Response.Created('Maglumat ugradyldy!', review)
             }
@@ -254,11 +254,11 @@ class UserService {
         }
     }
 
-    async addLikeService(oby) {
+    async addLikeService(body) {
         try {
             const likes = await Likes.create({
-                userId: oby.userId,
-                productId: oby.productId
+                userId: body.userId,
+                productId: body.productId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Like goyuldy!', likes)
         } catch (error) {
@@ -266,21 +266,21 @@ class UserService {
         }
     }
 
-    async addCommentService(oby) {
+    async addCommentService(body) {
         try {
             const order = await Orders.findOne({
                 attributes: ['id'],
                 where: {
-                    customerId: oby.customerId,
-                    productId: oby.productId,
+                    customerId: body.customerId,
+                    productId: body.productId,
                     status: 'completed'
                 }
             })
             if (order.id) {
                 const comments = await Comments.create({
-                    customerId: oby.customerId,
-                    productId: oby.productId,
-                    comment: oby.comment
+                    customerId: body.customerId,
+                    productId: body.productId,
+                    comment: body.comment
                 }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
                 return Response.Created('Teswir goyuldy!', comments)
             }
@@ -290,7 +290,7 @@ class UserService {
         }
     }
 
-    async addOrderService(oby) {
+    async addOrderService(body) {
         try {
             let order_id = null
             let today = new Date()
@@ -304,17 +304,17 @@ class UserService {
                 order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
             }
             const order = await Orders.create({
-                fullname: oby.fullname,
-                phone: oby.phone,
-                address: oby.address,
+                fullname: body.fullname,
+                phone: body.phone,
+                address: body.address,
                 order_id: order_id,
                 status: 'inprocess',
-                payment: oby.payment,
-                amount: oby.amount,
+                payment: body.payment,
+                amount: body.amount,
                 time: today,
-                note: oby.note,
-                customerId: oby.customerId,
-                productId: oby.productId
+                note: body.note,
+                customerId: body.customerId,
+                productId: body.productId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Hasaba alyndy!', order)
         } catch (error) {
@@ -322,12 +322,12 @@ class UserService {
         }
     }
 
-    async addBasketService(oby) {
+    async addBasketService(body) {
         try {
             const basket = await Baskets.create({
-                quantity: oby.quantity,
-                productId: oby.productId,
-                customerId: oby.customerId
+                quantity: body.quantity,
+                productId: body.productId,
+                customerId: body.customerId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Harydynyz sebede goshuldy!', basket)
         } catch (error) {
