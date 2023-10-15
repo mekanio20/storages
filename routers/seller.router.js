@@ -30,7 +30,7 @@ router.get('/:id',
     sellerController.fetchOneSeller)
 
 // PUT
-router.put('/',
+router.put('/update',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.updateSellerProfile, 'body'),
     sellerController.updateSellerProfile)

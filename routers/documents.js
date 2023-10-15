@@ -294,6 +294,31 @@
 
 /**
 * @swagger
+*  /api/admin/add/staff:
+*    post:
+*      summary: Create a new staff
+*      tags: [Admin]
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: object
+*              properties:
+*                userId:
+*                  type: number
+*                  description: User id
+*      responses:
+*        201:
+*          description: Staff created successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
+/**
+* @swagger
 *  /api/admin/add/subscription:
 *    post:
 *      summary: Create a new subscription
@@ -701,7 +726,7 @@
 
 /**
 * @swagger
-*  /api/seller/:
+*  /api/seller/update:
 *    put:
 *      summary: Update seller
 *      tags: [Seller]
@@ -721,7 +746,7 @@
 
 /**
 * @swagger
-* /api/seller/product/{id}:
+* /api/seller/delete/product/{id}:
 *   delete:
 *     tags: [Seller]
 *     summary: Delete product
@@ -1040,6 +1065,37 @@
 
 /**
 * @swagger
+*  /api/user/add/basket:
+*    post:
+*      summary: Add Basket
+*      tags: [User]
+*      requestBody:
+*        required: true
+*        content:
+*          application/json:
+*            schema:
+*              type: object
+*              properties:
+*                quantity:
+*                  type: number
+*                  description: Quantity
+*                productId:
+*                  type: number
+*                  description: ProductId
+*                customerId:
+*                  type: number
+*                  description: CustomerId
+*      responses:
+*        201:
+*          description: Basket add successfully
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
+/**
+* @swagger
 *  /api/user/profile/{id}:
 *    get:
 *      summary: Get profile
@@ -1137,7 +1193,28 @@
 
 /**
 * @swagger
-* /api/user/product/{productId}/user/{userId}:
+*  /api/user/basket/{id}:
+*    get:
+*      summary: Basket detail
+*      tags: [User]
+*      parameters:
+*        - name: id
+*          in: path
+*          required: true
+*          description: Basket id
+*          type: number
+*      responses:
+*        200:
+*          description: Fetch Basket successful
+*        400:
+*          description: Invalid request body
+*        500:
+*          description: Internal server error
+*/
+
+/**
+* @swagger
+* /api/user/delete/product/{productId}/user/{userId}:
 *   delete:
 *     tags: [User]
 *     summary: Delete product like
