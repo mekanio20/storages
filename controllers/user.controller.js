@@ -84,7 +84,7 @@ class UserController {
             let userAgent = req.headers['user-agent']
             console.log(userAgent);
             let regex = /(\bAndroid\b|\biPhone\b|\biPad\b|\biPod\b)/
-            let device = userAgent.match(regex) || 'WEB'
+            let device = userAgent.match(regex) ? userAgent.match(regex) : 'WEB'
             console.log(oby, ip, device);
             const data = await userService.userRegisterService(oby, ip, device)
             return res.status(data.status).json({

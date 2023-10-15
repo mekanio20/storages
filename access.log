@@ -2081,3 +2081,7 @@
 ::1 - - [15/Oct/2023:11:53:53 +0000] "GET /api-docs/swagger-ui-standalone-preset.js HTTP/1.1" 304 -
 ::1 - - [15/Oct/2023:11:53:53 +0000] "GET /api-docs/swagger-ui-init.js HTTP/1.1" 200 45660
 ::1 - - [15/Oct/2023:11:53:53 +0000] "GET /api-docs/swagger-ui.css HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [15/Oct/2023:12:36:09 +0000] "GET /api/admin/default HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [15/Oct/2023:12:38:04 +0000] "GET /api/admin/default HTTP/1.1" 201 103
+::ffff:127.0.0.1 - - [15/Oct/2023:13:09:06 +0000] "GET /api/admin/default HTTP/1.1" 201 103
+::ffff:127.0.0.1 - - [15/Oct/2023:13:38:45 +0000] "GET /api/admin/default HTTP/1.1" 201 103

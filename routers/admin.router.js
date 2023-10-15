@@ -65,12 +65,12 @@ router.post('/add/subscription',
 // DELETE
 router.delete('/delete/permission/:id',
     // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(adminSchema.deletePermission, 'params'),
+    valdidationMiddleware(adminSchema.delete, 'params'),
     adminController.deleteAccessPath)
 
 router.delete('/delete/brand/:id',
     // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(adminSchema.deleteBrand, 'params'),
+    valdidationMiddleware(adminSchema.delete, 'params'),
     adminController.deleteBrand)
 
 // DEFAULT

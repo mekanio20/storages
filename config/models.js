@@ -481,15 +481,35 @@ CouponItem.belongsTo(Coupons)
 Customers.hasMany(CouponItem)
 CouponItem.belongsTo(Customers)
 
+// Storages -> UserId
+
+Users.hasMany(Storages)
+Storages.belongsTo(Users)
+
+// Categories -> UserId
+
+Users.hasMany(Storages)
+Storages.belongsTo(Users)
+
 // Categories -> StorageId
 
 Storages.hasMany(Categories)
 Categories.belongsTo(Storages)
 
+// Subcategories -> UserId
+
+Users.hasMany(Subcategories)
+Subcategories.belongsTo(Users)
+
 // Subcategories -> CategoryId
 
 Categories.hasMany(Subcategories)
 Subcategories.belongsTo(Categories)
+
+// SubcategoryFeatures -> UserId
+
+Users.hasMany(SubcategoryFeatures)
+SubcategoryFeatures.belongsTo(Users)
 
 // SubcategoryFeatures -> SubcategoryId, FeatureId 
 
@@ -500,6 +520,16 @@ Features.belongsToMany(Subcategories, { through: SubcategoryFeatures })
 
 Products.belongsToMany(FeatureDescriptions, { through: ProductsFeatures })
 FeatureDescriptions.belongsToMany(Products, { through: ProductsFeatures })
+
+// Features -> UserId
+
+Users.hasMany(Features)
+Features.belongsTo(Users)
+
+// FeatureDescriptions -> UserId
+
+Users.hasMany(FeatureDescriptions)
+FeatureDescriptions.belongsTo(Users)
 
 // FeatureDescriptions -> FeatureId 
 

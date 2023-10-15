@@ -1,5 +1,6 @@
 const uuid = require('uuid')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const Response = require('../services/response.service')
 const { Groups, GroupPermissions, Storages, Categories,
     Brands, Subcategories, Features, FeatureDescriptions,
@@ -69,7 +70,8 @@ class AdminService {
                 tm_name: oby.tm_name,
                 ru_name: oby.ru_name || null,
                 en_name: oby.en_name || null,
-                slug: slug
+                slug: slug,
+                userId: oby.userId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', storage)
         } catch (error) {
@@ -89,7 +91,8 @@ class AdminService {
                 ru_name: oby.ru_name || null,
                 en_name: oby.en_name || null,
                 slug: slug,
-                storageId: oby.storageId
+                storageId: oby.storageId,
+                userId: oby.userId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', category)
         } catch (error) {
@@ -109,7 +112,8 @@ class AdminService {
                 ru_name: oby.ru_name || null,
                 en_name: oby.en_name || null,
                 slug: slug,
-                categoryId: oby.categoryId
+                categoryId: oby.categoryId,
+                userId: oby.userId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', subcategory)
         } catch (error) {
@@ -123,25 +127,32 @@ class AdminService {
             if (_features.length > 0) {
                 return Response.Forbidden('Feature döredilen!', [])
             }
-            const feature = await Features.create({ tm_name: oby.tm_name, ru_name: oby.ru_name || null, en_name: oby.en_name || null })
+            const feature = await Features.create({ 
+                tm_name: oby.tm_name, 
+                ru_name: oby.ru_name || null, 
+                en_name: oby.en_name || null, 
+                userId: oby.userId 
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', feature)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async addFeatureDescriptionService(desc, featureId) {
+    async addFeatureDescriptionService(oby) {
         try {
-            const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId })
+            const { desc, featureId, userId } = oby
+            const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', featureDesc)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async addSubcategoryFeatureService(subcategoryId, featureId) {
+    async addSubcategoryFeatureService(oby) {
         try {
-            const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId })
+            const { subcategoryId, featureId, userId } = oby
+            const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', subcategory_features)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -240,17 +251,24 @@ class AdminService {
                 { name: 'USERS' },
             ]).then(() => { console.log('Groups created') }).catch((err) => { console.log(err) })
 
+            let passwords = []
+            for (let i=1; i<=11; i++) {
+                let hash = await bcrypt.hash(`user${i}`, 5)
+                passwords.push(hash)
+            }
+
             await Users.bulkCreate([
-                { phone: '61111111', password: 'user1', ip: '127.0.0.1', device: 'Android', uuid: uuid.v4(), groupId: 1 },
-                { phone: '61111112', password: 'user2', ip: '127.0.0.2', device: 'Android', uuid: uuid.v4(), groupId: 2 },
-                { phone: '61111113', password: 'user3', ip: '127.0.0.3', device: 'iPhone', uuid: uuid.v4(), groupId: 3 },
-                { phone: '61111114', password: 'user4', ip: '127.0.0.4', device: 'Android', uuid: uuid.v4(), groupId: 4 },
-                { phone: '61111115', password: 'user5', ip: '127.0.0.5', device: 'Android', uuid: uuid.v4(), groupId: 2 },
-                { phone: '61111116', password: 'user6', ip: '127.0.0.6', device: 'iPhone', uuid: uuid.v4(), groupId: 2 },
-                { phone: '61111117', password: 'user7', ip: '127.0.0.7', device: 'Android', uuid: uuid.v4(), groupId: 2 },
-                { phone: '61111118', password: 'user8', ip: '127.0.0.8', device: 'iPhone', uuid: uuid.v4(), groupId: 2 },
-                { phone: '61111119', password: 'user9', ip: '127.0.0.9', device: 'Android', uuid: uuid.v4(), groupId: 2 },
-                { phone: '61111121', password: 'user10', ip: '127.0.0.10', device: 'Android', uuid: uuid.v4(), groupId: 2 }
+                { phone: '61111111', password: passwords[0], ip: '127.0.0.1', device: 'Android', uuid: uuid.v4(), groupId: 1, isSuperAdmin: true },
+                { phone: '61111112', password: passwords[1], ip: '127.0.0.2', device: 'Android', uuid: uuid.v4(), groupId: 2, isStaff: true },
+                { phone: '61111113', password: passwords[2], ip: '127.0.0.3', device: 'iPhone', uuid: uuid.v4(), groupId: 3, isSeller: true },
+                { phone: '61111114', password: passwords[3], ip: '127.0.0.4', device: 'Android', uuid: uuid.v4(), groupId: 4, isCustomer: true },
+                { phone: '61111115', password: passwords[4], ip: '127.0.0.5', device: 'Android', uuid: uuid.v4(), groupId: 2, isStaff: true },
+                { phone: '61111116', password: passwords[5], ip: '127.0.0.6', device: 'iPhone', uuid: uuid.v4(), groupId: 2, isStaff: true },
+                { phone: '61111117', password: passwords[6], ip: '127.0.0.7', device: 'Android', uuid: uuid.v4(), groupId: 2, isStaff: true },
+                { phone: '61111118', password: passwords[7], ip: '127.0.0.8', device: 'iPhone', uuid: uuid.v4(), groupId: 2, isStaff: true },
+                { phone: '61111119', password: passwords[8], ip: '127.0.0.9', device: 'Android', uuid: uuid.v4(), groupId: 4, isCustomer: true },
+                { phone: '61111121', password: passwords[9], ip: '127.0.0.10', device: 'Android', uuid: uuid.v4(), groupId: 3, isSeller: true },
+                { phone: '61111122', password: passwords[10], ip: '127.0.0.11', device: 'iPhone', uuid: uuid.v4(), groupId: 3, isSeller: true }
             ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
 
             await Brands.bulkCreate([
@@ -259,31 +277,31 @@ class AdminService {
             ]).then(() => { console.log('Brands created') }).catch((err) => { console.log(err) })
 
             await Storages.bulkCreate([
-                { tm_name: 'Elektronika', ru_name: 'Электроника', en_name: 'Electronics', slug: 'elektronika' },
-                { tm_name: 'Supermarket', ru_name: 'Супермаркет', en_name: 'Supermarket', slug: 'supermarket' },
-                { tm_name: 'Aýakgap & Sumka', ru_name: 'Сумка & Обувь', en_name: 'Shoes & Bag', slug: 'aýakgap-&-sumka' },
-                { tm_name: 'Egin-Eşikler', ru_name: 'Одежда', en_name: 'Clothes', slug: 'egin-eşikler' },
-                { tm_name: 'Sport Geýimler', ru_name: 'Спортивная Одежда', en_name: 'Sportswear', slug: 'sport-geýimler' },
-                { tm_name: 'Kosmetika önümleri', ru_name: 'Косметическая Продукция', en_name: 'Cosmetic Products', slug: 'kosmetika-önümleri' }
+                { tm_name: 'Elektronika', ru_name: 'Электроника', en_name: 'Electronics', slug: 'elektronika', userId: 1 },
+                { tm_name: 'Supermarket', ru_name: 'Супермаркет', en_name: 'Supermarket', slug: 'supermarket', userId: 1 },
+                { tm_name: 'Aýakgap & Sumka', ru_name: 'Сумка & Обувь', en_name: 'Shoes & Bag', slug: 'aýakgap-&-sumka', userId: 2 },
+                { tm_name: 'Egin-Eşikler', ru_name: 'Одежда', en_name: 'Clothes', slug: 'egin-eşikler', userId: 2 },
+                { tm_name: 'Sport Geýimler', ru_name: 'Спортивная Одежда', en_name: 'Sportswear', slug: 'sport-geýimler', userId: 5 },
+                { tm_name: 'Kosmetika önümleri', ru_name: 'Косметическая Продукция', en_name: 'Cosmetic Products', slug: 'kosmetika-önümleri', userId: 6 }
             ]).then(() => { console.log('Storages created') }).catch((err) => { console.log(err) })
 
             await Categories.bulkCreate([
-                { tm_name: 'Gök we bakja önümleri', ru_name: 'Овощи и садовая продукция', en_name: 'Vegetables and garden products', slug: 'gök-we-bakja-önümleri', storageId: 2 },
-                { tm_name: 'Süýt önümleri', ru_name: 'Молочные продукты', en_name: 'Dairy products', slug: 'süýt-önümleri', storageId: 2 },
-                { tm_name: 'Telefon', ru_name: 'Телефон', en_name: 'Phone', slug: 'telefon', storageId: 1 },
-                { tm_name: 'Telewizor', ru_name: 'Телевидение', en_name: 'Television', slug: 'telewizor', storageId: 1 },
-                { tm_name: 'Oglan aýakgap', ru_name: 'Мужская обувь', en_name: 'Men shoes', slug: 'oglan-aýakgap', storageId: 3 },
-                { tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', storageId: 3 },
-                { tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', storageId: 4 }
+                { tm_name: 'Gök we bakja önümleri', ru_name: 'Овощи и садовая продукция', en_name: 'Vegetables and garden products', slug: 'gök-we-bakja-önümleri', storageId: 2, userId: 1 },
+                { tm_name: 'Süýt önümleri', ru_name: 'Молочные продукты', en_name: 'Dairy products', slug: 'süýt-önümleri', storageId: 2, userId: 1 },
+                { tm_name: 'Telefon', ru_name: 'Телефон', en_name: 'Phone', slug: 'telefon', storageId: 1, userId: 2 },
+                { tm_name: 'Telewizor', ru_name: 'Телевидение', en_name: 'Television', slug: 'telewizor', storageId: 1, userId: 5 },
+                { tm_name: 'Oglan aýakgap', ru_name: 'Мужская обувь', en_name: 'Men shoes', slug: 'oglan-aýakgap', storageId: 3, userId: 6 },
+                { tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', storageId: 3, userId: 7 },
+                { tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', storageId: 4, userId: 8 }
             ]).then(() => { console.log('Categories created') }).catch((err) => { console.log(err) })
 
             await Subcategories.bulkCreate([
-                { tm_name: 'Miweler', ru_name: 'Фрукты', en_name: 'Fruits', slug: 'miweler', categoryId: 1 },
-                { tm_name: 'Gök önümler', ru_name: 'Овощи', en_name: 'Vegetables', slug: 'gök-önümler', categoryId: 1 },
-                { tm_name: 'Ýumurtga', ru_name: 'Яйцо', en_name: 'An egg', slug: 'ýumurtga', categoryId: 2 },
-                { tm_name: 'Peýnir', ru_name: 'Сыр', en_name: 'Cheese', slug: 'peýnir', categoryId: 2 },
-                { tm_name: 'Öýjükli telefon', ru_name: 'Мобильный телефон', en_name: 'Mobile phone', slug: 'öýjükli-telefon', categoryId: 3 },
-                { tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4 }
+                { tm_name: 'Miweler', ru_name: 'Фрукты', en_name: 'Fruits', slug: 'miweler', categoryId: 1, userId: 1 },
+                { tm_name: 'Gök önümler', ru_name: 'Овощи', en_name: 'Vegetables', slug: 'gök-önümler', categoryId: 1, userId: 2 },
+                { tm_name: 'Ýumurtga', ru_name: 'Яйцо', en_name: 'An egg', slug: 'ýumurtga', categoryId: 2, userId: 5 },
+                { tm_name: 'Peýnir', ru_name: 'Сыр', en_name: 'Cheese', slug: 'peýnir', categoryId: 2, userId: 6 },
+                { tm_name: 'Öýjükli telefon', ru_name: 'Мобильный телефон', en_name: 'Mobile phone', slug: 'öýjükli-telefon', categoryId: 3, userId: 7 },
+                { tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4, userId: 1 }
             ]).then(() => { console.log('Subcategories created') }).catch((err) => { console.log(err) })
 
             await Subscriptions.bulkCreate([
@@ -293,17 +311,15 @@ class AdminService {
             ]).then(() => { console.log('Subscriptions created') }).catch((err) => { console.log(err) })
 
             await Sellers.bulkCreate([
-                { name: 'Mekan dukan1', store_number: 1, store_floor: 1, about: 'hosh geldiniz!', logo: 'test1.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755727', second_number: '+99363755728', userId: 2, categoryId: 1, subscriptionId: 1 },
-                { name: 'Mekan dukan2', store_number: 2, store_floor: 1, about: 'hosh geldiniz!', logo: 'test2.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755729', second_number: '+99363755730', userId: 5, categoryId: 2, subscriptionId: 2 },
-                { name: 'Mekan dukan3', store_number: 3, store_floor: 1, about: 'hosh geldiniz!', logo: 'test3.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755731', second_number: '+99363755732', userId: 6, categoryId: 3, subscriptionId: 2 },
-                { name: 'Mekan dukan4', store_number: 4, store_floor: 1, about: 'hosh geldiniz!', logo: 'test4.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755733', second_number: '+99363755734', userId: 7, categoryId: 4, subscriptionId: 2 },
-                { name: 'Mekan dukan5', store_number: 5, store_floor: 1, about: 'hosh geldiniz!', logo: 'test5.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '+99363755735', second_number: '+99363755736', userId: 8, categoryId: 5, subscriptionId: 3 }
+                { name: 'Mekan dukan1', store_number: 1, store_floor: 1, about: 'hosh geldiniz!', logo: 'test1.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755727', second_number: '63755728', userId: 3, categoryId: 1, subscriptionId: 1 },
+                { name: 'Mekan dukan2', store_number: 2, store_floor: 1, about: 'hosh geldiniz!', logo: 'test2.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755729', second_number: '63755730', userId: 10, categoryId: 2, subscriptionId: 2 },
+                { name: 'Mekan dukan3', store_number: 3, store_floor: 2, about: 'hosh geldiniz!', logo: 'test3.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755731', second_number: '63755732', userId: 11, categoryId: 3, subscriptionId: 3 }
             ]).then(() => { console.log('Sellers created') }).catch((err) => { console.log(err) })
 
             await Products.bulkCreate([
                 { tm_name: 'alma', ru_name: 'яблоко', en_name: 'apple', tm_desc: 'alma1', ru_desc: 'яблоко1', en_desc: 'apple1', slug: 'alma', barcode: 11111, stock_code: 'aaaaaa', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 },
-                { tm_name: 'apelsin', ru_name: 'апельсин', en_name: 'orange', tm_desc: 'apelsin1', ru_desc: 'апельсин1', en_desc: 'orange1', slug: 'apelsin', barcode: 22222, stock_code: 'bbbbb', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 },
-                { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 }
+                { tm_name: 'apelsin', ru_name: 'апельсин', en_name: 'orange', tm_desc: 'apelsin1', ru_desc: 'апельсин1', en_desc: 'orange1', slug: 'apelsin', barcode: 22222, stock_code: 'bbbbb', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 2 },
+                { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 3 }
             ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
 
             await GroupPermissions.bulkCreate([
