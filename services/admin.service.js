@@ -241,6 +241,18 @@ class AdminService {
         }
     }
 
+    async deleteFeatureService(id) {
+        try {
+            const feature = await Features.destroy({ where: { id: Number(id) }, truncate: true })
+            if (!feature) {
+                return Response.NotFound('Brand tapylmady!', [])
+            }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DEFAULT
     async defaultCreateService() {
         try {
@@ -272,8 +284,10 @@ class AdminService {
             ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
 
             await Brands.bulkCreate([
-                { name: 'addidas', slug: 'addidas', img: 'test1.jpg', desc: 'abcdefg', userId: 1 },
-                { name: 'pumma', slug: 'pumma', img: 'test2.jpg', desc: 'abcdefg', userId: 2 }
+                { name: 'miweler', slug: 'miweler', img: 'test1.jpg', desc: 'abcdefg', userId: 1 },
+                { name: 'addidas', slug: 'addidas', img: 'test2.jpg', desc: 'abcdefg', userId: 1 },
+                { name: 'pumma', slug: 'pumma', img: 'test3.jpg', desc: 'abcdefg', userId: 2 },
+                { name: 'galaxy', slug: 'galaxy', img: 'test4.jpg', desc: 'abcdefg', userId: 2 }
             ]).then(() => { console.log('Brands created') }).catch((err) => { console.log(err) })
 
             await Storages.bulkCreate([
@@ -301,8 +315,15 @@ class AdminService {
                 { tm_name: 'Ýumurtga', ru_name: 'Яйцо', en_name: 'An egg', slug: 'ýumurtga', categoryId: 2, userId: 5 },
                 { tm_name: 'Peýnir', ru_name: 'Сыр', en_name: 'Cheese', slug: 'peýnir', categoryId: 2, userId: 6 },
                 { tm_name: 'Öýjükli telefon', ru_name: 'Мобильный телефон', en_name: 'Mobile phone', slug: 'öýjükli-telefon', categoryId: 3, userId: 7 },
+                { tm_name: 'Sensor telefon', ru_name: 'Сенсорный телефон', en_name: 'Touchscreen phone', slug: 'sensor-telefon', categoryId: 3 },
                 { tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4, userId: 1 }
             ]).then(() => { console.log('Subcategories created') }).catch((err) => { console.log(err) })
+
+            await Features.bulkCreate([
+                { tm_name: 'renk', ru_name: 'цвет', en_name: 'color', userId: 1 },
+                { tm_name: 'olceg', ru_name: 'измерение', en_name: 'dimension', userId: 2 },
+                { tm_name: 'model', ru_name: 'модель', en_name: 'model', userId: 2 },
+            ]).then(() => { console.log('Features created') }).catch((err) => { console.log(err) })
 
             await Subscriptions.bulkCreate([
                 { name: 'simple', order: 1, p_limit: 100, p_img_limit: 100, seller_banner_limit: 10, main_banner_limit: 1, ntf_limit: 10, smm_support: false, tech_support: false, voucher_limit: 10 },
@@ -312,14 +333,15 @@ class AdminService {
 
             await Sellers.bulkCreate([
                 { name: 'Mekan dukan1', store_number: 1, store_floor: 1, about: 'hosh geldiniz!', logo: 'test1.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755727', second_number: '63755728', userId: 3, categoryId: 1, subscriptionId: 1 },
-                { name: 'Mekan dukan2', store_number: 2, store_floor: 1, about: 'hosh geldiniz!', logo: 'test2.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755729', second_number: '63755730', userId: 10, categoryId: 2, subscriptionId: 2 },
+                { name: 'Mekan dukan2', store_number: 2, store_floor: 1, about: 'hosh geldiniz!', logo: 'test2.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755729', second_number: '63755730', userId: 10, categoryId: 1, subscriptionId: 2 },
                 { name: 'Mekan dukan3', store_number: 3, store_floor: 2, about: 'hosh geldiniz!', logo: 'test3.jpg', bg_img: 'bg.jpg', color: '#111', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755731', second_number: '63755732', userId: 11, categoryId: 3, subscriptionId: 3 }
             ]).then(() => { console.log('Sellers created') }).catch((err) => { console.log(err) })
 
             await Products.bulkCreate([
                 { tm_name: 'alma', ru_name: 'яблоко', en_name: 'apple', tm_desc: 'alma1', ru_desc: 'яблоко1', en_desc: 'apple1', slug: 'alma', barcode: 11111, stock_code: 'aaaaaa', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 },
                 { tm_name: 'apelsin', ru_name: 'апельсин', en_name: 'orange', tm_desc: 'apelsin1', ru_desc: 'апельсин1', en_desc: 'orange1', slug: 'apelsin', barcode: 22222, stock_code: 'bbbbb', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 2 },
-                { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 3 }
+                { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 2 },
+                { tm_name: 'Galaxy-A12', ru_name: 'Галакси-А12', en_name: 'Galaxy-A12', tm_desc: 'Galaxy-A12 desc', ru_desc: 'Галакси-А12 1', en_desc: 'Galaxy-A12 desc', slug: 'galaxy-a12', barcode: 44444, stock_code: 'ddddd', quantity: 10, org_price: 2000, sale_price: 19000, subcategoryId: 6, brandId: 4, sellerId: 3 }
             ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
 
             await GroupPermissions.bulkCreate([
