@@ -64,10 +64,6 @@ const adminSchema = {
         userId: Joi.number().positive().required()
     }),
 
-    addStaff: Joi.object({
-        userId: Joi.number().positive().required()
-    }),
-
     addSubscription: Joi.object({
         name: Joi.string().max(50).required(),
         order: Joi.number().integer().positive().required(),
@@ -80,12 +76,11 @@ const adminSchema = {
         smm_support: Joi.boolean().required(),
         tech_support: Joi.boolean().required(),
     }),
-
-    // DELETE
-    delete: Joi.object({
+    
+    idControl: Joi.object({
         id: Joi.number().positive().required()
     })
-
+    
 }
 
 module.exports = adminSchema

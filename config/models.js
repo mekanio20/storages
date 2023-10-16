@@ -275,7 +275,7 @@ const Features = database.define('features', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
-const FeatureDescriptions = database.define('featur_descriptions', {
+const FeatureDescriptions = database.define('feature_descriptions', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     desc: { type: DataTypes.STRING(50), allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
@@ -338,7 +338,7 @@ const SubcategoryFeatures = database.define('subcategory_features', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
-const ProductsFeatures = database.define('product_features', {
+const ProductFeatures = database.define('product_features', {
     id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
@@ -405,6 +405,11 @@ Customers.belongsToMany(Sellers, { through: Chats })
 
 Chats.hasMany(Messages)
 Messages.belongsTo(Chats)
+
+// Folowers -> SellerId, CustomerId
+
+Sellers.belongsToMany(Customers, { through: Followers })
+Customers.belongsToMany(Sellers, { through: Followers })
 
 // Products -> SubcategoryId,
 
@@ -516,10 +521,10 @@ SubcategoryFeatures.belongsTo(Users)
 Subcategories.belongsToMany(Features, { through: SubcategoryFeatures })
 Features.belongsToMany(Subcategories, { through: SubcategoryFeatures })
 
-// ProductsFeatures -> ProductId, FeatureDescriptionId 
+// ProductFeatures -> ProductId, FeatureDescriptionId 
 
-Products.belongsToMany(FeatureDescriptions, { through: ProductsFeatures })
-FeatureDescriptions.belongsToMany(Products, { through: ProductsFeatures })
+Products.belongsToMany(FeatureDescriptions, { through: ProductFeatures })
+FeatureDescriptions.belongsToMany(Products, { through: ProductFeatures })
 
 // Features -> UserId
 
@@ -579,5 +584,5 @@ module.exports = {
     Coupons, CouponItem, Storages, Categories, Subcategories,
     Features, FeatureDescriptions, Groups, GroupPermissions,
     Likes, Comments, Baskets, Offers, SubcategoryFeatures,
-    ProductsFeatures, Followers
+    ProductFeatures, Followers
 }

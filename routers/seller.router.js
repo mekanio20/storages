@@ -25,8 +25,9 @@ router.post('/add/product',
 
 // GET
 router.get('/:id',
-    // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.fetchOneSeller, 'params'),
+    authMiddleware,
+    // accessMiddleware(true),
+    valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.fetchOneSeller)
 
 // PUT
@@ -36,14 +37,15 @@ router.put('/update',
     sellerController.updateSellerProfile)
 
 // DELETE
-router.delete('/delete/seller/:id',
-    // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.delete, 'params'),
+router.delete('/:id',
+    authMiddleware, 
+    // accessMiddleware(true),
+    valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.deleteSeller)
 
 router.delete('/delete/product/:id',
     // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.delete, 'params'),
+    valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.deleteProduct)
 
 module.exports = router

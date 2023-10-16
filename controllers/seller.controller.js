@@ -60,9 +60,11 @@ class SellerController {
     async fetchOneSeller(req, res) {
         try {
             const { id } = req.params
-            console.log(id);
-            // const user = userPermission(req.user.id, id)
-            // if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            const user = userPermission(req.user.id, id)
+            if (!user) { 
+                let result = await Response.Forbidden('Rugsat edilmedi!', [])
+                return res.json(result)
+            }
             const data = await sellerService.fetchOneSellerService(id)
             return res.status(data.status).json({
                 status: data.status,
@@ -88,7 +90,10 @@ class SellerController {
         try {
             const body = req.body
             const user = userPermission(req.user.id, body.id)
-            if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            if (!user) { 
+                let result = await Response.Forbidden('Rugsat edilmedi!', [])
+                return res.json(result)
+            }
             const data = await sellerService.updateSellerProfileService(body)
             return res.status(data.status).json({
                 status: data.status,
@@ -115,7 +120,10 @@ class SellerController {
             const { id } = req.params
             const userId = req.user.id
             const user = userPermission(userId, id)
-            if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            if (!user) { 
+                let result = await Response.Forbidden('Rugsat edilmedi!', [])
+                return res.json(result)
+            }
             const data = await sellerService.deleteProductService(id, userId)
             return res.status(data.status).json({
                 status: data.status,
@@ -139,10 +147,12 @@ class SellerController {
     async deleteSeller(req, res) {
         try {
             const { id } = req.params
-            const userId = req.user.id
-            const user = userPermission(userId, id)
-            if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
-            const data = await sellerService.deleteSellerService(id, userId)
+            const user = userPermission(req.user.id, id)
+            if (!user) { 
+                let result = await Response.Forbidden('Rugsat edilmedi!', [])
+                return res.json(result)
+            }
+            const data = await sellerService.deleteSellerService(id, req.user.id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

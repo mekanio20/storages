@@ -17,10 +17,6 @@ const sellerSchema = {
         categoryId: Joi.number().positive().required(),
         subscriptionId: Joi.number().positive().required()
     }),
-
-    fetchOneSeller: Joi.object({
-        id: Joi.number().positive().required()
-    }),
     
     updateSellerProfile: Joi.object({
         id: Joi.number().positive().required(),
@@ -56,7 +52,7 @@ const sellerSchema = {
         sellerId: Joi.number().positive().required()
     }),
 
-    delete: Joi.object({
+    idControl: Joi.object({
         id: Joi.number().positive().required()
     }),
 }

@@ -1,5 +1,5 @@
 const Response = require('./response.service')
-const { Sellers, Users, Products, ProductImages, ProductsFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners } = require('../config/models')
+const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners } = require('../config/models')
 
 class SellerService {
 
@@ -91,21 +91,18 @@ class SellerService {
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 include: {
                     model: Users,
-                    attributes: ['id'],
                     where: {
-                        id: id
-                        // isSeller: true
+                        id: id,
+                        isSeller: true
                     }
                 }
             })
-            console.log(JSON.stringify(seller, null, 2));
+            console.log(JSON.stringify(seller, null, 2))
+            if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
             if (seller.isVerified === false) {
                 return Response.Unauthorized('Satyjy tassyklanmady!', [])
             }
-            if (seller.length > 0) {
-                return Response.Success('Üstünlikli!', seller)
-            }
-            return Response.NotFound('Satyjy tapylmady!', [])
+            return Response.Success('Üstünlikli!', seller)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -145,20 +142,21 @@ class SellerService {
                     }
                 }
             })
-            if (sellerId) {
-                await Products.destroy({ where: { sellerId: sellerId.id, id: productId } })
-                await ProductImages.destroy({ where: { productId: productId } })
-                await ProductReviews.destroy({ where: { productId: productId } })
-                await ProductReviewImages.destroy({ where: { productId: productId } })
-                await ProductsFeatures.destroy({ where: { productId: productId } })
-                await Offers.destroy({ where: { productId: productId } })
-                await Baskets.destroy({ where: { productId: productId } })
-                await Comments.destroy({ where: { productId: productId } })
-                await Likes.destroy({ where: { productId: productId } })
-                await Orders.destroy({ where: { productId: productId } })
-                return Response.Success('Haryt pozuldy!', [])
-            }
-            return Response.Forbidden('Rugsat edilmedi!', [])
+            console.log(JSON.stringify(sellerId, null, 2))
+            if (!sellerId) { return Response.NotFound('Haryt tapylmady!', []) }
+
+            await Products.destroy({ where: { sellerId: sellerId.id, id: productId } })
+            await ProductImages.destroy({ where: { productId: productId } })
+            await ProductReviews.destroy({ where: { productId: productId } })
+            await ProductReviewImages.destroy({ where: { productId: productId } })
+            await ProductFeatures.destroy({ where: { productId: productId } })
+            await Offers.destroy({ where: { productId: productId } })
+            await Baskets.destroy({ where: { productId: productId } })
+            await Comments.destroy({ where: { productId: productId } })
+            await Likes.destroy({ where: { productId: productId } })
+            await Orders.destroy({ where: { productId: productId } })
+            return Response.Success('Haryt pozuldy!', [])
+
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -166,22 +164,20 @@ class SellerService {
 
     async deleteSellerService(sellerId, userId) {
         try {
-            const seller = await Sellers.findOne({
-                attributes: ['id'],
-                where: { userId: userId }
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-            if (seller) {
-                await Users.destroy({ where: { id: userId } })
-                await Brands.destroy({ where: { userId: userId } })
-                await Notifications.destroy({ where: { userId: userId } })
-                await Banners.destroy({ where: { userId: userId } })
-                await Sellers.destroy({ where: { id: sellerId } })
-                await Chats.destroy({ where: { sellerId: sellerId }})
-                await Products.destroy({ where: { sellerId: sellerId } })
-                await Coupons.destroy({ where: { sellerId: sellerId } })
-                return Response.Success('Satyjy pozuldy!', [])
-            }
-            return Response.Forbidden('Rugsat edilmedi!', [])
+            const seller = await Sellers.findOne({ attributes: ['id'], where: { userId: userId } })
+            console.log(JSON.stringify(seller, null, 2))
+            if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
+
+            await Users.destroy({ where: { id: userId } })
+            await Brands.destroy({ where: { userId: userId } })
+            await Notifications.destroy({ where: { userId: userId } })
+            await Banners.destroy({ where: { userId: userId } })
+            await Sellers.destroy({ where: { id: sellerId } })
+            await Chats.destroy({ where: { sellerId: sellerId } })
+            await Products.destroy({ where: { sellerId: sellerId } })
+            await Coupons.destroy({ where: { sellerId: sellerId } })
+            return Response.Success('Satyjy pozuldy!', [])
+
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
