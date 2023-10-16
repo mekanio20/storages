@@ -56,7 +56,7 @@ const sellerSchema = {
         sellerId: Joi.number().positive().required()
     }),
 
-    deleteProduct: Joi.object({
+    delete: Joi.object({
         id: Joi.number().positive().required()
     }),
 }

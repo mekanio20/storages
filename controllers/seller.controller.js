@@ -2,7 +2,7 @@ const sellerService = require('../services/seller.service')
 const Response = require('../services/response.service')
 
 const userPermission = (reqId, userId) => {
-    if (reqId !== userId)
+    if (String(reqId) !== String(userId))
         return false
     return true
 }
@@ -12,7 +12,7 @@ class SellerController {
         try {
             const body = req.body
             const { logo } = req.files
-            if (!logo) { 
+            if (!logo) {
                 let result = await Response.BadRequest('logo gerek!', [])
                 return res.json(result)
             }
@@ -56,7 +56,7 @@ class SellerController {
             })
         }
     }
-    
+
     async fetchOneSeller(req, res) {
         try {
             const { id } = req.params
@@ -79,7 +79,7 @@ class SellerController {
                 msg_key: error.name,
                 detail: []
             })
-            
+
         }
     }
 
@@ -105,7 +105,7 @@ class SellerController {
                 msg_key: error.name,
                 detail: []
             })
-            
+
         }
     }
 
@@ -114,6 +114,8 @@ class SellerController {
         try {
             const { id } = req.params
             const userId = req.user.id
+            const user = userPermission(userId, id)
+            if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
             const data = await sellerService.deleteProductService(id, userId)
             return res.status(data.status).json({
                 status: data.status,
@@ -130,7 +132,33 @@ class SellerController {
                 msg_key: error.name,
                 detail: []
             })
-            
+
+        }
+    }
+
+    async deleteSeller(req, res) {
+        try {
+            const { id } = req.params
+            const userId = req.user.id
+            const user = userPermission(userId, id)
+            if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            const data = await sellerService.deleteSellerService(id, userId)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+
         }
     }
 }

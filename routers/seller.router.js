@@ -36,9 +36,14 @@ router.put('/update',
     sellerController.updateSellerProfile)
 
 // DELETE
+router.delete('/delete/seller/:id',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(sellerSchema.delete, 'params'),
+    sellerController.deleteSeller)
+
 router.delete('/delete/product/:id',
     // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.deleteProduct, 'params'),
+    valdidationMiddleware(sellerSchema.delete, 'params'),
     sellerController.deleteProduct)
 
 module.exports = router

@@ -1,8 +1,8 @@
 const Response = require('./response.service')
-const { Sellers, Users, Products, ProductImages } = require('../config/models')
+const { Sellers, Users, Products, ProductImages, ProductsFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners } = require('../config/models')
 
 class SellerService {
-    
+
     async isExists(Model, slug) {
         try {
             return Model.findAll({ where: { slug: slug } })
@@ -69,14 +69,14 @@ class SellerService {
                 sellerId: body.sellerId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             if (filenames.img) {
-                filenames.img.forEach( async (item, index) => {
+                filenames.img.forEach(async (item, index) => {
                     await ProductImages.create({
                         img: item.filename,
                         order: index + 1,
                         productId: product.id
                     })
-                    .then(() => { console.log('success') })
-                    .catch((err) => { console.log(err) })
+                        .then(() => { console.log('success') })
+                        .catch((err) => { console.log(err) })
                 })
             }
             return Response.Created('Haryt goýuldy!', product)
@@ -87,7 +87,7 @@ class SellerService {
 
     async fetchOneSellerService(id) {
         try {
-            const seller = await Sellers.findOne({  
+            const seller = await Sellers.findOne({
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 include: {
                     model: Users,
@@ -145,8 +145,43 @@ class SellerService {
                     }
                 }
             })
-            await Products.destroy({ where: { sellerId: sellerId.id, id: productId } })
-            return Response.Success('Haryt pozuldy!', [])
+            if (sellerId) {
+                await Products.destroy({ where: { sellerId: sellerId.id, id: productId } })
+                await ProductImages.destroy({ where: { productId: productId } })
+                await ProductReviews.destroy({ where: { productId: productId } })
+                await ProductReviewImages.destroy({ where: { productId: productId } })
+                await ProductsFeatures.destroy({ where: { productId: productId } })
+                await Offers.destroy({ where: { productId: productId } })
+                await Baskets.destroy({ where: { productId: productId } })
+                await Comments.destroy({ where: { productId: productId } })
+                await Likes.destroy({ where: { productId: productId } })
+                await Orders.destroy({ where: { productId: productId } })
+                return Response.Success('Haryt pozuldy!', [])
+            }
+            return Response.Forbidden('Rugsat edilmedi!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteSellerService(sellerId, userId) {
+        try {
+            const seller = await Sellers.findOne({
+                attributes: ['id'],
+                where: { userId: userId }
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            if (seller) {
+                await Users.destroy({ where: { id: userId } })
+                await Brands.destroy({ where: { userId: userId } })
+                await Notifications.destroy({ where: { userId: userId } })
+                await Banners.destroy({ where: { userId: userId } })
+                await Sellers.destroy({ where: { id: sellerId } })
+                await Chats.destroy({ where: { sellerId: sellerId }})
+                await Products.destroy({ where: { sellerId: sellerId } })
+                await Coupons.destroy({ where: { sellerId: sellerId } })
+                return Response.Success('Satyjy pozuldy!', [])
+            }
+            return Response.Forbidden('Rugsat edilmedi!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
