@@ -73,6 +73,11 @@ router.delete('/delete/brand/:id',
     valdidationMiddleware(adminSchema.delete, 'params'),
     adminController.deleteBrand)
 
+router.delete('/delete/feature',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.delete, 'params'),
+    adminController.deleteFeature)
+
 // DEFAULT
 router.get('/default', adminController.defaultCreate)
 
