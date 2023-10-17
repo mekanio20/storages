@@ -39,7 +39,13 @@ class AdminService {
     async addGroupService(name) {
         try {
             name = name.trim().toUpperCase()
-            const group = await Groups.create({ name: name })
+            const [group, created] = await Groups.findOrCreate({
+                where: { name: name },
+                defaults: {
+                    name: name
+                }
+            })
+            if (!created) { return Response.BadRequest('Grupba döredilen!', group) }
             return Response.Created('Grupba döredildi!', group)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -49,9 +55,7 @@ class AdminService {
     async addAccessPathService(url, method, groupId) {
         try {
             const isExist = await GroupPermissions.findAll({ where: { url: url, method: method, groupId: groupId } })
-            if (isExist.length > 0) {
-                return Response.Forbidden('Maglumat döredilen!', [])
-            }
+            if (isExist.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             const permission = await GroupPermissions.create({ url: url, method: method, groupId: groupId })
             return Response.Created('Maglumat döredildi!', permission)
         } catch (error) {
@@ -63,16 +67,14 @@ class AdminService {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _storage = await this.isExists(Storages, slug)
-            if (_storage.length > 0) {
-                return Response.Forbidden('Maglumat döredilen!', [])
-            }
+            if (_storage.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             const storage = await Storages.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
                 en_name: body.en_name || null,
                 slug: slug,
                 userId: body.userId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             return Response.Created('Maglumat döredildi!', storage)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -83,9 +85,7 @@ class AdminService {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _category = await this.isExists(Categories, slug)
-            if (_category) {
-                return Response.Forbidden('Maglumat döredilen!', [])
-            }
+            if (_category.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             const category = await Categories.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -93,7 +93,7 @@ class AdminService {
                 slug: slug,
                 storageId: body.storageId,
                 userId: body.userId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             return Response.Created('Maglumat döredildi!', category)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -104,9 +104,7 @@ class AdminService {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _subcategory = await this.isExists(Subcategories, slug)
-            if (_subcategory) {
-                return Response.Forbidden('Maglumat döredilen!', [])
-            }
+            if (_subcategory.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             const subcategory = await Subcategories.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -114,7 +112,7 @@ class AdminService {
                 slug: slug,
                 categoryId: body.categoryId,
                 userId: body.userId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             return Response.Created('Maglumat döredildi!', subcategory)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -124,15 +122,13 @@ class AdminService {
     async addFeatureService(body) {
         try {
             const _features = await Features.findAll({ where: { tm_name: body.tm_name } })
-            if (_features.length > 0) {
-                return Response.Forbidden('Feature döredilen!', [])
-            }
+            if (_features.length > 0) { return Response.BadRequest('Feature döredilen!', []) }
             const feature = await Features.create({ 
                 tm_name: body.tm_name, 
                 ru_name: body.ru_name || null, 
                 en_name: body.en_name || null, 
                 userId: body.userId 
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             return Response.Created('Maglumat döredildi!', feature)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -142,6 +138,8 @@ class AdminService {
     async addFeatureDescriptionService(body) {
         try {
             const { desc, featureId, userId } = body
+            const _featureDesc = await FeatureDescriptions.findAll({ where: { desc: desc, featureId: featureId } })
+            if (_featureDesc.length > 0) { return Response.BadRequest('Feature description döredilen!', []) }
             const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', featureDesc)
         } catch (error) {
@@ -152,6 +150,8 @@ class AdminService {
     async addSubcategoryFeatureService(body) {
         try {
             const { subcategoryId, featureId, userId } = body
+            const _subcategory_features = await SubcategoryFeatures.findAll({ where: { subcategoryId: subcategoryId, featureId: featureId } })
+            if (_subcategory_features.length > 0) { return Response.BadRequest('Subcategory feature döredilen!', []) }
             const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', subcategory_features)
         } catch (error) {
@@ -164,9 +164,7 @@ class AdminService {
             if (!brand_img) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.name.split(" ").join('-').toLowerCase()
             const brand = await this.isExists(Brands, slug)
-            if (brand.length > 0) {
-                return Response.Forbidden('Maglumat döredilen!', [])
-            }
+            if (brand.length > 0) { return Response.Forbidden('Maglumat döredilen!', []) }
             body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
             const brands = await Brands.create({ name: body.name, slug: slug, img: brand_img.filename, desc: body.desc || null, userId: body.userId })
             return Response.Created('Maglumat döredildi!', brands)
@@ -209,7 +207,7 @@ class AdminService {
                 voucher_limit: body.voucher_limit,
                 smm_support: body.smm_support,
                 tech_support: body.tech_support
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             return Response.Created('Subscription döredildi!', subscription)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -220,9 +218,7 @@ class AdminService {
     async deleteAccessPathService(id) {
         try {
             const permission = await GroupPermissions.destroy({ where: { id: Number(id) } })
-            if (!permission) {
-                return Response.NotFound('Permission tapylmady!', [])
-            }
+            if (!permission) { return Response.NotFound('Permission tapylmady!', []) }
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -232,9 +228,7 @@ class AdminService {
     async deleteBrandService(id) {
         try {
             const brand = await Brands.destroy({ where: { id: Number(id) } })
-            if (!brand) {
-                return Response.NotFound('Brand tapylmady!', [])
-            }
+            if (!brand) { return Response.NotFound('Brand tapylmady!', []) }
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -243,11 +237,21 @@ class AdminService {
 
     async deleteFeatureService(id) {
         try {
-            const feature = await Features.destroy({ where: { id: Number(id) }, truncate: true })
-            if (!feature) {
-                return Response.NotFound('Brand tapylmady!', [])
-            }
+            const feature = await Features.destroy({ where: { id: Number(id) } })
+            if (!feature) { return Response.NotFound('Feature tapylmady!', []) }
+            await SubcategoryFeatures.destroy({ where: { featureId: Number(id) } })
+            await FeatureDescriptions.destroy({ where: { featureId: Number(id) } })
             return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteGroupService(id) {
+        try {
+            const group = await Groups.destroy({ where: { id: Number(id) }})
+            if (!group) { return Response.NotFound('Group tapylmady!', []) }
+            return Response.Success('Üstünlikli', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

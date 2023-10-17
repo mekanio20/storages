@@ -54,28 +54,6 @@ class UserController {
         }
     }
 
-    async userLoginOTPverify(req, res) {
-        try {
-            const { phone, code } = req.body
-            const data = await userService.userLoginOTPverifyService(phone, code)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
     async userRegister(req, res) {
         try {
             const body = req.body
@@ -84,7 +62,7 @@ class UserController {
             let userAgent = req.headers['user-agent']
             console.log(userAgent);
             let regex = /(\bAndroid\b|\biPhone\b|\biPad\b|\biPod\b)/
-            let device = userAgent.match(regex) ? userAgent.match(regex) : 'WEB'
+            let device = userAgent.match(regex) ? userAgent.match(regex)[0] : 'WEB'
             console.log(body, ip, device);
             const data = await userService.userRegisterService(body, ip, device)
             return res.status(data.status).json({

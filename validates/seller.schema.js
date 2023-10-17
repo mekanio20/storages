@@ -63,10 +63,7 @@ const sellerSchema = {
     }),
 
     addProductFeature: Joi.object({
-        product_features: Joi.array([{
-            productId: Joi.number().positive().required(),
-            featureDescriptionId: Joi.number().positive().required()
-        }])
+        product_features: Joi.array().items(Joi.number()).required()
     })
 }
 

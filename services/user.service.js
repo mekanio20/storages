@@ -45,17 +45,13 @@ class UserService {
     async userLoginService(phone, password) {
         try {
             const user = await this.isExists(phone)
-            if (user.length === 0) {
-                return Response.Unauthorized('Ulanyjy tapylmady!', [])
-            }
+            if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             const hash = await bcrypt.compare(password, user[0].password)
-            if (hash) {
-                const token = generateJwt(user[0].id, user[0].groupId)
-                let response = await Response.Success('Üstünlikli!', user)
-                response.token = token
-                return response
-            }
-            return Response.Unauthorized('Parol nädogry!', [])
+            if (!hash) { return Response.Forbidden('Parol nädogry!', []) }
+            const token = generateJwt(user[0].id, user[0].groupId)
+            let response = await Response.Success('Üstünlikli!', user)
+            response.token = token
+            return response
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -63,13 +59,9 @@ class UserService {
 
     async forgotPasswordService(phone, orgPass, verifPass) { // should be updated
         try {
-            if (orgPass !== verifPass) {
-                return Response.BadRequest('Parol nädogry!', [])
-            }
+            if (orgPass !== verifPass) { return Response.BadRequest('Parol nädogry!', []) }
             const user = await this.isExists(phone)
-            if (user.length === 0) {
-                return Response.Unauthorized('Ulanyjy tapylmady!', [])
-            }
+            if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             return {}
             // send otp
             // -------------
@@ -79,12 +71,10 @@ class UserService {
         }
     }
 
-    async userRegisterService(body, ip, device) { // should be updated
+    async userRegisterService(body, ip, device) {
         try {
             const user = await this.isExists(body.phone)
-            if (user.length > 0) {
-                return Response.Forbidden('Ulanyjy hasaba alynan!', [])
-            }
+            if (user.length > 0) { return Response.BadRequest('Ulanyjy hasaba alynan!', []) }
             const hash = await bcrypt.hash(body.password, 5)
             const groupId = await this.getGroupId('USERS')
             const _user = await Users.create({
@@ -94,7 +84,7 @@ class UserService {
                 device: device,
                 uuid: uuid.v4(),
                 groupId: groupId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             const token = generateJwt(_user.id, groupId)
             let response = await Response.Created('Ulanyjy hasaba alyndy!', _user)
             response.token = token
@@ -115,10 +105,8 @@ class UserService {
                     email: email,
                     userId: userId
                 } 
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-            if (created == false) {
-                return Response.Forbidden('Müşteri hasaba alnan!', [])
-            }
+            })
+            if (created == false) { return Response.Forbidden('Müşteri hasaba alnan!', []) }
             await Users.update({ isCustomer: true }, { where: { id: userId } })
             return Response.Created('Müşteri hasaba alyndy!', customer)
         } catch (error) {
@@ -126,6 +114,135 @@ class UserService {
         }
     }
 
+    async addContactService(body) {
+        try {
+            const contact = await Contacts.create({
+                phone: body.phone,
+                email: body.email,
+                fullname: body.fullname,
+                message: body.message,
+                userId: body.userId || null
+            })
+            return Response.Created('Maglumat ugradyldy!', contact)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addProductReviewService(body) {
+        try {
+            const order = await Orders.findOne({
+                attributes: ['id'],
+                where: {
+                    customerId: body.customerId,
+                    productId: body.productId,
+                    status: 'completed'
+                }
+            })
+            if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
+            const review = await ProductReviews.create({
+                star: body.star,
+                productId: body.productId,
+                customerId: body.customerId
+            })
+            return Response.Created('Maglumat ugradyldy!', review)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addLikeService(body) {
+        try {
+            const likes = await Likes.create({
+                userId: body.userId,
+                productId: body.productId
+            })
+            return Response.Created('Like goyuldy!', likes)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addCommentService(body) {
+        try {
+            const order = await Orders.findOne({
+                attributes: ['id'],
+                where: {
+                    customerId: body.customerId,
+                    productId: body.productId,
+                    status: 'completed'
+                }
+            })
+            if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
+            const comments = await Comments.create({
+                customerId: body.customerId,
+                productId: body.productId,
+                comment: body.comment
+            })
+            return Response.Created('Teswir goyuldy!', comments)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addOrderService(body) {
+        try {
+            let order_id = null
+            let today = new Date()
+            const numbers = '0123456789'
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+            today = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear()
+            for (let i = 0; i < 4; i++) {
+                order_id += characters.charAt(Math.floor(Math.random() * characters.length))
+            }
+            for (let i = 0; i < 4; i++) {
+                order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
+            }
+            const order = await Orders.create({
+                fullname: body.fullname,
+                phone: body.phone,
+                address: body.address,
+                order_id: order_id,
+                status: 'inprocess',
+                payment: body.payment,
+                amount: body.amount,
+                time: today,
+                note: body.note,
+                customerId: body.customerId,
+                productId: body.productId
+            })
+            return Response.Created('Hasaba alyndy!', order)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addBasketService(body) {
+        try {
+            const basket = await Baskets.create({
+                quantity: body.quantity,
+                productId: body.productId,
+                customerId: body.customerId
+            })
+            return Response.Created('Harydynyz sebede goshuldy!', basket)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addFollowerService(body) {
+        try {
+            const follower = await Followers.create({
+                sellerId: body.sellerId,
+                customerId: body.customerId
+            })
+            return Response.Created('Follow doredildi!', follower)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // GET
     async userProfileService(id) {
         try {
             const user = await Users.findOne({
@@ -169,10 +286,8 @@ class UserService {
                 },
                 order: [['id', 'DESC']]
             })
-            if (storages.length > 0) {
-                return Response.Success('Üstünlikli!', storages)
-            }
-            return Response.NotFound('Maglumat tapylmady!', [])
+            if (!storages) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', storages)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -190,9 +305,7 @@ class UserService {
                 },
                 order: [['id', 'DESC']]
             })
-            if (categories.length > 0) {
-                return Response.Success('Üstünlikli!', categories)
-            }
+            if (categories.length > 0) { return Response.Success('Üstünlikli!', categories) }
             return Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -206,142 +319,8 @@ class UserService {
                 where: { isActive: true },
                 order: [['id', 'DESC']]
             })
-            if (brands.length > 0) {
-                return Response.Success('Üstünlikli!', brands)
-            }
-            return Response.NotFound('Maglumat tapylmady!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addContactService(body) {
-        try {
-            const contact = await Contacts.create({
-                phone: body.phone,
-                email: body.email,
-                fullname: body.fullname,
-                message: body.message,
-                userId: body.userId || null
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-            return Response.Created('Maglumat ugradyldy!', contact)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addProductReviewService(body) {
-        try {
-            const order = await Orders.findOne({
-                attributes: ['id'],
-                where: {
-                    customerId: body.customerId,
-                    productId: body.productId,
-                    status: 'completed'
-                }
-            })
-            if (order.id) {
-                const review = await ProductReviews.create({
-                    star: body.star,
-                    productId: body.productId,
-                    customerId: body.customerId
-                }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-                return Response.Created('Maglumat ugradyldy!', review)
-            }
-            return Response.Forbidden('Harydy sargyt etmediniz!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addLikeService(body) {
-        try {
-            const likes = await Likes.create({
-                userId: body.userId,
-                productId: body.productId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-            return Response.Created('Like goyuldy!', likes)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addCommentService(body) {
-        try {
-            const order = await Orders.findOne({
-                attributes: ['id'],
-                where: {
-                    customerId: body.customerId,
-                    productId: body.productId,
-                    status: 'completed'
-                }
-            })
-            if (order.id) {
-                const comments = await Comments.create({
-                    customerId: body.customerId,
-                    productId: body.productId,
-                    comment: body.comment
-                }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-                return Response.Created('Teswir goyuldy!', comments)
-            }
-            return Response.Forbidden('Harydy sargyt etmediniz!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addOrderService(body) {
-        try {
-            let order_id = null
-            let today = new Date()
-            const numbers = '0123456789'
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-            today = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear()
-            for (let i = 0; i < 4; i++) {
-                order_id += characters.charAt(Math.floor(Math.random() * characters.length))
-            }
-            for (let i = 0; i < 4; i++) {
-                order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
-            }
-            const order = await Orders.create({
-                fullname: body.fullname,
-                phone: body.phone,
-                address: body.address,
-                order_id: order_id,
-                status: 'inprocess',
-                payment: body.payment,
-                amount: body.amount,
-                time: today,
-                note: body.note,
-                customerId: body.customerId,
-                productId: body.productId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-            return Response.Created('Hasaba alyndy!', order)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addBasketService(body) {
-        try {
-            const basket = await Baskets.create({
-                quantity: body.quantity,
-                productId: body.productId,
-                customerId: body.customerId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-            return Response.Created('Harydynyz sebede goshuldy!', basket)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addFollowerService(body) {
-        try {
-            const follower = await Followers.create({
-                sellerId: body.sellerId,
-                customerId: body.customerId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
-            return Response.Created('Follow doredildi!', follower)
+            if (!brands) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', brands)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

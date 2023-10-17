@@ -7,42 +7,42 @@ const valdidationMiddleware = require('../middlewares/validation.middleware')
 const adminSchema = require('../validates/admin.schema')
 
 router.post('/add/group',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addGroup, 'body'),
     adminController.addGroup)
 
 router.post('/add/permission',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addPermission, 'body'),
     adminController.addAccessPath)
 
 router.post('/add/storage',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addStorage, 'body'),
     adminController.addStorage)
 
 router.post('/add/category',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addCategory, 'body'),
     adminController.addCategory)
 
-router.post('/add/subcateogory',
-    // authMiddleware, accessMiddleware(false),
+router.post('/add/subcategory',
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubcategory, 'body'),
     adminController.addSubcategory)
 
 router.post('/add/feature',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addFeature, 'body'),
     adminController.addFeature)
 
 router.post('/add/feature/desc',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addFeatureDescription, 'body'),
     adminController.addFeatureDescription)
 
 router.post('/add/subcategory/feature',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubcategoryFeature, 'body'),
     adminController.addSubcategoryFeature)
 
@@ -63,19 +63,24 @@ router.post('/add/subscription',
     adminController.addSubscription)
 
 // DELETE
+router.delete('/delete/group/:id',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteGroup)
+
 router.delete('/delete/permission/:id',
     // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(adminSchema.delete, 'params'),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteAccessPath)
 
 router.delete('/delete/brand/:id',
     // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(adminSchema.delete, 'params'),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteBrand)
 
-router.delete('/delete/feature',
+router.delete('/delete/feature/:id',
     // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(adminSchema.delete, 'params'),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteFeature)
 
 // DEFAULT

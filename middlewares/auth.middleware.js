@@ -2,10 +2,19 @@ const jwt = require('jsonwebtoken')
 
 module.exports = (req, res, next) => {
     try {
-        const bearer = req.headers.authorization.split(' ')[0]
-        const token = req.headers.authorization.split(' ')[1]
-        if (bearer.toLowerCase() !== 'bearer' || !token)
-            return next()
+        let bearer = req.headers.authorization ? req.headers.authorization.split(' ')[0] : null
+        let token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null
+        console.log('Bearer --> ', bearer, 'Token --> ', token)
+        if (!bearer || !token) {
+            return res.json({ 
+                status: 401,
+                type: 'error',
+                msg: 'Token nadogry!',
+                msg_key: 'unauthorized',
+                detail: []
+            })
+        }
+        if (bearer.toLowerCase() !== 'bearer' || !token) { return next() }
         const decoded = jwt.verify(token, process.env.PRIVATE_KEY)
         console.log(decoded)
         req.user = decoded

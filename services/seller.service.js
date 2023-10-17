@@ -14,12 +14,8 @@ class SellerService {
     async sellerRegisterService(body, filenames) {
         try {
             const seller = await Sellers.findAll({ attributes: ['id'], where: { name: body.name } })
-            if (seller.length > 0) {
-                return Response.Forbidden('Satyjy registrasiýa bolan!', [])
-            }
-            if (body.main_number === body.second_number) {
-                return Response.BadRequest('Telefon belgi nädogry!', [])
-            }
+            if (seller.length > 0) { return Response.Forbidden('Satyjy registrasiýa bolan!', []) }
+            if (body.main_number === body.second_number) { return Response.BadRequest('Telefon belgi nädogry!', []) }
             console.log(body);
             const _seller = await Sellers.create({
                 name: body.name,
@@ -38,7 +34,7 @@ class SellerService {
                 userId: body.userId,
                 categoryId: body.categoryId,
                 subscriptionId: body.subscriptionId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             return Response.Created('Satyjy hasaba alyndy!', _seller)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -67,7 +63,7 @@ class SellerService {
                 subscriptionId: body.subscriptionId,
                 brandId: body.brandId,
                 sellerId: body.sellerId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             if (filenames.img) {
                 filenames.img.forEach(async (item, index) => {
                     await ProductImages.create({
@@ -75,8 +71,8 @@ class SellerService {
                         order: index + 1,
                         productId: product.id
                     })
-                        .then(() => { console.log('success') })
-                        .catch((err) => { console.log(err) })
+                    .then(() => { console.log(true) })
+                    .catch((err) => { console.log(err) })
                 })
             }
             return Response.Created('Haryt goýuldy!', product)
@@ -91,7 +87,7 @@ class SellerService {
                 promocode: body.promocode || null,
                 discount: body.discount,
                 productId: body.productId
-            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            })
             return Response.Success('Arzanladysh goshuldy!', offer)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -123,9 +119,7 @@ class SellerService {
             })
             console.log(JSON.stringify(seller, null, 2))
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
-            if (seller.isVerified === false) {
-                return Response.Unauthorized('Satyjy tassyklanmady!', [])
-            }
+            if (seller.isVerified === false) { return Response.Unauthorized('Satyjy tassyklanmady!', []) }
             return Response.Success('Üstünlikli!', seller)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

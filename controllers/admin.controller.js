@@ -10,7 +10,6 @@ class AdminController {
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
-                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail,
@@ -33,7 +32,6 @@ class AdminController {
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
-                type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
                 detail: data.detail,
@@ -55,7 +53,6 @@ class AdminController {
             const data = await adminService.addStorageService(body)
             return res.status(data.status).json({
                 status: data.status,
-                type: data.type,
                 type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
@@ -322,6 +319,28 @@ class AdminController {
         try {
             const { id } = req.params
             const data = await adminService.deleteFeatureService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({ 
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: [] 
+            })
+        }
+    }
+
+    async deleteGroup(req, res) {
+        try {
+            const { id } = req.params
+            const data = await adminService.deleteGroupService(id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
