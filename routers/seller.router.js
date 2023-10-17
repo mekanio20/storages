@@ -16,12 +16,22 @@ router.post('/register',
     sellerController.sellerRegister)
 
 router.post('/add/product',
-    // authMiddleware, accessMiddleware(true),
+    // authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
         { name: "img", maxCount: 5 }
     ]),
     valdidationMiddleware(sellerSchema.addProduct, 'body'),
     sellerController.addProduct)
+
+router.post('/add/product/feature',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(sellerSchema.addProductFeature, 'body'),
+    sellerController.addProductFeature)
+
+router.post('/add/offer',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(sellerSchema.addOffer, 'body'),
+    sellerController.addOffer)
 
 // GET
 router.get('/:id',
@@ -29,6 +39,11 @@ router.get('/:id',
     // accessMiddleware(true),
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.fetchOneSeller)
+
+router.get('/followers/:id',
+    // authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(sellerSchema.idControl, 'params'),
+    sellerController.fetchFollowers)
 
 // PUT
 router.put('/update',

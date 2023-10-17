@@ -1,5 +1,5 @@
 const Response = require('./response.service')
-const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners } = require('../config/models')
+const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners, Followers, Customers } = require('../config/models')
 
 class SellerService {
 
@@ -85,6 +85,30 @@ class SellerService {
         }
     }
 
+    async addOfferService(body) {
+        try {
+            const offer = await Offers.create({
+                promocode: body.promocode || null,
+                discount: body.discount,
+                productId: body.productId
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            return Response.Success('Arzanladysh goshuldy!', offer)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addProductFeatureService(body) {
+        try {
+            await ProductFeatures.bulkCreate(body.product_features)
+                .then(() => { return Response.Created('Haryt ayratynlyklary goshuldy!', []) })
+                .catch((err) => { console.log(err) })
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // GET
     async fetchOneSellerService(id) {
         try {
             const seller = await Sellers.findOne({
@@ -103,6 +127,23 @@ class SellerService {
                 return Response.Unauthorized('Satyjy tassyklanmady!', [])
             }
             return Response.Success('Üstünlikli!', seller)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async fetchFollowersService(id) {
+        try {
+            const followers = await Followers.findAll({
+                where: { sellerId: Number(id) },
+                include: {
+                    model: Customers,
+                    attributes: ['id', 'fullnamme'],
+                    order: [['id', 'DESC']]
+                }
+            })
+            if (!followers) { return Response.NotFound('Follower yok!', []) }
+            return Response.Success('Follwerler!', followers)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

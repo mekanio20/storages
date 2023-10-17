@@ -55,6 +55,19 @@ const sellerSchema = {
     idControl: Joi.object({
         id: Joi.number().positive().required()
     }),
+
+    addOffer: Joi.object({
+        promocde: Joi.string().max(50).allow(null, ''),
+        discount: Joi.number().positive().required(),
+        productId: Joi.number().positive().required()
+    }),
+
+    addProductFeature: Joi.object({
+        product_features: Joi.array([{
+            productId: Joi.number().positive().required(),
+            featureDescriptionId: Joi.number().positive().required()
+        }])
+    })
 }
 
 module.exports = sellerSchema

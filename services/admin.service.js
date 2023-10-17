@@ -345,6 +345,7 @@ class AdminService {
             ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
 
             await GroupPermissions.bulkCreate([
+                // ADMIN ROUTERS
                 { url: '/api/admin/add/group', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/permission', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/storage', method: 'POST', groupId: 1 },
@@ -365,7 +366,26 @@ class AdminService {
                 { url: '/api/admin/add/staff', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
-                { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 }
+                { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/feature', method: 'DELETE', groupId: 1 },
+                // USER ROUTERS
+                { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },
+                { url: '/api/user/add/like', method: 'POST', groupId: 4 },
+                { url: '/api/user/add/comment', method: 'POST', groupId: 4 },
+                { url: '/api/user/add/order', method: 'POST', groupId: 4 },
+                { url: '/api/user/add/basket', method: 'POST', groupId: 4 },
+                { url: '/api/user/profile', method: 'GET', groupId: 4 },
+                { url: '/api/user/basket', method: 'GET', groupId: 4 },
+                // SELLER ROUTERS
+                { url: '/api/seller/register', method: 'POST', groupId: 4 },
+                { url: '/api/seller/add/product', method: 'POST', groupId: 3 },
+                { url: '/api/seller/add/offer', method: 'POST', groupId: 3 },
+                { url: '/api/seller/add/product/feature', method: 'POST', groupId: 3 },
+                { url: '/api/seller', method: 'GET', groupId: 3 },
+                { url: '/api/seller/update', method: 'PUT', groupId: 3 },
+                { url: '/api/seller', method: 'DELETE', groupId: 3 },
+                { url: '/api/seller/delete/product', method: 'DELETE', groupId: 3 },
+                { url: '/api/seller/delete/product', method: 'DELETE', groupId: 1 }
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])
