@@ -32,7 +32,7 @@ const userSchema = {
         userId: Joi.number().positive().required()
     }),
 
-    profile: Joi.object({
+    idControl: Joi.object({
        id: Joi.number().positive().required()
     }),
 
@@ -42,7 +42,7 @@ const userSchema = {
         customerId: Joi.number().positive().required()
     }),
 
-    addLike: Joi.object({
+    likeControl: Joi.object({
         productId: Joi.number().positive().required(),
         userId: Joi.number().positive().required()
     }),
@@ -67,6 +67,11 @@ const userSchema = {
     addBasket: Joi.object({
         quantity: Joi.number().positive().required(),
         productId: Joi.number().positive().required(),
+        customerId: Joi.number().positive().required()
+    }),
+
+    addFollower: Joi.object({
+        sellerId: Joi.number().positive().required(),
         customerId: Joi.number().positive().required()
     })
 }

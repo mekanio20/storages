@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews, Likes, Comments, Orders, Baskets, ProductImages } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews, Likes, Comments, Orders, Baskets, ProductImages, Followers } = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -330,6 +330,18 @@ class UserService {
                 customerId: body.customerId
             }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
             return Response.Created('Harydynyz sebede goshuldy!', basket)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addFollowerService(body) {
+        try {
+            const follower = await Followers.create({
+                sellerId: body.sellerId,
+                customerId: body.customerId
+            }).then(() => { console.log(true) }).catch((err) => { console.log(err) })
+            return Response.Created('Follow doredildi!', follower)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

@@ -2,7 +2,7 @@ const Response = require('../services/response.service')
 const userService = require('../services/user.service')
 
 const userPermission = (reqId, userId) => {
-    if (reqId !== userId)
+    if (String(reqId) !== String(userId))
         return false
     return true
 }
@@ -260,12 +260,37 @@ class UserController {
         }
     }
 
+    async addFollower(req, res) {
+        try {
+            const body = req.body
+            const data = await userService.addFollowerService(body)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     // GET
     async userProfile(req, res) {
         try {
             const { id } = req.params
-            // const user = userPermission(req.user.id, id)
-            // if (!user) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            const user = userPermission(req.user.id, id)
+            if (!user) { 
+                let result = await Response.Forbidden('Rugsat edilmedi!', [])
+                return res.json(result)
+            }
             const data = await userService.userProfileService(id)
             return res.status(data.status).json({
                 status: data.status,
@@ -396,6 +421,11 @@ class UserController {
     async deleteLike(req, res) {
         try {
             const { userId, productId } = req.params
+            const user = userPermission(req.user.id, userId)
+            if (!user) { 
+                let result = await Response.Forbidden('Rugsat edilmedi!', [])
+                return res.json(result)
+            }
             const data = await userService.deleteLikeService(userId, productId)
             return res.status(data.status).json({
                 status: data.status,

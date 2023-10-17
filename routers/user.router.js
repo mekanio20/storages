@@ -33,7 +33,7 @@ router.post('/add/product/review',
 
 router.post('/add/like',
     // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.addLike, 'body'),
+    valdidationMiddleware(userSchema.likeControl, 'body'),
     userController.addLike)
 
 router.post('/add/comment',
@@ -51,10 +51,15 @@ router.post('/add/basket',
     valdidationMiddleware(userSchema.addBasket, 'body'),
     userController.addBasket)
 
+router.post('/add/follower',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.addFollower, 'body'),
+    userController.addFollower)
+
 // GET
 router.get('/profile/:id',
     // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.profile, 'params'),
+    valdidationMiddleware(userSchema.idControl, 'params'),
     userController.userProfile)
 
 router.get('/storages', userController.allStorageList)
@@ -64,13 +69,13 @@ router.get('/product/search', userController.productSearch)
 
 router.get('/basket/:id',
     // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.profile, 'params'),
+    valdidationMiddleware(userSchema.idControl, 'params'),
     userController.fetchOneBasket)
 
 // DELETE
 router.delete('/delete/product/:productId/user/:userId',
-    // authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.addProductLike, 'params'),
+    // authMiddleware
+    valdidationMiddleware(userSchema.likeControl, 'params'),
     userController.deleteLike)
 
 module.exports = router
