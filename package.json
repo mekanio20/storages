@@ -10,6 +10,7 @@
   "author": "Mekan Baylyyew",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.5.1",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "cron": "^2.2.0",
