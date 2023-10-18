@@ -47,39 +47,39 @@ router.post('/add/subcategory/feature',
     adminController.addSubcategoryFeature)
 
 router.post('/add/brand',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
     valdidationMiddleware(adminSchema.addBrand, 'body'),
     adminController.addBrand)
 
 router.post('/add/staff',
-    // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(adminSchema.addStaff, 'body'),
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.idControl, 'body'),
     adminController.addStaff)
 
 router.post('/add/subscription',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubscription, 'body'),
     adminController.addSubscription)
 
 // DELETE
 router.delete('/delete/group/:id',
-    // authMiddleware, accessMiddleware(true),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteGroup)
 
 router.delete('/delete/permission/:id',
-    // authMiddleware, accessMiddleware(true),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteAccessPath)
 
 router.delete('/delete/brand/:id',
-    // authMiddleware, accessMiddleware(true),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteBrand)
 
 router.delete('/delete/feature/:id',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteFeature)
 

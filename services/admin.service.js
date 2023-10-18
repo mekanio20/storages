@@ -5,7 +5,8 @@ const Response = require('../services/response.service')
 const { Groups, GroupPermissions, Storages, Categories,
     Brands, Subcategories, Features, FeatureDescriptions,
     SubcategoryFeatures, Subscriptions, Sellers, Products,
-    Users } = require('../config/models')
+    Users, 
+    ProductFeatures} = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -45,7 +46,7 @@ class AdminService {
                     name: name
                 }
             })
-            if (!created) { return Response.BadRequest('Grupba döredilen!', group) }
+            if (!created) { return Response.BadRequest('Maglumat döredilen!', group) }
             return Response.Created('Grupba döredildi!', group)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -122,7 +123,7 @@ class AdminService {
     async addFeatureService(body) {
         try {
             const _features = await Features.findAll({ where: { tm_name: body.tm_name } })
-            if (_features.length > 0) { return Response.BadRequest('Feature döredilen!', []) }
+            if (_features.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             const feature = await Features.create({ 
                 tm_name: body.tm_name, 
                 ru_name: body.ru_name || null, 
@@ -139,7 +140,7 @@ class AdminService {
         try {
             const { desc, featureId, userId } = body
             const _featureDesc = await FeatureDescriptions.findAll({ where: { desc: desc, featureId: featureId } })
-            if (_featureDesc.length > 0) { return Response.BadRequest('Feature description döredilen!', []) }
+            if (_featureDesc.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', featureDesc)
         } catch (error) {
@@ -151,7 +152,7 @@ class AdminService {
         try {
             const { subcategoryId, featureId, userId } = body
             const _subcategory_features = await SubcategoryFeatures.findAll({ where: { subcategoryId: subcategoryId, featureId: featureId } })
-            if (_subcategory_features.length > 0) { return Response.BadRequest('Subcategory feature döredilen!', []) }
+            if (_subcategory_features.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', subcategory_features)
         } catch (error) {
@@ -164,7 +165,7 @@ class AdminService {
             if (!brand_img) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.name.split(" ").join('-').toLowerCase()
             const brand = await this.isExists(Brands, slug)
-            if (brand.length > 0) { return Response.Forbidden('Maglumat döredilen!', []) }
+            if (brand.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
             const brands = await Brands.create({ name: body.name, slug: slug, img: brand_img.filename, desc: body.desc || null, userId: body.userId })
             return Response.Created('Maglumat döredildi!', brands)
@@ -184,7 +185,9 @@ class AdminService {
     async addStaffService(userId) {
         try {
             const groupId = await this.getGroupId('STAFF')
-            await Users.update({ isStaff: true, isCustomer: false, groupId: groupId }, { where: { id: Number(userId) } })
+            // const staff = await Users.findOne({ where: { id: Number(userId), isStaff: true } })
+            // if (staff.length > 0) { return Response.BadRequest('Admin doredilen!', []) }
+            await Users.update({ isStaff: true, isCustomer: false, isSeller: false, groupId: groupId }, { where: { id: Number(userId) } })
             const token = generateJwt(userId, groupId)
             let response = await Response.Created('Admin hasaba alyndy!', [])
             response.token = token
@@ -196,6 +199,8 @@ class AdminService {
 
     async addSubscriptionService(body) {
         try {
+            const _subscription = await Subscriptions.findAll({ where: { name: body.name } })
+            if (_subscription.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
             const subscription = await Subscriptions.create({
                 name: body.name,
                 order: body.order,
@@ -237,10 +242,10 @@ class AdminService {
 
     async deleteFeatureService(id) {
         try {
-            const feature = await Features.destroy({ where: { id: Number(id) } })
-            if (!feature) { return Response.NotFound('Feature tapylmady!', []) }
             await SubcategoryFeatures.destroy({ where: { featureId: Number(id) } })
             await FeatureDescriptions.destroy({ where: { featureId: Number(id) } })
+            const feature = await Features.destroy({ where: { id: Number(id) } })
+            if (!feature) { return Response.NotFound('Feature tapylmady!', []) }
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -312,6 +317,21 @@ class AdminService {
                 { tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', storageId: 3, userId: 7 },
                 { tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', storageId: 4, userId: 8 }
             ]).then(() => { console.log('Categories created') }).catch((err) => { console.log(err) })
+            
+            await Features.bulkCreate([
+                { tm_name: 'renk', ru_name: 'цвет', en_name: 'color', userId: 1 },
+                { tm_name: 'olceg', ru_name: 'измерение', en_name: 'dimension', userId: 2 },
+                { tm_name: 'model', ru_name: 'модель', en_name: 'model', userId: 2 },
+            ]).then(() => { console.log('Features created') }).catch((err) => { console.log(err) })
+
+            await FeatureDescriptions.bulkCreate([
+                { desc: 'ak', featureId: 1, userId: 1 },
+                { desc: 'gara', featureId: 1, userId: 1 },
+                { desc: 'sary', featureId: 1, userId: 1 },
+                { desc: 'gyzyl', featureId: 1, userId: 1 },
+                { desc: 'Redmi', featureId: 3, userId: 2 },
+                { desc: 'Samsung', featureId: 3, userId: 2 }
+            ]).then(() => { console.log('Feature Descriptions created') }).catch((err) => { console.log(err) })
 
             await Subcategories.bulkCreate([
                 { tm_name: 'Miweler', ru_name: 'Фрукты', en_name: 'Fruits', slug: 'miweler', categoryId: 1, userId: 1 },
@@ -323,11 +343,11 @@ class AdminService {
                 { tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4, userId: 1 }
             ]).then(() => { console.log('Subcategories created') }).catch((err) => { console.log(err) })
 
-            await Features.bulkCreate([
-                { tm_name: 'renk', ru_name: 'цвет', en_name: 'color', userId: 1 },
-                { tm_name: 'olceg', ru_name: 'измерение', en_name: 'dimension', userId: 2 },
-                { tm_name: 'model', ru_name: 'модель', en_name: 'model', userId: 2 },
-            ]).then(() => { console.log('Features created') }).catch((err) => { console.log(err) })
+            await SubcategoryFeatures.bulkCreate([
+                { subcategoryId: 6, featureId: 1, userId: 1 },
+                { subcategoryId: 6, featureId: 3, userId: 1 },
+                { subcategoryId: 7, featureId: 2, userId: 1 }
+            ]).then(() => { console.log('Subcategory Features created') }).catch((err) => { console.log(err) })
 
             await Subscriptions.bulkCreate([
                 { name: 'simple', order: 1, p_limit: 100, p_img_limit: 100, seller_banner_limit: 10, main_banner_limit: 1, ntf_limit: 10, smm_support: false, tech_support: false, voucher_limit: 10 },
@@ -347,6 +367,11 @@ class AdminService {
                 { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 2 },
                 { tm_name: 'Galaxy-A12', ru_name: 'Галакси-А12', en_name: 'Galaxy-A12', tm_desc: 'Galaxy-A12 desc', ru_desc: 'Галакси-А12 1', en_desc: 'Galaxy-A12 desc', slug: 'galaxy-a12', barcode: 44444, stock_code: 'ddddd', quantity: 10, org_price: 2000, sale_price: 19000, subcategoryId: 6, brandId: 4, sellerId: 3 }
             ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
+
+            await ProductFeatures.bulkCreate([
+                { productId: 4, fatureDescriptionId: 2 },
+                { productId: 4, fatureDescriptionId: 6 }
+            ]).then(() => { console.log('Product Features created') }).catch((err) => { console.log(err) })
 
             await GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
@@ -369,6 +394,7 @@ class AdminService {
                 { url: '/api/admin/add/brand', method: 'POST', groupId: 3 },
                 { url: '/api/admin/add/staff', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
+                { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'DELETE', groupId: 1 },
