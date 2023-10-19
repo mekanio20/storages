@@ -5,9 +5,13 @@ class BannerController {
     async addBanner(req, res) {
         try {
             const body = req.body
+            const user = req.user
             const { tm_img } = req.files
-            if (!tm_img) { return Response.BadRequest('banner gerek!', []) }
-            const data = await bannerService.addBannerService(body, req.files)
+            if (!tm_img) {
+                let result = await Response.BadRequest('Banner gerek!', [])
+                return res.json(result)
+            }
+            const data = await bannerService.addBannerService(body, user, req.files)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -21,7 +25,7 @@ class BannerController {
                 type: 'error',
                 msg: error.message,
                 msg_key: error.name,
-                detail: [] 
+                detail: []
             })
         }
     }

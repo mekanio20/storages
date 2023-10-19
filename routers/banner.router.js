@@ -7,7 +7,7 @@ const valdidationMiddleware = require('../middlewares/validation.middleware')
 const bannerSchema = require('../validates/banner.schema')
 
 router.post('/add',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.BANNERS_PATH).fields([
         { name: "tm_img", maxCount: 1 },
         { name: "ru_img", maxCount: 1 },

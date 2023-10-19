@@ -415,7 +415,11 @@ class AdminService {
                 { url: '/api/seller/update', method: 'PUT', groupId: 3 },
                 { url: '/api/seller', method: 'DELETE', groupId: 3 },
                 { url: '/api/seller/delete/product', method: 'DELETE', groupId: 3 },
-                { url: '/api/seller/delete/product', method: 'DELETE', groupId: 1 }
+                { url: '/api/seller/delete/product', method: 'DELETE', groupId: 1 },
+                // BANNER ROUTERS
+                { url: '/api/banner/add', method: 'POST', groupId: 1 },
+                { url: '/api/banner/add', method: 'POST', groupId: 2 },
+                { url: '/api/banner/add', method: 'POST', groupId: 3 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])

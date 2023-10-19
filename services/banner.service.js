@@ -1,14 +1,33 @@
 const Response = require('../services/response.service')
-const { Banners } = require('../config/models')
+const { Banners, Subscriptions, Sellers, Groups } = require('../config/models')
 
 class BannerService {
-    async addBannerService(body, filenames) {
+    async addBannerService(body, user, filenames) {
         try {
-            const { tm_img, ru_img, en_img } = filenames
+            const group = await Groups.findOne({ attributes: ['name'], where: { id: user.group } })
+            if (group.name === 'SELLERS') {
+                const sellerId = await Sellers.findOne({ 
+                    attributes: ['subscriptionId'],
+                    where: {
+                        userId: user.id,
+                        isVerified: true
+                    }
+                })
+                const limit = await Subscriptions.findOne({ 
+                    attributes: ['seller_banner_limit'], 
+                    where: { id: sellerId.subscriptionId } 
+                })
+                const bannerCount = await Banners.count({ where: { userId: user.id } })
+                console.log('seller banner limit -> ', limit.seller_banner_limit);
+                console.log('banner count -> ', bannerCount);
+                if (Number(limit.seller_banner_limit) <= Number(bannerCount)) {
+                    return Response.Forbidden('Limidiniz doldy!', [])
+                }
+            }
             const banner = await Banners.create({
-                tm_img: tm_img[0].filename,
-                ru_img: ru_img[0].filename || null,
-                en_img: en_img[0].filename || null,
+                tm_img: filenames.tm_img[0].filename,
+                ru_img: filenames.ru_img ? filenames.ru_img[0].filename : null,
+                en_img: filenames.en_img ? filenames.en_img[0].filename : null,
                 url: body.url,
                 type: body.type,
                 sort_order: body.sort_order,
