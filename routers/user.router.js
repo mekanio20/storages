@@ -7,7 +7,7 @@ const userSchema = require('../validates/user.schema')
 
 // POST
 router.post('/login',
-    valdidationMiddleware(userSchema.login, 'body'),
+    // valdidationMiddleware(userSchema.login, 'body'),
     userController.userLogin)
 
 router.post('/forgot', // should be updated
@@ -61,6 +61,11 @@ router.get('/profile/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),
     userController.userProfile)
+
+router.get('/all',
+    authMiddleware, 
+    // accessMiddleware(false),
+    userController.allUsers)
 
 router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)

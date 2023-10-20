@@ -11,6 +11,7 @@ class UserController {
 
     async userLogin(req, res) {
         try {
+            console.log(req.body);
             const { phone, password } = req.body
             const data = await userService.userLoginService(phone, password)
             return res.status(data.status).json({
@@ -333,6 +334,27 @@ class UserController {
     async allBrandList(req, res) {
         try {
             const data = await userService.allBrandListService()
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async allUsers(req, res) {
+        try {
+            const data = await userService.allUsersService()
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

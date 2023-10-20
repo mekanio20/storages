@@ -6,7 +6,7 @@ class BannerService {
         try {
             const group = await Groups.findOne({ attributes: ['name'], where: { id: user.group } })
             if (group.name === 'SELLERS') {
-                const sellerId = await Sellers.findOne({ 
+                const seller = await Sellers.findOne({ 
                     attributes: ['subscriptionId'],
                     where: {
                         userId: user.id,
@@ -15,7 +15,7 @@ class BannerService {
                 })
                 const limit = await Subscriptions.findOne({ 
                     attributes: ['seller_banner_limit'], 
-                    where: { id: sellerId.subscriptionId } 
+                    where: { id: seller.subscriptionId } 
                 })
                 const bannerCount = await Banners.count({ where: { userId: user.id } })
                 console.log('seller banner limit -> ', limit.seller_banner_limit);

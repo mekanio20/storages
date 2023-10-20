@@ -326,6 +326,25 @@ class UserService {
         }
     }
 
+    async allUsersService() {
+        try {
+            const users = await Users.findAll({
+                attributes: { exclude: ['password', 'uuid', 'groupId', 'createdAt', 'updatedAt'] },
+                where: { isActive: true },
+                include: {
+                    model: Groups,
+                    attributes: ['id', 'name']
+                },
+                order: [['id', 'DESC']]
+            })
+            console.log(JSON.stringify(users, null, 2));
+            if (!users) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', users)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async productSearchService(search) {
         try {
             let page = search.page || 1
