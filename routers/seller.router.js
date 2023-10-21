@@ -7,7 +7,7 @@ const valdidationMiddleware = require('../middlewares/validation.middleware')
 const sellerSchema = require('../validates/seller.schema')
 
 router.post('/register',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.SELLERS_PATH).fields([
         { name: "logo", maxCount: 1 },
         { name: "bg_img", maxCount: 1 }
@@ -16,7 +16,7 @@ router.post('/register',
     sellerController.sellerRegister)
 
 router.post('/add/product',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
         { name: "img", maxCount: 5 }
     ]),

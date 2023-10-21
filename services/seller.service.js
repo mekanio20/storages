@@ -1,5 +1,5 @@
 const Response = require('./response.service')
-const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners, Followers, Customers } = require('../config/models')
+const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners, Followers, Customers, Subscriptions } = require('../config/models')
 
 class SellerService {
 
@@ -46,6 +46,35 @@ class SellerService {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _product = await this.isExists(Products, slug)
             if (_product.length > 0) { return Response.Forbidden('Maglumat döredilen!', []) }
+            const subscription = await Sellers.findOne({
+                attributes: ['subscriptionId'],
+                where: { 
+                    id: body.sellerId
+                }
+            })
+            console.log('SUBSCTIPTIONS', subscription);
+            const limits = await Subscriptions.findOne({
+                attributes: ['p_limit', 'p_img_limit'],
+                where: {
+                    id: subscription.subscriptionId
+                }
+            })
+            console.log('LIMITS', limits);
+            await Products.findAll({
+                attributes: ['slug'],
+                where: { sellerId: body.sellerId },
+                include: { model: ProductImages },
+                order: [['id', 'ASC']]
+            }).then((res) => { 
+                const product_count = res.length
+                const image_count = res.reduce((count, product) => count + product.product_images.length, 0)
+                console.log('PRODUCT COUNT: ', product_count)
+                console.log('IMAGE COUNT: ', image_count)
+                if (product_count >= limits.p_limit || image_count >= limits.p_img_limit) {
+                    return Response.Forbidden('Limidiniz doldy!', [])
+                }
+            }).catch((err) => { console.log(err) })
+            console.log('LOADING...')
             const product = await Products.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,

@@ -406,6 +406,9 @@ class AdminService {
                 { url: '/api/user/add/basket', method: 'POST', groupId: 4 },
                 { url: '/api/user/profile', method: 'GET', groupId: 4 },
                 { url: '/api/user/basket', method: 'GET', groupId: 4 },
+                { url: '/api/user/all', method: 'GET', groupId: 1 },
+                { url: '/api/user/all', method: 'GET', groupId: 2 },
+                { url: '/api/user/all', method: 'GET', groupId: 3 },
                 // SELLER ROUTERS
                 { url: '/api/seller/register', method: 'POST', groupId: 4 },
                 { url: '/api/seller/add/product', method: 'POST', groupId: 3 },

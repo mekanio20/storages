@@ -2085,7 +2085,6 @@
 ::ffff:127.0.0.1 - - [15/Oct/2023:12:38:04 +0000] "GET /api/admin/default HTTP/1.1" 201 103
 ::ffff:127.0.0.1 - - [15/Oct/2023:13:09:06 +0000] "GET /api/admin/default HTTP/1.1" 201 103
 ::ffff:127.0.0.1 - - [15/Oct/2023:13:38:45 +0000] "GET /api/admin/default HTTP/1.1" 201 103
-<<<<<<< HEAD
 ::1 - - [15/Oct/2023:15:02:13 +0000] "GET / HTTP/1.1" 404 291
 ::1 - - [15/Oct/2023:15:02:14 +0000] "GET /favicon.ico HTTP/1.1" 404 291
 ::1 - - [15/Oct/2023:15:02:24 +0000] "GET /api-docs/ HTTP/1.1" 304 -
@@ -2101,9 +2100,7 @@
 ::1 - - [15/Oct/2023:15:02:43 +0000] "GET /api/ HTTP/1.1" 404 291
 ::1 - - [15/Oct/2023:15:04:55 +0000] "GET / HTTP/1.1" 404 291
 ::1 - - [15/Oct/2023:15:05:38 +0000] "GET / HTTP/1.1" 404 291
-=======
 ::ffff:127.0.0.1 - - [16/Oct/2023:04:39:54 +0000] "GET /api/admin/default HTTP/1.1" 201 103
->>>>>>> 08e5131d78b6c690fbaef324e9e97c2535074576
 ::ffff:127.0.0.1 - - [17/Oct/2023:13:35:44 +0000] "GET /api/admin/default HTTP/1.1" 201 103
 ::ffff:127.0.0.1 - - [17/Oct/2023:13:36:21 +0000] "GET /api/admin/default HTTP/1.1" 201 103
 ::ffff:127.0.0.1 - - [17/Oct/2023:13:37:41 +0000] "POST /api/user/register HTTP/1.1" 400 96
@@ -2351,3 +2348,42 @@
 ::ffff:127.0.0.1 - - [20/Oct/2023:19:56:06 +0000] "GET /api/user/all HTTP/1.1" 403 88
 ::ffff:127.0.0.1 - - [20/Oct/2023:19:56:42 +0000] "GET /api/user/all HTTP/1.1" 200 2114
 ::ffff:127.0.0.1 - - [20/Oct/2023:19:57:25 +0000] "GET /api/user/all HTTP/1.1" 200 2114
+::ffff:127.0.0.1 - - [21/Oct/2023:16:39:35 +0000] "POST /api/seller/add/product HTTP/1.1" 400 101
+::ffff:127.0.0.1 - - [21/Oct/2023:16:39:53 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:41:05 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:41:19 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:41:58 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:42:25 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:43:17 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:43:43 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:44:11 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:48:45 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:50:41 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:51:21 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:52:13 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:52:47 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:53:59 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:55:02 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:16:55:36 +0000] "POST /api/seller/add/product HTTP/1.1" 200 102
+::ffff:127.0.0.1 - - [21/Oct/2023:16:56:33 +0000] "POST /api/seller/add/product HTTP/1.1" 200 102
+::ffff:127.0.0.1 - - [21/Oct/2023:16:57:26 +0000] "POST /api/seller/add/product HTTP/1.1" 200 102
+::ffff:127.0.0.1 - - [21/Oct/2023:17:02:08 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:03:01 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:03:25 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:04:56 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:05:20 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:05:52 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:06:36 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:07:44 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:08:31 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:09:30 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:09:51 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:10:34 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:12:52 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:13:19 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:13:53 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:15:07 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:15:24 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:16:11 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:19:39 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [21/Oct/2023:17:21:28 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
