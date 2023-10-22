@@ -2387,3 +2387,7 @@
 ::ffff:127.0.0.1 - - [21/Oct/2023:17:16:11 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
 ::ffff:127.0.0.1 - - [21/Oct/2023:17:19:39 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
 ::ffff:127.0.0.1 - - [21/Oct/2023:17:21:28 +0000] "POST /api/seller/add/product HTTP/1.1" 500 41
+::ffff:127.0.0.1 - - [22/Oct/2023:06:37:08 +0000] "GET /api/admin/default HTTP/1.1" 201 103
+::ffff:127.0.0.1 - - [22/Oct/2023:06:39:59 +0000] "GET /api/user/all HTTP/1.1" 200 89
+::ffff:127.0.0.1 - - [22/Oct/2023:06:40:24 +0000] "GET /api/user/all HTTP/1.1" 200 91
+::ffff:127.0.0.1 - - [22/Oct/2023:06:40:46 +0000] "GET /api/user/all HTTP/1.1" 200 2114

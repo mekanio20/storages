@@ -1,7 +1,6 @@
-/node_modules
-/public
+node_modules/*
+public/*
 .env
-*.log
-/package.json
-/test.js
-/default.js
+access.log
+package.json/*
+test.js

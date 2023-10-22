@@ -312,11 +312,16 @@ class UserService {
         }
     }
 
-    async allBrandListService() {
+    async allBrandListService(q) {
         try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
             const brands = await Brands.findAll({
                 attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] },
                 where: { isActive: true },
+                limit: Number(limit),
+                offset: Number(offset),
                 order: [['id', 'DESC']]
             })
             if (!brands) { return Response.NotFound('Maglumat tapylmady!', []) }
@@ -326,8 +331,11 @@ class UserService {
         }
     }
 
-    async allUsersService() {
+    async allUsersService(q) {
         try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
             const users = await Users.findAll({
                 attributes: { exclude: ['password', 'uuid', 'groupId', 'createdAt', 'updatedAt'] },
                 where: { isActive: true },
@@ -335,6 +343,8 @@ class UserService {
                     model: Groups,
                     attributes: ['id', 'name']
                 },
+                limit: Number(limit),
+                offset: Number(offset),
                 order: [['id', 'DESC']]
             })
             console.log(JSON.stringify(users, null, 2));

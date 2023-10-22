@@ -7,7 +7,7 @@ const userSchema = require('../validates/user.schema')
 
 // POST
 router.post('/login',
-    // valdidationMiddleware(userSchema.login, 'body'),
+    valdidationMiddleware(userSchema.login, 'body'),
     userController.userLogin)
 
 router.post('/forgot', // should be updated

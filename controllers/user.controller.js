@@ -11,7 +11,6 @@ class UserController {
 
     async userLogin(req, res) {
         try {
-            console.log(req.body);
             const { phone, password } = req.body
             const data = await userService.userLoginService(phone, password)
             return res.status(data.status).json({
@@ -333,7 +332,8 @@ class UserController {
 
     async allBrandList(req, res) {
         try {
-            const data = await userService.allBrandListService()
+            const q = req.query
+            const data = await userService.allBrandListService(q)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -354,7 +354,8 @@ class UserController {
 
     async allUsers(req, res) {
         try {
-            const data = await userService.allUsersService()
+            const q = req.query
+            const data = await userService.allUsersService(q)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
