@@ -450,6 +450,7 @@ class AdminService {
                 // PRODUCT ROUTERS
                 { url: '/api/product/add', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/feature', method: 'POST', groupId: 3 },
+                { url: '/api/product/add/review', method: 'POST', groupId: 4 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])
