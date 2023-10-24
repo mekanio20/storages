@@ -2391,3 +2391,14 @@
 ::ffff:127.0.0.1 - - [22/Oct/2023:06:39:59 +0000] "GET /api/user/all HTTP/1.1" 200 89
 ::ffff:127.0.0.1 - - [22/Oct/2023:06:40:24 +0000] "GET /api/user/all HTTP/1.1" 200 91
 ::ffff:127.0.0.1 - - [22/Oct/2023:06:40:46 +0000] "GET /api/user/all HTTP/1.1" 200 2114
+::1 - - [24/Oct/2023:07:02:36 +0000] "POST /api/admin/add/group HTTP/1.1" 201 204
+::1 - - [24/Oct/2023:07:02:53 +0000] "POST /api/admin/add/group HTTP/1.1" 400 208
+::1 - - [24/Oct/2023:07:03:24 +0000] "POST /api/admin/add/permission HTTP/1.1" 201 242
+::1 - - [24/Oct/2023:07:03:32 +0000] "POST /api/admin/add/permission HTTP/1.1" 400 94
+::1 - - [24/Oct/2023:07:09:45 +0000] "POST /api/admin/add/group HTTP/1.1" 400 113
+::1 - - [24/Oct/2023:07:09:54 +0000] "POST /api/admin/add/group HTTP/1.1" 400 128
+::1 - - [24/Oct/2023:07:11:06 +0000] "POST /api/admin/add/group HTTP/1.1" 400 113
+::1 - - [24/Oct/2023:07:11:20 +0000] "POST /api/admin/add/group HTTP/1.1" 400 113
+::1 - - [24/Oct/2023:07:11:25 +0000] "POST /api/admin/add/group HTTP/1.1" 400 128
+::1 - - [24/Oct/2023:07:11:32 +0000] "POST /api/admin/add/group HTTP/1.1" 201 203
+::1 - - [24/Oct/2023:07:11:34 +0000] "POST /api/admin/add/group HTTP/1.1" 400 213

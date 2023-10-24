@@ -6,7 +6,7 @@ class CommentController {
     async addComment(req, res) {
         try {
             const body = req.body
-            const data = await commentService.addCommentService(body)
+            const data = await commentService.addCommentService(body, req.files)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

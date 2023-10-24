@@ -446,10 +446,10 @@ ProductReviews.belongsTo(Products)
 Customers.hasMany(ProductReviews)
 ProductReviews.belongsTo(Customers)
 
-// ProductReviewImages -> ProductId,
+// ProductReviewImages -> CommentId,
 
-Products.hasMany(ProductReviewImages)
-ProductReviewImages.belongsTo(Products)
+Comments.hasMany(ProductReviewImages)
+ProductReviewImages.belongsTo(Comments)
 
 // ProductReviewImages -> CustomerId,
 

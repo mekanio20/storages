@@ -9,6 +9,9 @@ const commentSchema = require('../validates/comment.schema')
 // POST
 router.post('/add',
     // authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.PRODUCT_REVIEW).fields([
+        { name: "review", maxCount: 3 }
+    ]),
     valdidationMiddleware(commentSchema.addComment, 'body'),
     commentController.addComment)
 

@@ -6,7 +6,8 @@ const { Groups, GroupPermissions, Storages, Categories,
     Brands, Subcategories, Features, FeatureDescriptions,
     SubcategoryFeatures, Subscriptions, Sellers, Products,
     Users, 
-    ProductFeatures} = require('../config/models')
+    ProductFeatures,
+    Contacts} = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -46,7 +47,7 @@ class AdminService {
                     name: name
                 }
             })
-            if (!created) { return Response.BadRequest('Maglumat döredilen!', group) }
+            if (!created) { return Response.BadRequest('Maglumat eyyam döredilen!', group) }
             return Response.Created('Grupba döredildi!', group)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -56,7 +57,7 @@ class AdminService {
     async addAccessPathService(url, method, groupId) {
         try {
             const isExist = await GroupPermissions.findAll({ where: { url: url, method: method, groupId: groupId } })
-            if (isExist.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (isExist.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const permission = await GroupPermissions.create({ url: url, method: method, groupId: groupId })
             return Response.Created('Maglumat döredildi!', permission)
         } catch (error) {
@@ -68,7 +69,7 @@ class AdminService {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _storage = await this.isExists(Storages, slug)
-            if (_storage.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (_storage.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const storage = await Storages.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -86,7 +87,7 @@ class AdminService {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _category = await this.isExists(Categories, slug)
-            if (_category.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (_category.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const category = await Categories.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -105,7 +106,7 @@ class AdminService {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _subcategory = await this.isExists(Subcategories, slug)
-            if (_subcategory.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (_subcategory.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const subcategory = await Subcategories.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -123,7 +124,7 @@ class AdminService {
     async addFeatureService(body) {
         try {
             const _features = await Features.findAll({ where: { tm_name: body.tm_name } })
-            if (_features.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (_features.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const feature = await Features.create({ 
                 tm_name: body.tm_name, 
                 ru_name: body.ru_name || null, 
@@ -140,7 +141,7 @@ class AdminService {
         try {
             const { desc, featureId, userId } = body
             const _featureDesc = await FeatureDescriptions.findAll({ where: { desc: desc, featureId: featureId } })
-            if (_featureDesc.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (_featureDesc.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', featureDesc)
         } catch (error) {
@@ -152,7 +153,7 @@ class AdminService {
         try {
             const { subcategoryId, featureId, userId } = body
             const _subcategory_features = await SubcategoryFeatures.findAll({ where: { subcategoryId: subcategoryId, featureId: featureId } })
-            if (_subcategory_features.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (_subcategory_features.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId, userId: userId })
             return Response.Created('Maglumat döredildi!', subcategory_features)
         } catch (error) {
@@ -165,7 +166,7 @@ class AdminService {
             if (!brand_img) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.name.split(" ").join('-').toLowerCase()
             const brand = await this.isExists(Brands, slug)
-            if (brand.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (brand.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
             const brands = await Brands.create({ name: body.name, slug: slug, img: brand_img.filename, desc: body.desc || null, userId: body.userId })
             return Response.Created('Maglumat döredildi!', brands)
@@ -200,7 +201,7 @@ class AdminService {
     async addSubscriptionService(body) {
         try {
             const _subscription = await Subscriptions.findAll({ where: { name: body.name } })
-            if (_subscription.length > 0) { return Response.BadRequest('Maglumat döredilen!', []) }
+            if (_subscription.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const subscription = await Subscriptions.create({
                 name: body.name,
                 order: body.order,
@@ -220,6 +221,20 @@ class AdminService {
     }
 
     // GET
+    async allGroupsService(q) {
+        try {
+            const groups = await Groups.findAll({
+                where: { isActive: true },
+                attributes: ['id', 'name'],
+                order: [['id', 'ASC']]
+            })
+            if (!groups) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', groups)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async allPermissionsService(q) {
         try {
             let page = q.page || 1
@@ -237,6 +252,22 @@ class AdminService {
             })
             if (!permissions) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', permissions)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async allContactsService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const contact = await Contacts.findAll({
+                limit: Number(limit),
+                offset: Number(offset)
+            })
+            if (!contact) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', contact)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -421,6 +452,7 @@ class AdminService {
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/all/groups', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
                 // USER ROUTERS
                 { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },

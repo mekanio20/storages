@@ -63,9 +63,17 @@ router.post('/add/subscription',
     adminController.addSubscription)
 
 // GET
+router.get('/all/groups',
+    // authMiddleware, accessMiddleware(false),
+    adminController.allGroups)
+
 router.get('/all/permissions',
     // authMiddleware, accessMiddleware(false),
     adminController.allPermissions)
+
+router.get('/all/contacts',
+    // authMiddleware, accessMiddleware(false),
+    adminController.allContacts)
 
 // DELETE
 router.delete('/delete/group/:id',

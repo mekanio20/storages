@@ -28,6 +28,10 @@ const productSchema = {
         productId: Joi.number().positive().required(),
         customerId: Joi.number().positive().required()
     }),
+
+    idControl: Joi.object({
+        id: Joi.number().positive().required()
+    })
 }
 
 module.exports = productSchema

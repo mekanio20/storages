@@ -1,9 +1,9 @@
 const Response = require('../services/response.service')
-const { Orders, Comments, Customers } = require('../config/models')
+const { Orders, Comments, Customers, ProductReviewImages } = require('../config/models')
 
 class CommentService {
     // POST
-    async addCommentService(body) {
+    async addCommentService(body, filenames) {
         try {
             const order = await Orders.findOne({
                 attributes: ['id'],
@@ -19,6 +19,13 @@ class CommentService {
                 productId: body.productId,
                 comment: body.comment
             })
+            if (filenames.review) {
+                filenames.review.forEach(async (item) => {
+                    await ProductReviewImages.create({ img: item.filename })
+                    .then(() => { console.log(true) })
+                    .catch((err) => { console.log(err) })
+                })
+            }
             return Response.Created('Teswir goyuldy!', comments)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -34,10 +41,17 @@ class CommentService {
                     isActive: true
                 },
                 attributes: ['id', 'comment'],
-                include: {
-                    model: Customers,
-                    attributes: ['id', 'fullname']
-                },
+                include: [
+                    {
+                        model: Customers,
+                        attributes: ['id', 'fullname']
+                    },
+                    {
+                        model: ProductReviewImages,
+                        where: { isActive: true },
+                        attributes: ['id', 'img']
+                    }
+                ],
                 order: [['id', 'ASC']]
             })
             return Response.Success('Üstünlikli!', comments)

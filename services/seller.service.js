@@ -15,7 +15,7 @@ class SellerService {
         try {
             const seller = await Sellers.findAll({ attributes: ['id'], where: { name: body.name } })
             if (seller.length > 0) { return Response.Forbidden('Satyjy registrasiýa bolan!', []) }
-            if (body.main_number === body.second_number) { return Response.BadRequest('Telefon belgi nädogry!', []) }
+            if (body.main_number === body.second_number) { return Response.BadRequest('Iki sany menzesh nomer bolup bilmez!', []) }
             console.log(body);
             const _seller = await Sellers.create({
                 name: body.name,

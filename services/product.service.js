@@ -1,5 +1,5 @@
 const Response = require('../services/response.service')
-const { Products, Sellers, Subscriptions, ProductImages, ProductFeatures, Orders, ProductReviews } = require('../config/models')
+const { Products, Sellers, Subscriptions, ProductImages, ProductFeatures, Orders, ProductReviews, FeatureDescriptions, Features } = require('../config/models')
 
 class ProductService {
     // POST
@@ -7,7 +7,7 @@ class ProductService {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _product = await this.isExists(Products, slug)
-            if (_product.length > 0) { return Response.Forbidden('Maglumat döredilen!', []) }
+            if (_product.length > 0) { return Response.Forbidden('Maglumat eyyam döredilen!', []) }
             const subscription = await Sellers.findOne({
                 attributes: ['subscriptionId'],
                 where: { 
@@ -99,6 +99,40 @@ class ProductService {
                 customerId: body.customerId
             })
             return Response.Created('Maglumat ugradyldy!', review)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async fetchProductService(slug) {
+        try {
+            const product = await Products.findOne({
+                where: {
+                    slug: slug,
+                    isActive: true
+                },
+                attributes: { exclude: ['slug', 'createdAt', 'updatedAt'] },
+                include: [
+                    {
+                        model: ProductImages,
+                        attributes: ['id', 'img', 'order']
+                    },
+                    {
+                        model: ProductFeatures,
+                        where: { isActive: true },
+                        include: {
+                            model: FeatureDescriptions,
+                            where: { isActive: true },
+                            attributes: ['id', 'desc'],
+                            include: {
+                                model: Features,
+                                where: { isActive: true }
+                            }
+                        }
+                    }
+                ]
+            })
+            return Response.Success('Üstünlikli!', product)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
