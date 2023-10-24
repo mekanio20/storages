@@ -35,28 +35,6 @@ class SellerController {
         }
     }
 
-    async addProduct(req, res) {
-        try {
-            const body = req.body
-            const data = await sellerService.addProductService(body, req.files)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
     async addOffer(req, res) {
         try {
             const body = req.body
@@ -79,10 +57,15 @@ class SellerController {
         }
     }
 
-    async addProductFeature(req, res) {
+    async addCoupon(req, res) {
         try {
             const body = req.body
-            const data = await sellerService.addProductFeatureService(body)
+            const { img } = req.files
+            if (!img) {
+                let result = await Response.BadRequest('surat gerek!', [])
+                return res.json(result)
+            }
+            const data = await sellerService.addCouponService(body, img)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

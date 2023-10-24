@@ -1,0 +1,20 @@
+const router = require('express').Router()
+const commentController = require('../controllers/comment.controller')
+const accessMiddleware = require('../middlewares/access.middleware')
+const authMiddleware = require('../middlewares/auth.middleware')
+const imagesMiddleware = require('../middlewares/images.middleware')
+const valdidationMiddleware = require('../middlewares/validation.middleware')
+const commentSchema = require('../validates/comment.schema')
+
+// POST
+router.post('/add',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(commentSchema.addComment, 'body'),
+    commentController.addComment)
+
+// GET
+router.get('/all/:id',
+    valdidationMiddleware(commentSchema.idControl, 'params'),
+    commentController.allComment)
+
+module.exports = router

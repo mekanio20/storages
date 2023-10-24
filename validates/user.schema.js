@@ -36,21 +36,9 @@ const userSchema = {
        id: Joi.number().positive().required()
     }),
 
-    addProductReview: Joi.object({
-        star: Joi.string().valid('1', '2', '3', '4', '5').required(),
-        productId: Joi.number().positive().required(),
-        customerId: Joi.number().positive().required()
-    }),
-
     likeControl: Joi.object({
         productId: Joi.number().positive().required(),
         userId: Joi.number().positive().required()
-    }),
-
-    addComment: Joi.object({
-        userId: Joi.number().positive().required(),
-        productId: Joi.number().positive().required(),
-        comment: Joi.string().min(2).required()
     }),
 
     addOrder: Joi.object({

@@ -62,6 +62,11 @@ router.post('/add/subscription',
     valdidationMiddleware(adminSchema.addSubscription, 'body'),
     adminController.addSubscription)
 
+// GET
+router.get('/all/permissions',
+    // authMiddleware, accessMiddleware(false),
+    adminController.allPermissions)
+
 // DELETE
 router.delete('/delete/group/:id',
     authMiddleware, accessMiddleware(true),

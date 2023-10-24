@@ -15,23 +15,15 @@ router.post('/register',
     valdidationMiddleware(sellerSchema.sellerRegister, 'body'),
     sellerController.sellerRegister)
 
-router.post('/add/product',
-    authMiddleware, accessMiddleware(false),
-    imagesMiddleware(process.env.PRODUCTS_PATH).fields([
-        { name: "img", maxCount: 5 }
-    ]),
-    valdidationMiddleware(sellerSchema.addProduct, 'body'),
-    sellerController.addProduct)
-
-router.post('/add/product/feature',
-    // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(sellerSchema.addProductFeature, 'body'),
-    sellerController.addProductFeature)
-
 router.post('/add/offer',
     // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(sellerSchema.addOffer, 'body'),
     sellerController.addOffer)
+
+router.post('/add/coupon',
+    // authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(sellerSchema.addCoupon, 'body'),
+    sellerController.addCoupon)
 
 // GET
 router.get('/:id',

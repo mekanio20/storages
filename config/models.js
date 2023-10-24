@@ -546,7 +546,7 @@ FeatureDescriptions.belongsTo(Features)
 Users.belongsToMany(Products, { through: Likes })
 Products.belongsToMany(Users, { through: Likes })
 
-// Comments -> UserId
+// Comments -> CustomerId
 
 Customers.hasMany(Comments)
 Comments.belongsTo(Customers)

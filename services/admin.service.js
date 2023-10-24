@@ -219,6 +219,29 @@ class AdminService {
         }
     }
 
+    // GET
+    async allPermissionsService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const permissions = await GroupPermissions.findAll({
+                attributes: ['id', 'method', 'url'],
+                include: {
+                    model: Groups,
+                    attributes: ['name']
+                },
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'ASC']]
+            })
+            if (!permissions) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', permissions)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteAccessPathService(id) {
         try {
@@ -398,10 +421,10 @@ class AdminService {
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
                 // USER ROUTERS
                 { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/like', method: 'POST', groupId: 4 },
-                { url: '/api/user/add/comment', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/order', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/basket', method: 'POST', groupId: 4 },
                 { url: '/api/user/profile', method: 'GET', groupId: 4 },
@@ -411,7 +434,6 @@ class AdminService {
                 { url: '/api/user/all', method: 'GET', groupId: 3 },
                 // SELLER ROUTERS
                 { url: '/api/seller/register', method: 'POST', groupId: 4 },
-                { url: '/api/seller/add/product', method: 'POST', groupId: 3 },
                 { url: '/api/seller/add/offer', method: 'POST', groupId: 3 },
                 { url: '/api/seller/add/product/feature', method: 'POST', groupId: 3 },
                 { url: '/api/seller', method: 'GET', groupId: 3 },
@@ -423,6 +445,11 @@ class AdminService {
                 { url: '/api/banner/add', method: 'POST', groupId: 1 },
                 { url: '/api/banner/add', method: 'POST', groupId: 2 },
                 { url: '/api/banner/add', method: 'POST', groupId: 3 },
+                // COMMENT ROUTERS
+                { url: '/api/comment/add', method: 'POST', groupId: 4 },
+                // PRODUCT ROUTERS
+                { url: '/api/product/add', method: 'POST', groupId: 3 },
+                { url: '/api/product/add/feature', method: 'POST', groupId: 3 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])

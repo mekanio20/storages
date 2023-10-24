@@ -1,5 +1,5 @@
 const Response = require('./response.service')
-const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners, Followers, Customers, Subscriptions } = require('../config/models')
+const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners, Followers, Customers, Subscriptions, Subcategories } = require('../config/models')
 
 class SellerService {
 
@@ -41,75 +41,6 @@ class SellerService {
         }
     }
 
-    async addProductService(body, filenames) {
-        try {
-            let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _product = await this.isExists(Products, slug)
-            if (_product.length > 0) { return Response.Forbidden('Maglumat döredilen!', []) }
-            const subscription = await Sellers.findOne({
-                attributes: ['subscriptionId'],
-                where: { 
-                    id: body.sellerId
-                }
-            })
-            console.log('SUBSCTIPTIONS', subscription);
-            const limits = await Subscriptions.findOne({
-                attributes: ['p_limit', 'p_img_limit'],
-                where: {
-                    id: subscription.subscriptionId
-                }
-            })
-            console.log('LIMITS', limits);
-            await Products.findAll({
-                attributes: ['slug'],
-                where: { sellerId: body.sellerId },
-                include: { model: ProductImages },
-                order: [['id', 'ASC']]
-            }).then((res) => { 
-                const product_count = res.length
-                const image_count = res.reduce((count, product) => count + product.product_images.length, 0)
-                console.log('PRODUCT COUNT: ', product_count)
-                console.log('IMAGE COUNT: ', image_count)
-                if (product_count >= limits.p_limit || image_count >= limits.p_img_limit) {
-                    return Response.Forbidden('Limidiniz doldy!', [])
-                }
-            }).catch((err) => { console.log(err) })
-            console.log('LOADING...')
-            const product = await Products.create({
-                tm_name: body.tm_name,
-                ru_name: body.ru_name || null,
-                en_name: body.en_name || null,
-                tm_desc: body.tm_desc,
-                ru_desc: body.ru_desc || null,
-                en_desc: body.en_desc || null,
-                slug: slug,
-                barcode: body.barcode,
-                stock_code: body.stock_code,
-                quantity: body.quantity,
-                org_price: body.org_price,
-                sale_price: body.sale_price,
-                gender: body.gender,
-                subscriptionId: body.subscriptionId,
-                brandId: body.brandId,
-                sellerId: body.sellerId
-            })
-            if (filenames.img) {
-                filenames.img.forEach(async (item, index) => {
-                    await ProductImages.create({
-                        img: item.filename,
-                        order: index + 1,
-                        productId: product.id
-                    })
-                    .then(() => { console.log(true) })
-                    .catch((err) => { console.log(err) })
-                })
-            }
-            return Response.Created('Haryt goýuldy!', product)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async addOfferService(body) {
         try {
             const offer = await Offers.create({
@@ -123,11 +54,37 @@ class SellerService {
         }
     }
 
-    async addProductFeatureService(body) {
+    async addCouponService(body, img) {
         try {
-            await ProductFeatures.bulkCreate(body.product_features)
-                .then(() => { return Response.Created('Haryt ayratynlyklary goshuldy!', []) })
-                .catch((err) => { console.log(err) })
+            const limit = await Subscriptions.findOne({
+                attributes: ['voucher_limit'],
+                where: {
+                    sellerId: body.sellerId
+                }
+            })
+            const coupon_count = await Coupons.count({ where: { sellerId: body.id } })
+            if (limit.voucher_limit <= coupon_count) {
+                return Response.Forbidden('Limidiniz doldy!', [])
+            }
+            await Coupons.create({
+                tm_name: body.tm_name,
+                ru_name: body.ru_name || null,
+                en_name: body.en_name || null,
+                tm_desc: body.tm_desc,
+                ru_desc: body.ru_desc || null,
+                en_desc: body.en_desc || null,
+                img: img[0].filename,
+                conditions: body.conditions,
+                min_amount: body.min_amount,
+                amount: body.amount,
+                limit: body.limit,
+                star_date: body.star_date,
+                end_date: body.end_date,
+                isPublic: body.isPublic,
+                sellerId: body.sellerId
+            }).then((res) => { return Response.Created('Kupon doredildi!', [], res) })
+            .catch((err) => { return Response.BadRequest('Yalnyshlyk yuze cykdy!', err) })
+            return 
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

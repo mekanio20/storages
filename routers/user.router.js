@@ -26,20 +26,10 @@ router.post('/add/contact',
     valdidationMiddleware(userSchema.addContact, 'body'),
     userController.addContact)
 
-router.post('/add/product/review',
-    // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.addProductReview, 'body'),
-    userController.addProductReview)
-
 router.post('/add/like',
     // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.likeControl, 'body'),
     userController.addLike)
-
-router.post('/add/comment',
-    // authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.addComment, 'body'),
-    userController.addComment)
 
 router.post('/add/order',
     // authMiddleware, accessMiddleware(false),
