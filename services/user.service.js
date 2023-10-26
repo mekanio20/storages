@@ -131,10 +131,7 @@ class UserService {
 
     async addLikeService(body) {
         try {
-            const likes = await Likes.create({
-                userId: body.userId,
-                productId: body.productId
-            })
+            const likes = await Likes.create({ customerId: body.customerId, productId: body.productId })
             return Response.Created('Like goyuldy!', likes)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -306,6 +303,22 @@ class UserService {
             console.log(JSON.stringify(users, null, 2));
             if (!users) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', users)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async fetchLikesService(productId) {
+        try {
+            const likes = await Likes.findAll({
+                where: { productId: productId },
+                include: {
+                    model: Customers,
+                    attributes: ['fullname']
+                },
+                order: [['id', 'DESC']]
+            })
+            return Response.Success('Üstünlikli!', likes)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

@@ -56,6 +56,11 @@ router.get('/all',
     authMiddleware, accessMiddleware(false),
     userController.allUsers)
 
+router.get('/likes/:id',
+    authMiddleware,
+    valdidationMiddleware(userSchema.idControl), 
+    userController.fetchLikes)
+
 router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)
 router.get('/brands', userController.allBrandList)

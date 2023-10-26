@@ -543,8 +543,8 @@ FeatureDescriptions.belongsTo(Features)
 
 // Likes -> UserId, ProductId
 
-Users.belongsToMany(Products, { through: Likes })
-Products.belongsToMany(Users, { through: Likes })
+Customers.belongsToMany(Products, { through: Likes })
+Products.belongsToMany(Customers, { through: Likes })
 
 // Comments -> CustomerId
 
