@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
         }
         if (bearer.toLowerCase() !== 'bearer' || !token) { return next() }
         const decoded = jwt.verify(token, process.env.PRIVATE_KEY)
-        console.log(decoded)
+        console.log('AUTH DECODED --> ', decoded)
         req.user = decoded
         return next()
     } catch (error) {

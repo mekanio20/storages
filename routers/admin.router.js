@@ -64,16 +64,22 @@ router.post('/add/subscription',
 
 // GET
 router.get('/all/groups',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     adminController.allGroups)
 
 router.get('/all/permissions',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     adminController.allPermissions)
 
 router.get('/all/contacts',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     adminController.allContacts)
+
+// PUT
+router.put('/update/contact/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.updateContact)
 
 // DELETE
 router.delete('/delete/group/:id',

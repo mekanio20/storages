@@ -37,7 +37,7 @@ class AdminService {
         }
     }
 
-    // ADD
+    // POST
     async addGroupService(name) {
         try {
             name = name.trim().toUpperCase()
@@ -228,7 +228,7 @@ class AdminService {
                 attributes: ['id', 'name'],
                 order: [['id', 'ASC']]
             })
-            if (!groups) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (groups.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', groups)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -250,7 +250,7 @@ class AdminService {
                 offset: Number(offset),
                 order: [['id', 'ASC']]
             })
-            if (!permissions) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (permissions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', permissions)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -263,11 +263,26 @@ class AdminService {
             let limit = q.limit || 10
             let offset = page * limit - limit
             const contact = await Contacts.findAll({
+                where: { isActive: true },
                 limit: Number(limit),
                 offset: Number(offset)
             })
-            if (!contact) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (contact.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', contact)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // PUT
+    async updateContactService(id) {
+        try {
+            await Contacts.update({ isActive: false }, { where: { id: id } })
+                .then(() => { return Response.Success('Üstünlikli!', []) })
+                .catch((err) => {
+                    console.log(err)
+                    return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) 
+                })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -454,6 +469,10 @@ class AdminService {
                 { url: '/api/admin/delete/feature', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/all/groups', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
+                { url: '/api/admin/all/contacts', method: 'GET', groupId: 1 },
+                { url: '/api/admin/all/contacts', method: 'GET', groupId: 2 },
+                { url: '/api/admin/update/contact', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/contact', method: 'PUT', groupId: 2 },
                 // USER ROUTERS
                 { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/like', method: 'POST', groupId: 4 },

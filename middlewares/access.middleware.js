@@ -3,7 +3,8 @@ const { GroupPermissions } = require('../config/models')
 module.exports = (params) => {
     return async (req, res, next) => {
         try {
-            if (params) {
+            req.originalUrl = req.originalUrl.split('?')[0]
+            if (params === true) {
                 req.originalUrl = req.originalUrl.split('/')
                 req.originalUrl.pop()
                 req.originalUrl = req.originalUrl.join('/')
@@ -16,7 +17,7 @@ module.exports = (params) => {
                 },
                 attributes: ['url', 'method']
             })
-            console.log(JSON.stringify(permission, null, 2));
+            console.log('PERMISSION --> ', JSON.stringify(permission, null, 2))
             if (permission) { return next() }
             return res.status(403).json({
                 status: 403,

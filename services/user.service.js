@@ -239,7 +239,7 @@ class UserService {
                 },
                 order: [['id', 'DESC']]
             })
-            if (!storages) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (storages.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', storages)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -258,8 +258,8 @@ class UserService {
                 },
                 order: [['id', 'DESC']]
             })
-            if (categories.length > 0) { return Response.Success('Üstünlikli!', categories) }
-            return Response.NotFound('Maglumat tapylmady!', [])
+            if (categories.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', categories)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -277,7 +277,7 @@ class UserService {
                 offset: Number(offset),
                 order: [['id', 'DESC']]
             })
-            if (!brands) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (brands.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', brands)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -301,7 +301,7 @@ class UserService {
                 order: [['id', 'DESC']]
             })
             console.log(JSON.stringify(users, null, 2));
-            if (!users) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (users.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', users)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -318,6 +318,7 @@ class UserService {
                 },
                 order: [['id', 'DESC']]
             })
+            if (likes.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', likes)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

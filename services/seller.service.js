@@ -122,7 +122,7 @@ class SellerService {
                     order: [['id', 'DESC']]
                 }
             })
-            if (!followers) { return Response.NotFound('Follower yok!', []) }
+            if (followers.length == 0) { return Response.NotFound('Follower yok!', []) }
             return Response.Success('Follwerler!', followers)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

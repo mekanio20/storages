@@ -173,6 +173,7 @@ const Contacts = database.define('contacts', {
     email: { type: DataTypes.STRING(50), allowNull: false, unique: true, validate: { isEmail: true } },
     fullname: { type: DataTypes.STRING(40), allowNull: false },
     message: { type: DataTypes.STRING, allowNull: false },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })

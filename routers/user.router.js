@@ -53,7 +53,7 @@ router.get('/profile/:id',
     userController.userProfile)
 
 router.get('/all',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     userController.allUsers)
 
 router.get('/likes/:id',
