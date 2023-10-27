@@ -60,7 +60,7 @@ class UserController {
             let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
             ip = ip.substr(7)
             let userAgent = req.headers['user-agent']
-            console.log(userAgent);
+            console.log(userAgent)
             let regex = /(\bAndroid\b|\biPhone\b|\biPad\b|\biPod\b)/
             let device = userAgent.match(regex) ? userAgent.match(regex)[0] : 'WEB'
             console.log(body, ip, device);

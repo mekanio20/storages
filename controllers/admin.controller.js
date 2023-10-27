@@ -2,7 +2,7 @@ const adminService = require('../services/admin.service')
 
 class AdminController {
 
-    // ADD
+    // POST
     async addGroup(req, res) {
         try {
             const { name } = req.body
@@ -270,6 +270,7 @@ class AdminController {
         }
     }
 
+    // GET
     async allGroups(req, res) {
         try {
             const q = req.query
@@ -335,7 +336,8 @@ class AdminController {
             })
         }
     }
-
+    
+    // PUT
     async updateContact(req, res) {
         try {
             const { id } = req.params

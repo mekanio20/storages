@@ -169,8 +169,8 @@ const ProductReviewImages = database.define('product_review_images', {
 
 const Contacts = database.define('contacts', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    phone: { type: DataTypes.STRING(12), allowNull: false, unique: true },
-    email: { type: DataTypes.STRING(50), allowNull: false, unique: true, validate: { isEmail: true } },
+    phone: { type: DataTypes.STRING(12), allowNull: false },
+    email: { type: DataTypes.STRING(50), allowNull: false, validate: { isEmail: true } },
     fullname: { type: DataTypes.STRING(40), allowNull: false },
     message: { type: DataTypes.STRING, allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },

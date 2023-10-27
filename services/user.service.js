@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, ProductReviews, Likes, Comments, Orders, Baskets, ProductImages, Followers } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, Likes, Orders, Baskets, ProductImages, Followers } = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -74,7 +74,7 @@ class UserService {
     async userRegisterService(body, ip, device) {
         try {
             const user = await this.isExists(body.phone)
-            if (user.length > 0) { return Response.BadRequest('Ulanyjy hasaba alynan!', []) }
+            if (user.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             const hash = await bcrypt.hash(body.password, 5)
             const groupId = await this.getGroupId('USERS')
             const _user = await Users.create({
@@ -97,14 +97,14 @@ class UserService {
     async customerRegisterService(body) {
         try {
             const { fullname, gender, email, userId } = body
-            const [customer, created] = await Customers.findOrCreate({ 
+            const [customer, created] = await Customers.findOrCreate({
                 where: { email: email },
                 defaults: {
                     fullname: fullname,
                     gender: gender,
                     email: email,
                     userId: userId
-                } 
+                }
             })
             if (created == false) { return Response.Forbidden('Müşteri hasaba alnan!', []) }
             await Users.update({ isCustomer: true }, { where: { id: userId } })
@@ -116,6 +116,17 @@ class UserService {
 
     async addContactService(body) {
         try {
+            let day = new Date()
+            day.setHours(day.getHours() - 24)
+            const count = await Contacts.count({
+                where: {
+                    userId: body.userId,
+                    createdAt: {
+                        [Op.gte]: day
+                    }
+                }
+            })
+            if (count >= 5) { return Response.Forbidden('Limidiňiz doldy!', []) }
             const contact = await Contacts.create({
                 phone: body.phone,
                 email: body.email,
@@ -368,8 +379,8 @@ class UserService {
                     model: Products,
                     where: { isActive: true },
                     attributes: [
-                        'id', 'tm_name', 'ru_name', 'en_name', 
-                        'tm_desc', 'ru_desc', 'en_desc', 
+                        'id', 'tm_name', 'ru_name', 'en_name',
+                        'tm_desc', 'ru_desc', 'en_desc',
                         'quantity', 'sale_price'
                     ],
                     include: {
