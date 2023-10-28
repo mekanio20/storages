@@ -2,6 +2,9 @@ const Response = require('../services/response.service')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
+const Axios = require('axios')
+const redis = require('redis')
+const client = redis.createClient()
 const { Op } = require('sequelize')
 const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, Likes, Orders, Baskets, ProductImages, Followers } = require('../config/models')
 
@@ -9,8 +12,9 @@ const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
     return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
 }
-const generateOTP = () => {
-    return Math.floor(Math.random() * 10000)
+const fackeToken = (data) => {
+    console.log('facke token data: ', data)
+    return jwt.sign(data, process.env.PRIVATE_KEY, { expiresIn: '5m'})
 }
 
 class UserService {
@@ -77,18 +81,16 @@ class UserService {
             if (user.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             const hash = await bcrypt.hash(body.password, 5)
             const groupId = await this.getGroupId('USERS')
-            const _user = await Users.create({
+            let _user = {
                 phone: body.phone,
                 password: hash,
                 ip: ip,
                 device: device,
                 uuid: uuid.v4(),
                 groupId: groupId
-            })
-            const token = generateJwt(_user.id, groupId)
-            let response = await Response.Created('Ulanyjy hasaba alyndy!', _user)
-            response.token = token
-            return response
+            }
+            let token = fackeToken(_user)
+            return Response.Success('User otp token!', token)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -224,10 +226,14 @@ class UserService {
         }
     }
 
-    async sendOtpService(phone) { // should be updated
+    async sendOtpService(user) {
         try {
-            const _phone = phone
-            const _otp = generateOTP()
+            const bodyParameters = { phone: user.phone }
+            const { data } = await Axios.post('http://localhost:3000/otp', bodyParameters)
+            const random = data.pass
+            await client.set(user.phone, random)
+            await client.expire(user.phone, 120)
+            return Response.Success('Tassyklama kody ugradyldy!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

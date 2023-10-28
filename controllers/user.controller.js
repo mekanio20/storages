@@ -8,7 +8,7 @@ const userPermission = (reqId, userId) => {
 }
 
 class UserController {
-
+    // POST
     async userLogin(req, res) {
         try {
             const { phone, password } = req.body
@@ -60,18 +60,16 @@ class UserController {
             let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
             ip = ip.substr(7)
             let userAgent = req.headers['user-agent']
-            console.log(userAgent)
+            console.log('User agent ==> ', userAgent)
             let regex = /(\bAndroid\b|\biPhone\b|\biPad\b|\biPod\b)/
-            let device = userAgent.match(regex) ? userAgent.match(regex)[0] : 'WEB'
-            console.log(body, ip, device);
+            let device = userAgent.match(regex) ? userAgent.match(regex)[0] : 'Web'
             const data = await userService.userRegisterService(body, ip, device)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
-                detail: data.detail,
-                token: data.token
+                detail: data.detail
             })
         } catch (error) {
             return res.status(500).json({
@@ -378,6 +376,28 @@ class UserController {
         try {
             const { id } = req.params
             const data = await userService.fetchOneBasketService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async sendOtp(req, res) {
+        try {
+            const { userDto } = req
+            const data = await userService.sendOtpService(userDto)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

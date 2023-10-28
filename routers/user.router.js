@@ -4,6 +4,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 const accessMiddleware = require('../middlewares/access.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const userSchema = require('../validates/user.schema')
+const otpMiddleware = require('../middlewares/otp.middleware')
 
 // POST
 router.post('/login',
@@ -70,6 +71,10 @@ router.get('/basket/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),
     userController.fetchOneBasket)
+
+router.get('/otp',
+    otpMiddleware,
+    userController.sendOtp)
 
 // DELETE
 router.delete('/delete/product/:productId/user/:userId',

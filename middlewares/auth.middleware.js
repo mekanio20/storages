@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
         let bearer = req.headers.authorization ? req.headers.authorization.split(' ')[0] : null
         let token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null
         console.log('Bearer --> ', bearer, 'Token --> ', token)
-        if (!bearer || !token) {
+        if (!bearer || bearer.toLowerCase() !== 'bearer' || !token) {
             return res.json({ 
                 status: 401,
                 type: 'error',
@@ -14,7 +14,6 @@ module.exports = (req, res, next) => {
                 detail: []
             })
         }
-        if (bearer.toLowerCase() !== 'bearer' || !token) { return next() }
         const decoded = jwt.verify(token, process.env.PRIVATE_KEY)
         console.log('AUTH DECODED --> ', decoded)
         req.user = decoded
