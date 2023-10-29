@@ -3,8 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const Axios = require('axios')
-const redis = require('redis')
-const client = redis.createClient()
+const redis = require('../ioredis')
 const { Op } = require('sequelize')
 const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, Likes, Orders, Baskets, ProductImages, Followers } = require('../config/models')
 
@@ -51,9 +50,9 @@ class UserService {
             const user = await this.isExists(phone)
             if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             const hash = await bcrypt.compare(password, user[0].password)
-            if (!hash) { return Response.Forbidden('Parol nädogry!', []) }
+            if (!hash) { return Response.Forbidden('Ulanyjy ady ya-da parol nädogry!', []) }
             const token = generateJwt(user[0].id, user[0].groupId)
-            let response = await Response.Success('Üstünlikli!', user)
+            let response = await Response.Success('Üstünlikli!', [])
             response.token = token
             return response
         } catch (error) {
@@ -61,15 +60,12 @@ class UserService {
         }
     }
 
-    async forgotPasswordService(phone, orgPass, verifPass) { // should be updated
+    async forgotPasswordService(phone, orgPass, verifPass) {
         try {
-            if (orgPass !== verifPass) { return Response.BadRequest('Parol nädogry!', []) }
+            if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
             const user = await this.isExists(phone)
             if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
-            return {}
-            // send otp
-            // -------------
-            // -------------
+            // .....
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -89,8 +85,22 @@ class UserService {
                 uuid: uuid.v4(),
                 groupId: groupId
             }
-            let token = fackeToken(_user)
-            return Response.Success('User otp token!', token)
+            const response = await this.sendOtpService(_user)
+            return response
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async checkControlService(code, user) {
+        try {
+            const systemcode = await redis.get(user.phone)
+            const exist = await this.isExists(user.phone)
+            if (exist.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
+            if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }            
+            let _user = await Users.create(user)
+            let token = generateJwt(_user.id, _user.groupId)
+            return Response.Created('Ulanyjy hasaba alyndy!', { token })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -231,9 +241,10 @@ class UserService {
             const bodyParameters = { phone: user.phone }
             const { data } = await Axios.post('http://localhost:3000/otp', bodyParameters)
             const random = data.pass
-            await client.set(user.phone, random)
-            await client.expire(user.phone, 120)
-            return Response.Success('Tassyklama kody ugradyldy!', [])
+            const token = fackeToken(user)
+            await redis.set(user.phone, random)
+            await redis.expire(user.phone, 300)
+            return Response.Success('Tassyklama kody ugradyldy!', { token })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

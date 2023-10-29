@@ -19,6 +19,10 @@ router.post('/register',
     valdidationMiddleware(userSchema.register, 'body'),
     userController.userRegister)
 
+router.post('/check',
+    otpMiddleware,
+    userController.checkControl)
+
 router.post('/customer/register',
     valdidationMiddleware(userSchema.customerRegister, 'body'),
     userController.customerRegister)
@@ -71,10 +75,6 @@ router.get('/basket/:id',
     // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),
     userController.fetchOneBasket)
-
-router.get('/otp',
-    otpMiddleware,
-    userController.sendOtp)
 
 // DELETE
 router.delete('/delete/product/:productId/user/:userId',

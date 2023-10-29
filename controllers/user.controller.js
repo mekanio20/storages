@@ -82,6 +82,29 @@ class UserController {
         }
     }
 
+    async checkControl(req, res) {
+        try {
+            const { code } = req.body
+            const { userDto } = req
+            const data = await userService.checkControlService(code, userDto)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            }) 
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     async customerRegister(req, res) {
         try {
             const body = req.body
@@ -376,28 +399,6 @@ class UserController {
         try {
             const { id } = req.params
             const data = await userService.fetchOneBasketService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
-    async sendOtp(req, res) {
-        try {
-            const { userDto } = req
-            const data = await userService.sendOtpService(userDto)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

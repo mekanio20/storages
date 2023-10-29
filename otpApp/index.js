@@ -1,11 +1,11 @@
-require('dotenv').config()
 const express = require('express')
 const app = express()
-const redis = require('./redis')
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 const helmet = require('helmet')
 
+require('./ioredis')
+require('dotenv').config()
 const port = process.env.PORT || 3001
 
 const vhost = (hostname) => (req, res, next) => {
@@ -87,24 +87,4 @@ app.post('/otp', async function (req, res) {
   } catch (error) {
     throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
   }  
-})
-
-// COMPARE OTP PASSWORD //
-app.post('/compare', async function(req, res){
-  try {
-    console.log('1. Compare router ==> ', req.body)
-    const _phone = req.body.phone
-    const _otp = req.body.pass
-    const cacheData = await redis.get(_phone)
-    
-    if (String(_otp) === String(cacheData)) {
-      redis.del(_phone)
-      console.log('delete success...')
-      return res.json({ success : true })
-    }
-    console.log('un success...')
-    return res.json({ success: false })
-  } catch (e) {
-    return res.json({ message: e.message })
-  }
 })

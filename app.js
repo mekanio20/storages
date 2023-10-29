@@ -5,12 +5,12 @@ const session = require('express-session')
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
 const socketIo = require('socket.io')
-const redis = require('./redis')
 const helmet = require('helmet')
 const path = require('path')
 const http = require('http')
 const fs = require('fs')
 
+require('./ioredis')
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5001
