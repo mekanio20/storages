@@ -11,7 +11,7 @@ router.post('/login',
     valdidationMiddleware(userSchema.login, 'body'),
     userController.userLogin)
 
-router.post('/forgot', // should be updated
+router.post('/forgot',
     valdidationMiddleware(userSchema.forgotPassword, 'body'),
     userController.forgotPassword)
 
@@ -22,6 +22,10 @@ router.post('/register',
 router.post('/check',
     otpMiddleware,
     userController.checkControl)
+
+router.post('/reset/password',
+    otpMiddleware,
+    userController.resetPassword)
 
 router.post('/customer/register',
     valdidationMiddleware(userSchema.customerRegister, 'body'),

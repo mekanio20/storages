@@ -12,8 +12,8 @@ const generateJwt = (id, group) => {
     return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
 }
 const fackeToken = (data) => {
-    console.log('facke token data: ', data)
-    return jwt.sign(data, process.env.PRIVATE_KEY, { expiresIn: '5m'})
+    console.log('facke token data: ', JSON.stringify(data, 2, null))
+    return jwt.sign({ data }, process.env.PRIVATE_KEY, { expiresIn: '5m'})
 }
 
 class UserService {
@@ -50,7 +50,7 @@ class UserService {
             const user = await this.isExists(phone)
             if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             const hash = await bcrypt.compare(password, user[0].password)
-            if (!hash) { return Response.Forbidden('Ulanyjy ady ya-da parol nädogry!', []) }
+            if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
             const token = generateJwt(user[0].id, user[0].groupId)
             let response = await Response.Success('Üstünlikli!', [])
             response.token = token
@@ -62,10 +62,13 @@ class UserService {
 
     async forgotPasswordService(phone, orgPass, verifPass) {
         try {
+            let user = await this.isExists(phone)
             if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
-            const user = await this.isExists(phone)
             if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
-            // .....
+            user[0].dataValues.orgPass = orgPass
+            console.log('USER --> ', JSON.stringify(user[0], 2, null));
+            const response = await this.sendOtpService(user[0])
+            return response
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -101,6 +104,23 @@ class UserService {
             let _user = await Users.create(user)
             let token = generateJwt(_user.id, _user.groupId)
             return Response.Created('Ulanyjy hasaba alyndy!', { token })
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async resetPasswordService(code, user) {
+        try {
+            const systemcode = await redis.get(user.data.phone)
+            let exist = await this.isExists(user.data.phone)
+            if (exist.length == 0) { return Response.BadRequest('Ulanyjy hasaba alynmady!', []) }
+            if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }            
+            let hash = await bcrypt.hash(user.data.orgPass, 5)
+            await Users.update({ password: hash }, { where: { id: user.data.id } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            let token = generateJwt(user.data.id, user.data.groupId)
+            return Response.Created('Ulanyjy paroly tazelendi!', { token })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -238,6 +258,7 @@ class UserService {
 
     async sendOtpService(user) {
         try {
+            console.log('Send Otp Service --> ', JSON.stringify(user.phone, 2, null));
             const bodyParameters = { phone: user.phone }
             const { data } = await Axios.post('http://localhost:3000/otp', bodyParameters)
             const random = data.pass
