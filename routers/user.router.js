@@ -36,37 +36,37 @@ router.post('/add/contact',
     userController.addContact)
 
 router.post('/add/like',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.likeControl, 'body'),
     userController.addLike)
 
 router.post('/add/order',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.addOrder, 'body'),
     userController.addOrder)
 
 router.post('/add/basket',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.addBasket, 'body'),
     userController.addBasket)
 
 router.post('/add/follower',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.addFollower, 'body'),
     userController.addFollower)
 
 // GET
 router.get('/profile/:id',
-    // authMiddleware, accessMiddleware(true),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),
     userController.userProfile)
 
 router.get('/all',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     userController.allUsers)
 
 router.get('/likes/:id',
-    authMiddleware,
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl), 
     userController.fetchLikes)
 
@@ -76,13 +76,13 @@ router.get('/brands', userController.allBrandList)
 router.get('/product/search', userController.productSearch)
 
 router.get('/basket/:id',
-    // authMiddleware, accessMiddleware(true),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),
     userController.fetchOneBasket)
 
 // DELETE
 router.delete('/delete/product/:productId/user/:userId',
-    // authMiddleware
+    authMiddleware,
     valdidationMiddleware(userSchema.likeControl, 'params'),
     userController.deleteLike)
 

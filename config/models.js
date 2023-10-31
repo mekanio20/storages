@@ -17,15 +17,6 @@ const Users = database.define('users', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
-const OTPS = database.define('otps', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    code: { type: DataTypes.STRING(6), allowNull: false },
-    star_date: { type: DataTypes.BIGINT, allowNull: false },
-    end_date: { type: DataTypes.BIGINT, allowNull: false },
-    phone: { type: DataTypes.STRING(12), allowNull: false },
-    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { updatedAt: false } )
-
 const Customers = database.define('customers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     fullname: { type: DataTypes.STRING(40), allowNull: false },
@@ -137,7 +128,7 @@ const Products = database.define('products', {
     org_price: { type: DataTypes.FLOAT(2), allowNull: false },
     sale_price: { type: DataTypes.FLOAT(2), allowNull: false },
     gender: { type: DataTypes.ENUM({ values: ['male', 'fmale', 'male-child', 'fmale-child', 'non-gender'] }), defaultValue: 'non-gender' },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
@@ -346,21 +337,30 @@ const ProductFeatures = database.define('product_features', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
+// const Measurements = database.define('measurements', {
+//     id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true, unique: true },
+//     razmer: { type: DataTypes.STRING, allowNull: false },
+//     org_price: { type: DataTypes.FLOAT(2), allowNull: false },
+//     sale_price: { type: DataTypes.FLOAT(2), allowNull: false },
+//     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+//     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
+// })
+
 const Followers = database.define('followers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
+// Products -> MeasurementId
+
+// Measurements.hasMany(Products)
+// Products.belongsTo(Measurements)
+
 // Users -> GroupId 
 
 Groups.hasMany(Users)
 Users.belongsTo(Groups)
-
-// OTPS -> UserId
-
-Users.hasMany(OTPS)
-OTPS.belongsTo(Users)
 
 // Customers -> UserId
 
@@ -578,12 +578,12 @@ Products.hasMany(Offers)
 Offers.belongsTo(Products)
 
 module.exports = {
-    Users, OTPS, Customers, Addresses,
+    Users, Customers, Addresses,
     Sellers, Orders, Subscriptions, Chats, Messages,
     Brands, Products, ProductImages, ProductReviews,
     ProductReviewImages, Contacts, Notifications, Banners,
     Coupons, CouponItem, Storages, Categories, Subcategories,
     Features, FeatureDescriptions, Groups, GroupPermissions,
     Likes, Comments, Baskets, Offers, SubcategoryFeatures,
-    ProductFeatures, Followers
+    ProductFeatures, Followers, //Measurements
 }

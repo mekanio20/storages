@@ -3,14 +3,6 @@ const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews
 
 class SellerService {
 
-    async isExists(Model, slug) {
-        try {
-            return Model.findAll({ where: { slug: slug } })
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async sellerRegisterService(body, filenames) {
         try {
             const seller = await Sellers.findAll({ attributes: ['id'], where: { name: body.name } })

@@ -31,6 +31,15 @@ const productSchema = {
 
     idControl: Joi.object({
         id: Joi.number().positive().required()
+    }),
+
+    allProduct: Joi.object({
+        subcategoryId: Joi.number().positive().allow(null, ''),
+        brandId: Joi.number().positive().allow(null, ''),
+        sellerId: Joi.number().positive().allow(null, ''),
+        gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').allow(null, ''),
+        page: Joi.number().positive().allow(null, ''),
+        limit: Joi.number().positive().allow(null, '')
     })
 }
 

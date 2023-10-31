@@ -1,7 +1,19 @@
 const Response = require('../services/response.service')
-const { Products, Sellers, Subscriptions, ProductImages, ProductFeatures, Orders, ProductReviews, FeatureDescriptions, Features } = require('../config/models')
+const { 
+    Products, Sellers, Subscriptions, ProductImages, ProductFeatures, 
+    Orders, ProductReviews, FeatureDescriptions, Features 
+} = require('../config/models')
 
 class ProductService {
+    
+    async isExists(Model, slug) {
+        try {
+            return Model.findAll({ where: { slug: slug } })
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // POST
     async addProductService(body, filenames) {
         try {
@@ -14,14 +26,14 @@ class ProductService {
                     id: body.sellerId
                 }
             })
-            console.log('SUBSCTIPTIONS', subscription);
+            console.log('SUBSCTIPTIONS --> ', JSON.stringify(subscription, 2, null))
             const limits = await Subscriptions.findOne({
                 attributes: ['p_limit', 'p_img_limit'],
                 where: {
                     id: subscription.subscriptionId
                 }
             })
-            console.log('LIMITS', limits);
+            console.log('LIMITS --> ', JSON.stringify(limits, 2, null))
             await Products.findAll({
                 attributes: ['slug'],
                 where: { sellerId: body.sellerId },
@@ -99,6 +111,37 @@ class ProductService {
                 customerId: body.customerId
             })
             return Response.Created('Maglumat ugradyldy!', review)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // GET
+    async allProductService(q) {
+        try {
+            let obj = {}
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let query = {
+                subcategoryId: q.subcategoryId || '',
+                brandId: q.brandId || '',
+                sellerId: q.sellerId || '',
+                gender: q.gender || ''
+            }
+            console.log(query)
+            for (const key in query) {
+                if (query[key].length > 0) {
+                    obj[key] = query[key]
+                }
+            }
+            console.log('OBJ --> ', JSON.stringify(obj, 2, null))
+            const products = await Products.findAll({
+                where: obj,
+                offset: Number(offset),
+                limit: Number(limit)
+            })
+            return Response.Success('Üstünlikli!', products)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

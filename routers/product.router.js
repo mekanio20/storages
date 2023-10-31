@@ -26,6 +26,10 @@ router.post('/add/review',
     productController.addProductReview)
 
 // GET
+router.get('/all', 
+    validationMiddleware(productSchema.allProduct, 'query'),
+    productController.allProduct)
+
 router.get('/:slug', productController.fetchProduct)
 
 module.exports = router

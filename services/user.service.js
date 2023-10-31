@@ -66,7 +66,6 @@ class UserService {
             if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
             if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             user[0].dataValues.orgPass = orgPass
-            console.log('USER --> ', JSON.stringify(user[0], 2, null));
             const response = await this.sendOtpService(user[0])
             return response
         } catch (error) {
