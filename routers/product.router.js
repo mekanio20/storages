@@ -21,7 +21,7 @@ router.post('/add/feature',
     productController.addProductFeature)
 
 router.post('/add/review',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     validationMiddleware(productSchema.addProductReview, 'body'),
     productController.addProductReview)
 
@@ -31,5 +31,9 @@ router.get('/all',
     productController.allProduct)
 
 router.get('/:slug', productController.fetchProduct)
+
+router.get('/reviews/:id', 
+    validationMiddleware(productSchema.idControl, 'params'),
+    productController.fetchReview)
 
 module.exports = router

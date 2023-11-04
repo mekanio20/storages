@@ -7,7 +7,9 @@ const { Groups, GroupPermissions, Storages, Categories,
     SubcategoryFeatures, Subscriptions, Sellers, Products,
     Users, 
     ProductFeatures,
-    Contacts} = require('../config/models')
+    Contacts,
+    Customers,
+    ProductReviews} = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -361,6 +363,11 @@ class AdminService {
                 { phone: '61111122', password: passwords[10], ip: '127.0.0.11', device: 'iPhone', uuid: uuid.v4(), groupId: 3, isSeller: true }
             ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
 
+            await Customers.bulkCreate([
+                { fullname: 'Akmuhammet Nurmuradow', gender: 'male', email: 'akmuhammednumuradow@gmail.com', userId: 4 },
+                { fullname: 'Muhammetnazar Alymow', gender: 'male', email: 'marcurLorry@gmail.com', userId: 9 }
+            ]).then(() => { console.log('Customers created') }).catch((err) => { console.log(err) })
+
             await Brands.bulkCreate([
                 { name: 'miweler', slug: 'miweler', img: 'test1.jpg', desc: 'abcdefg', userId: 1 },
                 { name: 'addidas', slug: 'addidas', img: 'test2.jpg', desc: 'abcdefg', userId: 1 },
@@ -441,6 +448,11 @@ class AdminService {
                 { productId: 4, fatureDescriptionId: 2 },
                 { productId: 4, fatureDescriptionId: 6 }
             ]).then(() => { console.log('Product Features created') }).catch((err) => { console.log(err) })
+
+            await ProductReviews.bulkCreate([
+                { star: '3', productId: 4, customerId: 1 },
+                { star: '2', productId: 4, customerId: 2 }
+            ]).then(() => { console.log('Product Reviews created') }).catch((err) => { console.log(err) })
 
             await GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS

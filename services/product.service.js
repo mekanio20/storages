@@ -1,8 +1,9 @@
 const Response = require('../services/response.service')
 const { 
     Products, Sellers, Subscriptions, ProductImages, ProductFeatures, 
-    Orders, ProductReviews, FeatureDescriptions, Features 
+    Orders, ProductReviews, FeatureDescriptions, Features, Customers 
 } = require('../config/models')
+const { Sequelize } = require('../config/database')
 
 class ProductService {
     
@@ -176,6 +177,31 @@ class ProductService {
                 ]
             })
             return Response.Success('Üstünlikli!', product)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async fetchReviewService(id) {
+        try {
+            let sum1 = 0
+            let sum2 = 0
+            const reviews = await ProductReviews.findAll({
+                where: { productId: id },
+                attributes: [
+                    'star',
+                    [Sequelize.fn('COUNT', Sequelize.col('customerId')), 'total_customers']
+                ],
+                group: ['star'],
+                order: [['star', 'DESC']]
+            })
+            reviews.forEach((item) => {
+                sum1 += Number(item.dataValues.total_customers)
+                sum2 += Number(item.dataValues.star) * Number(item.dataValues.total_customers)
+            })
+            const sum = sum2 / sum1
+            const obj = { reviews: reviews, rating: sum }
+            return Response.Success('Üstünlikli!', obj)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
