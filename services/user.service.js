@@ -273,18 +273,8 @@ class UserService {
     async allStorageListService() {
         try {
             const storages = await Storages.findAll({
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
                 where: { isActive: true },
-                include: {
-                    model: Categories,
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'storageId'] },
-                    where: { isActive: true },
-                    include: {
-                        model: Subcategories,
-                        attributes: { exclude: ['createdAt', 'updatedAt', 'categoryId'] },
-                        where: { isActive: true }
-                    }
-                },
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
                 order: [['id', 'DESC']]
             })
             if (storages.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
@@ -297,12 +287,12 @@ class UserService {
     async allCategoryService() {
         try {
             const categories = await Categories.findAll({
-                attributes: { exclude: ['createdAt', 'updatedAt', 'storageId'] },
                 where: { isActive: true },
+                attributes: { exclude: ['createdAt', 'updatedAt', 'storageId'] },
                 include: {
-                    model: Subcategories,
-                    attributes: { exclude: ['createdAt', 'updatedAt', 'categoryId'] },
-                    where: { isActive: true }
+                    model: Storages,
+                    where: { isActive: true },
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
                 },
                 order: [['id', 'DESC']]
             })
@@ -319,8 +309,8 @@ class UserService {
             let limit = q.limit || 10
             let offset = page * limit - limit
             const brands = await Brands.findAll({
-                attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] },
                 where: { isActive: true },
+                attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] },
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [['id', 'DESC']]
@@ -338,8 +328,8 @@ class UserService {
             let limit = q.limit || 10
             let offset = page * limit - limit
             const users = await Users.findAll({
-                attributes: { exclude: ['password', 'uuid', 'groupId', 'createdAt', 'updatedAt'] },
                 where: { isActive: true },
+                attributes: { exclude: ['password', 'uuid', 'groupId', 'createdAt', 'updatedAt'] },
                 include: {
                     model: Groups,
                     attributes: ['id', 'name']
@@ -348,7 +338,6 @@ class UserService {
                 offset: Number(offset),
                 order: [['id', 'DESC']]
             })
-            console.log(JSON.stringify(users, null, 2));
             if (users.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', users)
         } catch (error) {

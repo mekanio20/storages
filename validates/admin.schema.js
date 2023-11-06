@@ -19,49 +19,42 @@ const adminSchema = {
     addStorage: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z]/).allow('', null),
-        userId: Joi.number().positive().required()
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z]/).allow('', null)
     }),
 
     addCategory: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
         en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z-]/).allow('', null),
-        storageId: Joi.number().positive().required(),
-        userId: Joi.number().positive().required()
+        storageId: Joi.number().positive().required()
     }),
 
     addSubcategory: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
         en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z-]/).allow('', null),
-        categoryId: Joi.number().positive().required(),
-        userId: Joi.number().positive().required()
+        categoryId: Joi.number().positive().required()
     }),
 
     addFeature: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9-]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9-]/).allow('', null),
-        userId: Joi.number().positive().required()
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9-]/).allow('', null)
     }),
 
     addFeatureDescription: Joi.object({
         desc: Joi.string().max(50).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/),
-        featureId: Joi.number().positive().required(),
-        userId: Joi.number().positive().required()
+        featureId: Joi.number().positive().required()
     }),
 
     addSubcategoryFeature: Joi.object({
         subcategoryId: Joi.number().positive().required(),
-        featureId: Joi.number().positive().required(),
-        userId: Joi.number().positive().required()
+        featureId: Joi.number().positive().required()
     }),
 
     addBrand: Joi.object({
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).required(),
-        desc: Joi.string().min(10).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).allow('', null),
-        userId: Joi.number().positive().required()
+        desc: Joi.string().min(10).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).allow('', null)
     }),
 
     addSubscription: Joi.object({

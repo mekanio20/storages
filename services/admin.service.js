@@ -67,7 +67,7 @@ class AdminService {
         }
     }
 
-    async addStorageService(body) {
+    async addStorageService(body, userId) {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _storage = await this.isExists(Storages, slug)
@@ -77,7 +77,7 @@ class AdminService {
                 ru_name: body.ru_name || null,
                 en_name: body.en_name || null,
                 slug: slug,
-                userId: body.userId
+                userId: userId
             })
             return Response.Created('Maglumat döredildi!', storage)
         } catch (error) {
@@ -85,7 +85,7 @@ class AdminService {
         }
     }
 
-    async addCategoryService(body) {
+    async addCategoryService(body, userId) {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _category = await this.isExists(Categories, slug)
@@ -96,7 +96,7 @@ class AdminService {
                 en_name: body.en_name || null,
                 slug: slug,
                 storageId: body.storageId,
-                userId: body.userId
+                userId: userId
             })
             return Response.Created('Maglumat döredildi!', category)
         } catch (error) {
@@ -104,7 +104,7 @@ class AdminService {
         }
     }
 
-    async addSubcategoryService(body) {
+    async addSubcategoryService(body, userId) {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _subcategory = await this.isExists(Subcategories, slug)
@@ -115,7 +115,7 @@ class AdminService {
                 en_name: body.en_name || null,
                 slug: slug,
                 categoryId: body.categoryId,
-                userId: body.userId
+                userId: userId
             })
             return Response.Created('Maglumat döredildi!', subcategory)
         } catch (error) {
@@ -123,7 +123,7 @@ class AdminService {
         }
     }
 
-    async addFeatureService(body) {
+    async addFeatureService(body, userId) {
         try {
             const _features = await Features.findAll({ where: { tm_name: body.tm_name } })
             if (_features.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
@@ -131,7 +131,7 @@ class AdminService {
                 tm_name: body.tm_name, 
                 ru_name: body.ru_name || null, 
                 en_name: body.en_name || null, 
-                userId: body.userId 
+                userId: userId
             })
             return Response.Created('Maglumat döredildi!', feature)
         } catch (error) {
@@ -139,9 +139,9 @@ class AdminService {
         }
     }
 
-    async addFeatureDescriptionService(body) {
+    async addFeatureDescriptionService(body, userId) {
         try {
-            const { desc, featureId, userId } = body
+            const { desc, featureId } = body
             const _featureDesc = await FeatureDescriptions.findAll({ where: { desc: desc, featureId: featureId } })
             if (_featureDesc.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const featureDesc = await FeatureDescriptions.create({ desc: desc, featureId: featureId, userId: userId })
@@ -151,9 +151,9 @@ class AdminService {
         }
     }
 
-    async addSubcategoryFeatureService(body) {
+    async addSubcategoryFeatureService(body, userId) {
         try {
-            const { subcategoryId, featureId, userId } = body
+            const { subcategoryId, featureId } = body
             const _subcategory_features = await SubcategoryFeatures.findAll({ where: { subcategoryId: subcategoryId, featureId: featureId } })
             if (_subcategory_features.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const subcategory_features = await SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId, userId: userId })
@@ -163,23 +163,15 @@ class AdminService {
         }
     }
 
-    async addBrandService(body, brand_img) {
+    async addBrandService(body, brand_img, userId) {
         try {
             if (!brand_img) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.name.split(" ").join('-').toLowerCase()
             const brand = await this.isExists(Brands, slug)
             if (brand.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
-            const brands = await Brands.create({ name: body.name, slug: slug, img: brand_img.filename, desc: body.desc || null, userId: body.userId })
+            const brands = await Brands.create({ name: body.name, slug: slug, img: brand_img.filename, desc: body.desc || null, userId: userId })
             return Response.Created('Maglumat döredildi!', brands)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addBannerService(body) {
-        try {
-            return body // should be updated
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -188,8 +180,8 @@ class AdminService {
     async addStaffService(userId) {
         try {
             const groupId = await this.getGroupId('STAFF')
-            // const staff = await Users.findOne({ where: { id: Number(userId), isStaff: true } })
-            // if (staff.length > 0) { return Response.BadRequest('Admin doredilen!', []) }
+            const staff = await Users.findOne({ where: { id: Number(userId), isStaff: true } })
+            if (staff.length > 0) { return Response.BadRequest('Admin doredilen!', []) }
             await Users.update({ isStaff: true, isCustomer: false, isSeller: false, groupId: groupId }, { where: { id: Number(userId) } })
             const token = generateJwt(userId, groupId)
             let response = await Response.Created('Admin hasaba alyndy!', [])

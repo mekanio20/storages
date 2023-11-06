@@ -494,8 +494,8 @@ Storages.belongsTo(Users)
 
 // Categories -> UserId
 
-Users.hasMany(Storages)
-Storages.belongsTo(Users)
+Users.hasMany(Categories)
+Categories.belongsTo(Users)
 
 // Categories -> StorageId
 

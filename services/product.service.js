@@ -106,6 +106,7 @@ class ProductService {
                 }
             })
             if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
+            // Eger on yyldyz goyan bolsa update etmeli...
             const review = await ProductReviews.create({
                 star: body.star,
                 productId: body.productId,

@@ -50,7 +50,8 @@ class AdminController {
     async addStorage(req, res) {
         try {
             const body = req.body
-            const data = await adminService.addStorageService(body)
+            const userId = req.user.id
+            const data = await adminService.addStorageService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -72,7 +73,8 @@ class AdminController {
     async addCategory(req, res) {
         try {
             const body = req.body
-            const data = await adminService.addCategoryService(body)
+            const userId = req.user.id
+            const data = await adminService.addCategoryService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -94,7 +96,8 @@ class AdminController {
     async addSubcategory(req, res) {
         try {
             const body = req.body
-            const data = await adminService.addSubcategoryService(body)
+            const userId = req.user.id
+            const data = await adminService.addSubcategoryService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -116,7 +119,8 @@ class AdminController {
     async addFeature(req, res) {
         try {
             const body = req.body
-            const data = await adminService.addFeatureService(body)
+            const userId = req.user.id
+            const data = await adminService.addFeatureService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -138,7 +142,8 @@ class AdminController {
     async addFeatureDescription(req, res) {
         try {
             const body = req.body
-            const data = await adminService.addFeatureDescriptionService(body)
+            const userId = req.user.id
+            const data = await adminService.addFeatureDescriptionService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -160,7 +165,8 @@ class AdminController {
     async addSubcategoryFeature(req, res) {
         try {
             const body = req.body
-            const data = await adminService.addSubcategoryFeatureService(body)
+            const userId = req.user.id
+            const data = await adminService.addSubcategoryFeatureService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -183,7 +189,8 @@ class AdminController {
         try {
             const body = req.body
             const brand_img = req.file
-            const data = await adminService.addBrandService(body, brand_img)
+            const userId = req.user.id
+            const data = await adminService.addBrandService(body, brand_img, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
