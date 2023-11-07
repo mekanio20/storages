@@ -5,7 +5,7 @@ const uuid = require('uuid')
 const Axios = require('axios')
 const redis = require('../ioredis')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, Likes, Orders, Baskets, ProductImages, Followers } = require('../config/models')
+const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, Likes, Orders, Baskets, ProductImages, Followers, Features } = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -340,6 +340,20 @@ class UserService {
             })
             if (users.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', users)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async allFeaturesService() {
+        try {
+            const features = await Features.findAll({
+                where: { isActive: true },
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                order: [['id', 'DESC']]
+            })
+            if (features.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', features)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

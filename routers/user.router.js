@@ -73,6 +73,7 @@ router.get('/likes/:id',
 router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)
 router.get('/brands', userController.allBrandList)
+router.get('/features', userController.allFeatures)
 router.get('/product/search', userController.productSearch)
 
 router.get('/basket/:id',
