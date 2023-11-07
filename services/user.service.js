@@ -345,7 +345,7 @@ class UserService {
         }
     }
 
-    async allFeaturesService() {
+    async allFeatureListService() {
         try {
             const features = await Features.findAll({
                 where: { isActive: true },
@@ -354,6 +354,20 @@ class UserService {
             })
             if (features.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', features)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async allSubcategoryListService() {
+        try {
+            const subcategories = await Subcategories.findAll({
+                where: { isActive: true },
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name'],
+                order: [['id', 'DESC']]
+            })
+            if (subcategories.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', subcategories)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
