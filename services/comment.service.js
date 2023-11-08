@@ -1,27 +1,44 @@
 const Response = require('../services/response.service')
-const { Orders, Comments, Customers, ProductReviewImages } = require('../config/models')
+const Models = require('../config/models')
 
 class CommentService {
-    // POST
-    async addCommentService(body, filenames) {
+
+    async isCustomer(userId) {
         try {
-            const order = await Orders.findOne({
+            const customer = await Models.Customers.findOne({
                 attributes: ['id'],
                 where: {
-                    customerId: body.customerId,
+                    userId: userId
+                }
+            })
+            return customer.id
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // POST
+    async addCommentService(body, filenames, userId) {
+        try {
+            const customerId = await this.isCustomer(userId)
+            if (!customerId) { return Response.NotFound('Mushderi tapylmady!', []) }
+            const order = await Models.Orders.findOne({
+                attributes: ['id'],
+                where: {
+                    customerId: customerId,
                     productId: body.productId,
                     status: 'completed'
                 }
             })
             if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
-            const comments = await Comments.create({
-                customerId: body.customerId,
+            const comments = await Models.Comments.create({
+                customerId: customerId,
                 productId: body.productId,
                 comment: body.comment
             })
             if (filenames.review) {
                 filenames.review.forEach(async (item) => {
-                    await ProductReviewImages.create({ img: item.filename })
+                    await Models.ProductReviewImages.create({ img: item.filename })
                     .then(() => { console.log(true) })
                     .catch((err) => { console.log(err) })
                 })
@@ -35,7 +52,7 @@ class CommentService {
     // GET
     async allCommentService(productId) {
         try {
-            const comments = await Comments.findAndCountAll({
+            const comments = await Models.Comments.findAndCountAll({
                 where: {
                     productId: productId,
                     isActive: true
@@ -43,11 +60,11 @@ class CommentService {
                 attributes: ['id', 'comment'],
                 include: [
                     {
-                        model: Customers,
+                        model: Models.Customers,
                         attributes: ['id', 'fullname']
                     },
                     {
-                        model: ProductReviewImages,
+                        model: Models.ProductReviewImages,
                         where: { isActive: true },
                         attributes: ['id', 'img']
                     }

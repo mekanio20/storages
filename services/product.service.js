@@ -1,8 +1,5 @@
 const Response = require('../services/response.service')
-const { 
-    Products, Sellers, Subscriptions, ProductImages, ProductFeatures, 
-    Orders, ProductReviews, FeatureDescriptions, Features, Customers 
-} = require('../config/models')
+const Models = require('../config/models')
 const { Sequelize } = require('../config/database')
 
 class ProductService {
@@ -15,30 +12,46 @@ class ProductService {
         }
     }
 
-    // POST
-    async addProductService(body, filenames) {
+    async isSeller(userId) {
         try {
+            const seller = await Models.Sellers.findOne({
+                attributes: ['id'],
+                where: {
+                    userId: userId
+                }
+            })
+            return seller.id
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // POST
+    async addProductService(body, filenames, userId) {
+        try {
+            const sellerId = await this.isSeller(userId)
+            if (!sellerId) { return Response.NotFound('Satyjy tapylmady!', []) }
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _product = await this.isExists(Products, slug)
+            const _product = await this.isExists(Models.Products, slug)
             if (_product.length > 0) { return Response.Forbidden('Maglumat eyyam döredilen!', []) }
-            const subscription = await Sellers.findOne({
+            const subscription = await Models.Sellers.findOne({
                 attributes: ['subscriptionId'],
                 where: { 
-                    id: body.sellerId
+                    id: sellerId
                 }
             })
             console.log('SUBSCTIPTIONS --> ', JSON.stringify(subscription, 2, null))
-            const limits = await Subscriptions.findOne({
+            const limits = await Models.Subscriptions.findOne({
                 attributes: ['p_limit', 'p_img_limit'],
                 where: {
                     id: subscription.subscriptionId
                 }
             })
             console.log('LIMITS --> ', JSON.stringify(limits, 2, null))
-            await Products.findAll({
+            await Models.Products.findAll({
                 attributes: ['slug'],
-                where: { sellerId: body.sellerId },
-                include: { model: ProductImages },
+                where: { sellerId: sellerId },
+                include: { model: Models.ProductImages },
                 order: [['id', 'ASC']]
             }).then((res) => { 
                 const product_count = res.length
@@ -50,7 +63,7 @@ class ProductService {
                 }
             }).catch((err) => { console.log(err) })
             console.log('LOADING...')
-            const product = await Products.create({
+            const product = await Models.Products.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
                 en_name: body.en_name || null,
@@ -66,11 +79,11 @@ class ProductService {
                 gender: body.gender,
                 subscriptionId: body.subscriptionId,
                 brandId: body.brandId,
-                sellerId: body.sellerId
+                sellerId: sellerId
             })
             if (filenames.img) {
                 filenames.img.forEach(async (item, index) => {
-                    await ProductImages.create({
+                    await Models.ProductImages.create({
                         img: item.filename,
                         order: index + 1,
                         productId: product.id
@@ -87,7 +100,7 @@ class ProductService {
 
     async addProductFeatureService(body) {
         try {
-            await ProductFeatures.bulkCreate(body.product_features)
+            await Models.ProductFeatures.bulkCreate(body.product_features)
                 .then(() => { return Response.Created('Haryt ayratynlyklary goshuldy!', []) })
                 .catch((err) => { console.log(err) })
         } catch (error) {
@@ -97,7 +110,7 @@ class ProductService {
 
     async addProductReviewService(body) {
         try {
-            const order = await Orders.findOne({
+            const order = await Models.Orders.findOne({
                 attributes: ['id'],
                 where: {
                     customerId: body.customerId,
@@ -107,7 +120,7 @@ class ProductService {
             })
             if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
             // Eger on yyldyz goyan bolsa update etmeli...
-            const review = await ProductReviews.create({
+            const review = await Models.ProductReviews.create({
                 star: body.star,
                 productId: body.productId,
                 customerId: body.customerId
@@ -138,7 +151,7 @@ class ProductService {
                 }
             }
             console.log('OBJ --> ', JSON.stringify(obj, 2, null))
-            const products = await Products.findAll({
+            const products = await Models.Products.findAll({
                 where: obj,
                 offset: Number(offset),
                 limit: Number(limit)
@@ -151,7 +164,7 @@ class ProductService {
 
     async fetchProductService(slug) {
         try {
-            const product = await Products.findOne({
+            const product = await Models.Products.findOne({
                 where: {
                     slug: slug,
                     isActive: true
@@ -159,18 +172,18 @@ class ProductService {
                 attributes: { exclude: ['slug', 'createdAt', 'updatedAt'] },
                 include: [
                     {
-                        model: ProductImages,
+                        model: Models.ProductImages,
                         attributes: ['id', 'img', 'order']
                     },
                     {
-                        model: ProductFeatures,
+                        model: Models.ProductFeatures,
                         where: { isActive: true },
                         include: {
-                            model: FeatureDescriptions,
+                            model: Models.FeatureDescriptions,
                             where: { isActive: true },
                             attributes: ['id', 'desc'],
                             include: {
-                                model: Features,
+                                model: Models.Features,
                                 where: { isActive: true }
                             }
                         }
@@ -187,7 +200,7 @@ class ProductService {
         try {
             let sum1 = 0
             let sum2 = 0
-            const reviews = await ProductReviews.findAll({
+            const reviews = await Models.ProductReviews.findAll({
                 where: { productId: id },
                 attributes: [
                     'star',

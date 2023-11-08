@@ -1,11 +1,25 @@
 const Response = require('./response.service')
-const { Sellers, Users, Products, ProductImages, ProductFeatures, ProductReviews, ProductReviewImages, Offers, Baskets, Comments, Likes, Orders, Chats, Coupons, Brands, Notifications, Banners, Followers, Customers, Subscriptions, Subcategories } = require('../config/models')
+const Models = require('../config/models')
 
 class SellerService {
 
+    async isSeller(userId) {
+        try {
+            const seller = await Models.Sellers.findOne({
+                attributes: ['id'],
+                where: {
+                    userId: userId
+                }
+            })
+            return seller.id
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async sellerRegisterService(body, filenames) {
         try {
-            const seller = await Sellers.findAll({ attributes: ['id'], where: { name: body.name } })
+            const seller = await Models.Sellers.findAll({ attributes: ['id'], where: { name: body.name } })
             if (seller.length > 0) { return Response.Forbidden('Satyjy registrasiýa bolan!', []) }
             if (body.main_number === body.second_number) { return Response.BadRequest('Iki sany menzesh nomer bolup bilmez!', []) }
             console.log(body);
@@ -35,7 +49,7 @@ class SellerService {
 
     async addOfferService(body) {
         try {
-            const offer = await Offers.create({
+            const offer = await Models.Offers.create({
                 promocode: body.promocode || null,
                 discount: body.discount,
                 productId: body.productId
@@ -46,19 +60,21 @@ class SellerService {
         }
     }
 
-    async addCouponService(body, img) {
+    async addCouponService(body, img, userId) {
         try {
-            const limit = await Subscriptions.findOne({
+            const sellerId = await this.isSeller(userId)
+            if (!sellerId) { return Response.NotFound('Satyjy tapylmady!', []) }
+            const limit = await Models.Subscriptions.findOne({
                 attributes: ['voucher_limit'],
                 where: {
                     sellerId: body.sellerId
                 }
             })
-            const coupon_count = await Coupons.count({ where: { sellerId: body.id } })
+            const coupon_count = await Models.Coupons.count({ where: { sellerId: sellerId } })
             if (limit.voucher_limit <= coupon_count) {
                 return Response.Forbidden('Limidiniz doldy!', [])
             }
-            await Coupons.create({
+            await Models.Coupons.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
                 en_name: body.en_name || null,
@@ -73,10 +89,9 @@ class SellerService {
                 star_date: body.star_date,
                 end_date: body.end_date,
                 isPublic: body.isPublic,
-                sellerId: body.sellerId
-            }).then((res) => { return Response.Created('Kupon doredildi!', [], res) })
-            .catch((err) => { return Response.BadRequest('Yalnyshlyk yuze cykdy!', err) })
-            return 
+                sellerId: sellerId
+            }).then((res) => { return Response.Created('Kupon doredildi!', []) })
+            .catch((err) => { return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -85,10 +100,10 @@ class SellerService {
     // GET
     async fetchOneSellerService(id) {
         try {
-            const seller = await Sellers.findOne({
+            const seller = await Models.Sellers.findOne({
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 include: {
-                    model: Users,
+                    model: Models.Users,
                     where: {
                         id: id,
                         isSeller: true
@@ -106,10 +121,10 @@ class SellerService {
 
     async fetchFollowersService(id) {
         try {
-            const followers = await Followers.findAll({
+            const followers = await Models.Followers.findAll({
                 where: { sellerId: Number(id) },
                 include: {
-                    model: Customers,
+                    model: Models.Customers,
                     attributes: ['id', 'fullnamme'],
                     order: [['id', 'DESC']]
                 }
@@ -130,10 +145,11 @@ class SellerService {
                     newObj[key] = body[key]
                 }
             }
-            await Sellers.update({ newObj }, { where: { id: body.id } })
+            await Models.Sellers.update({ newObj }, { where: { id: body.id } })
                 .then(() => { return Response.Success('Satyjy maglumatlary täzelendi!', []) })
                 .catch((err) => {
                     console.log(err)
+                    return Response.BadRequest('Yalnyshlyk yuze cykdy!', [])
                 })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -143,11 +159,11 @@ class SellerService {
     // DELETE
     async deleteProductService(productId, userId) {
         try {
-            const sellerId = await Sellers.findOne({
+            const sellerId = await Models.Sellers.findOne({
                 attributes: ['id'],
                 where: { userId: userId },
                 include: {
-                    model: Users,
+                    model: Models.Users,
                     attributes: ['isSeller'],
                     where: {
                         id: userId,
@@ -158,16 +174,16 @@ class SellerService {
             console.log(JSON.stringify(sellerId, null, 2))
             if (!sellerId) { return Response.NotFound('Haryt tapylmady!', []) }
 
-            await Products.destroy({ where: { sellerId: sellerId.id, id: productId } })
-            await ProductImages.destroy({ where: { productId: productId } })
-            await ProductReviews.destroy({ where: { productId: productId } })
-            await ProductReviewImages.destroy({ where: { productId: productId } })
-            await ProductFeatures.destroy({ where: { productId: productId } })
-            await Offers.destroy({ where: { productId: productId } })
-            await Baskets.destroy({ where: { productId: productId } })
-            await Comments.destroy({ where: { productId: productId } })
-            await Likes.destroy({ where: { productId: productId } })
-            await Orders.destroy({ where: { productId: productId } })
+            await Models.ProductImages.destroy({ where: { productId: productId } })
+            await Models.ProductReviews.destroy({ where: { productId: productId } })
+            await Models.ProductReviewImages.destroy({ where: { productId: productId } })
+            await Models.ProductFeatures.destroy({ where: { productId: productId } })
+            await Models.Offers.destroy({ where: { productId: productId } })
+            await Models.Baskets.destroy({ where: { productId: productId } })
+            await Models.Comments.destroy({ where: { productId: productId } })
+            await Models.Likes.destroy({ where: { productId: productId } })
+            await Models.Orders.destroy({ where: { productId: productId } })
+            await Models.Products.destroy({ where: { sellerId: sellerId.id, id: productId } })
             return Response.Success('Haryt pozuldy!', [])
 
         } catch (error) {
@@ -177,18 +193,18 @@ class SellerService {
 
     async deleteSellerService(sellerId, userId) {
         try {
-            const seller = await Sellers.findOne({ attributes: ['id'], where: { userId: userId } })
+            const seller = await Models.Sellers.findOne({ attributes: ['id'], where: { userId: userId } })
             console.log(JSON.stringify(seller, null, 2))
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
 
-            await Users.destroy({ where: { id: userId } })
-            await Brands.destroy({ where: { userId: userId } })
-            await Notifications.destroy({ where: { userId: userId } })
-            await Banners.destroy({ where: { userId: userId } })
-            await Sellers.destroy({ where: { id: sellerId } })
-            await Chats.destroy({ where: { sellerId: sellerId } })
-            await Products.destroy({ where: { sellerId: sellerId } })
-            await Coupons.destroy({ where: { sellerId: sellerId } })
+            await Models.Users.destroy({ where: { id: userId } })
+            await Models.Brands.destroy({ where: { userId: userId } })
+            await Models.Notifications.destroy({ where: { userId: userId } })
+            await Models.Banners.destroy({ where: { userId: userId } })
+            await Models.Chats.destroy({ where: { sellerId: sellerId } })
+            await Models.Products.destroy({ where: { sellerId: sellerId } })
+            await Models.Coupons.destroy({ where: { sellerId: sellerId } })
+            await Models.Sellers.destroy({ where: { id: sellerId } })
             return Response.Success('Satyjy pozuldy!', [])
 
         } catch (error) {

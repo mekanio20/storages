@@ -15,8 +15,7 @@ const productSchema = {
         sale_price: Joi.number().positive().required(),
         gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').default('non-gender'),
         subcategoryId: Joi.number().positive().required(),
-        brandId: Joi.number().positive().required(),
-        sellerId: Joi.number().positive().required()
+        brandId: Joi.number().positive().required()
     }),
 
     addProductFeature: Joi.object({

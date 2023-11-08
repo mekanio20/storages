@@ -1,16 +1,16 @@
 const Response = require('../services/response.service')
-const { Notifications } = require('../config/models')
+const Models = require('../config/models')
 
 class NotificationService {
-    async addNotificationService(body) {
+    async addNotificationService(body, userId) {
         try {
-            const ntf = await Notifications.create({
+            const ntf = await Models.Notifications.create({
                 receivers: body.receivers,
                 title: body.title,
                 desc: body.desc,
                 status: body.status || 'on-wait',
                 send_date: body.send_date,
-                userId: body.userId
+                userId: userId
             })
             return Response.Created('Bildiriş hasaba alyndy!', ntf)
         } catch (error) {

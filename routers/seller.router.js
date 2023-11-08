@@ -16,12 +16,12 @@ router.post('/register',
     sellerController.sellerRegister)
 
 router.post('/add/offer',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(sellerSchema.addOffer, 'body'),
     sellerController.addOffer)
 
 router.post('/add/coupon',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(sellerSchema.addCoupon, 'body'),
     sellerController.addCoupon)
 

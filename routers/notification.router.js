@@ -7,7 +7,7 @@ const valdidationMiddleware = require('../middlewares/validation.middleware')
 const notificationSchema = require('../validates/notification.schema')
 
 router.post('/add',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(notificationSchema.addNotification, 'body'),
     notificationController.addNotification)
 

@@ -73,8 +73,8 @@ router.get('/likes/:id',
 router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)
 router.get('/subcategories', userController.allSubcategoryList)
-router.get('/brands', userController.allBrandList)
 router.get('/features', userController.allFeatureList)
+router.get('/brands', userController.allBrandList)
 router.get('/product/search', userController.productSearch)
 
 router.get('/basket/:id',

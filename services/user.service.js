@@ -5,7 +5,7 @@ const uuid = require('uuid')
 const Axios = require('axios')
 const redis = require('../ioredis')
 const { Op } = require('sequelize')
-const { Users, Groups, Storages, Categories, Subcategories, Brands, Customers, Contacts, Products, Likes, Orders, Baskets, ProductImages, Followers, Features } = require('../config/models')
+const Models = require('../config/models')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -20,7 +20,7 @@ class UserService {
 
     async isExists(phone) {
         try {
-            return Users.findAll({
+            return Models.Users.findAll({
                 where: {
                     [Op.or]: {
                         phone: phone
@@ -35,8 +35,8 @@ class UserService {
 
     async getGroupId(group) {
         try {
-            let group_id = await Groups.findOne({ where: { name: group }, attributes: ['id'] })
-            if (!group_id) { group_id = await Groups.create({ name: group }) }
+            let group_id = await Models.Groups.findOne({ where: { name: group }, attributes: ['id'] })
+            if (!group_id) { group_id = await Models.Groups.create({ name: group }) }
             group_id = JSON.stringify(group_id)
             group_id = Number(JSON.parse(group_id).id)
             return group_id
@@ -100,7 +100,7 @@ class UserService {
             const exist = await this.isExists(user.phone)
             if (exist.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }            
-            let _user = await Users.create(user)
+            let _user = await Models.Users.create(user)
             let token = generateJwt(_user.id, _user.groupId)
             return Response.Created('Ulanyjy hasaba alyndy!', { token })
         } catch (error) {
@@ -115,7 +115,7 @@ class UserService {
             if (exist.length == 0) { return Response.BadRequest('Ulanyjy hasaba alynmady!', []) }
             if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }            
             let hash = await bcrypt.hash(user.data.orgPass, 5)
-            await Users.update({ password: hash }, { where: { id: user.data.id } })
+            await Models.Users.update({ password: hash }, { where: { id: user.data.id } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             let token = generateJwt(user.data.id, user.data.groupId)
@@ -128,7 +128,7 @@ class UserService {
     async customerRegisterService(body) {
         try {
             const { fullname, gender, email, userId } = body
-            const [customer, created] = await Customers.findOrCreate({
+            const [customer, created] = await Models.Customers.findOrCreate({
                 where: { email: email },
                 defaults: {
                     fullname: fullname,
@@ -138,8 +138,8 @@ class UserService {
                 }
             })
             if (created == false) { return Response.Forbidden('Müşteri hasaba alnan!', []) }
-            await Users.update({ isCustomer: true }, { where: { id: userId } })
-            return Response.Created('Müşteri hasaba alyndy!', customer)
+            await Models.Users.update({ isCustomer: true }, { where: { id: userId } })
+            return Models.Response.Created('Müşteri hasaba alyndy!', customer)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -149,21 +149,20 @@ class UserService {
         try {
             let day = new Date()
             day.setHours(day.getHours() - 24)
-            const count = await Contacts.count({
+            const count = await Models.Contacts.count({
                 where: {
-                    userId: body.userId,
+                    phone: body.phone,
                     createdAt: {
                         [Op.gte]: day
                     }
                 }
             })
             if (count >= 5) { return Response.Forbidden('Limidiňiz doldy!', []) }
-            const contact = await Contacts.create({
+            const contact = await Models.Contacts.create({
                 phone: body.phone,
                 email: body.email,
                 fullname: body.fullname,
-                message: body.message,
-                userId: body.userId || null
+                message: body.message
             })
             return Response.Created('Maglumat ugradyldy!', contact)
         } catch (error) {
@@ -173,7 +172,7 @@ class UserService {
 
     async addLikeService(body) {
         try {
-            const likes = await Likes.create({ customerId: body.customerId, productId: body.productId })
+            const likes = await Models.Likes.create({ customerId: body.customerId, productId: body.productId })
             return Response.Created('Like goyuldy!', likes)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -193,7 +192,7 @@ class UserService {
             for (let i = 0; i < 4; i++) {
                 order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
             }
-            const order = await Orders.create({
+            const order = await Models.Orders.create({
                 fullname: body.fullname,
                 phone: body.phone,
                 address: body.address,
@@ -214,7 +213,7 @@ class UserService {
 
     async addBasketService(body) {
         try {
-            const basket = await Baskets.create({
+            const basket = await Models.Baskets.create({
                 quantity: body.quantity,
                 productId: body.productId,
                 customerId: body.customerId
@@ -227,10 +226,7 @@ class UserService {
 
     async addFollowerService(body) {
         try {
-            const follower = await Followers.create({
-                sellerId: body.sellerId,
-                customerId: body.customerId
-            })
+            const follower = await Models.Followers.create({ sellerId: body.sellerId, customerId: body.customerId })
             return Response.Created('Follow doredildi!', follower)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -240,11 +236,11 @@ class UserService {
     // GET
     async userProfileService(id) {
         try {
-            const user = await Users.findOne({
+            const user = await Models.Users.findOne({
                 where: { id: id },
                 attributes: ['id', 'phone'],
                 include: {
-                    model: Customers,
+                    model: Models.Customers,
                     attributes: ['id', 'fullname', 'email']
                 }
             })
@@ -272,7 +268,7 @@ class UserService {
 
     async allStorageListService() {
         try {
-            const storages = await Storages.findAll({
+            const storages = await Models.Storages.findAll({
                 where: { isActive: true },
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 order: [['id', 'DESC']]
@@ -286,11 +282,11 @@ class UserService {
 
     async allCategoryService() {
         try {
-            const categories = await Categories.findAll({
+            const categories = await Models.Categories.findAll({
                 where: { isActive: true },
                 attributes: { exclude: ['createdAt', 'updatedAt', 'storageId'] },
                 include: {
-                    model: Storages,
+                    model: Models.Storages,
                     where: { isActive: true },
                     attributes: { exclude: ['createdAt', 'updatedAt'] },
                 },
@@ -308,7 +304,7 @@ class UserService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const brands = await Brands.findAll({
+            const brands = await Models.Brands.findAll({
                 where: { isActive: true },
                 attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] },
                 limit: Number(limit),
@@ -327,11 +323,11 @@ class UserService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const users = await Users.findAll({
+            const users = await Models.Users.findAll({
                 where: { isActive: true },
                 attributes: { exclude: ['password', 'uuid', 'groupId', 'createdAt', 'updatedAt'] },
                 include: {
-                    model: Groups,
+                    model: Models.Groups,
                     attributes: ['id', 'name']
                 },
                 limit: Number(limit),
@@ -347,7 +343,7 @@ class UserService {
 
     async allFeatureListService() {
         try {
-            const features = await Features.findAll({
+            const features = await Models.Features.findAll({
                 where: { isActive: true },
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 order: [['id', 'DESC']]
@@ -361,7 +357,7 @@ class UserService {
 
     async allSubcategoryListService() {
         try {
-            const subcategories = await Subcategories.findAll({
+            const subcategories = await Models.Subcategories.findAll({
                 where: { isActive: true },
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name'],
                 order: [['id', 'DESC']]
@@ -375,10 +371,10 @@ class UserService {
 
     async fetchLikesService(productId) {
         try {
-            const likes = await Likes.findAll({
+            const likes = await Models.Likes.findAll({
                 where: { productId: productId },
                 include: {
-                    model: Customers,
+                    model: Models.Customers,
                     attributes: ['fullname']
                 },
                 order: [['id', 'DESC']]
@@ -405,7 +401,7 @@ class UserService {
                     { en_desc: { [Op.iLike]: `%${search.name}%` } }
                 ]
             } else { search = [] }
-            const product = await Products.findAll({
+            const product = await Models.Products.findAll({
                 where: {
                     isActive: true,
                     [Op.or]: search
@@ -423,14 +419,14 @@ class UserService {
 
     async fetchOneBasketService(id) {
         try {
-            const basket = await Baskets.findOne({
+            const basket = await Models.Baskets.findOne({
                 where: {
                     isActive: true,
                     customerId: Number(id)
                 },
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 include: {
-                    model: Products,
+                    model: Models.Products,
                     where: { isActive: true },
                     attributes: [
                         'id', 'tm_name', 'ru_name', 'en_name',
@@ -438,7 +434,7 @@ class UserService {
                         'quantity', 'sale_price'
                     ],
                     include: {
-                        model: ProductImages,
+                        model: Models.ProductImages,
                         where: { isActive: true },
                         attributes: ['id', 'img', 'order']
                     }
@@ -453,8 +449,8 @@ class UserService {
     // DELETE
     async deleteLikeService(userId, productId) {
         try {
-            await Likes.destroy({ where: { userId: userId, productId: productId } })
-                .then(() => { return Response.Success('Haryt pozuldy!', []) })
+            await Models.Likes.destroy({ where: { userId: userId, productId: productId } })
+                .then(() => { return Response.Success('Like pozuldy!', []) })
                 .catch((err) => { console.log(err) })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

@@ -60,12 +60,13 @@ class SellerController {
     async addCoupon(req, res) {
         try {
             const body = req.body
+            const userId = req.user.id
             const { img } = req.files
             if (!img) {
                 let result = await Response.BadRequest('surat gerek!', [])
                 return res.json(result)
             }
-            const data = await sellerService.addCouponService(body, img)
+            const data = await sellerService.addCouponService(body, img, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

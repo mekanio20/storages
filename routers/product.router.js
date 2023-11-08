@@ -16,7 +16,7 @@ router.post('/add',
     productController.addProduct)
 
 router.post('/add/feature',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     validationMiddleware(productSchema.addProductFeature, 'body'),
     productController.addProductFeature)
 

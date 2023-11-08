@@ -34,24 +34,6 @@ const sellerSchema = {
         categoryId: Joi.number().positive()
     }),
 
-    addProduct: Joi.object({
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
-        tm_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
-        ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
-        en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
-        barcode: Joi.number().positive().required(),
-        stock_code: Joi.string().min(3).max(50).alphanum().required(),
-        quantity: Joi.number().positive().default(0),
-        org_price: Joi.number().positive().required(),
-        sale_price: Joi.number().positive().required(),
-        gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').default('non-gender'),
-        subcategoryId: Joi.number().positive().required(),
-        brandId: Joi.number().positive().required(),
-        sellerId: Joi.number().positive().required()
-    }),
-
     idControl: Joi.object({
         id: Joi.number().positive().required()
     }),
@@ -75,8 +57,7 @@ const sellerSchema = {
         limit: Joi.number().positive().required(),
         star_date: Joi.string().isoDate().required(),
         end_date: Joi.string().isoDate().required(),
-        isPublic: Joi.boolean().required(),
-        sellerId: Joi.number().positive().required()
+        isPublic: Joi.boolean().required()
     })
 }
 

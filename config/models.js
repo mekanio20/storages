@@ -457,11 +457,6 @@ ProductReviewImages.belongsTo(Comments)
 Customers.hasMany(ProductReviewImages)
 ProductReviewImages.belongsTo(Customers)
 
-// Contacts -> UserId
-
-Users.hasMany(Contacts)
-Contacts.belongsTo(Users)
-
 // Notifications -> UserId
 
 Users.hasMany(Notifications)

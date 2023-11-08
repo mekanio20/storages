@@ -5,7 +5,9 @@ class productController {
     async addProduct(req, res) {
         try {
             const body = req.body
-            const data = await productService.addProductService(body, req.files)
+            const files = req.files
+            const userId = req.user.id
+            const data = await productService.addProductService(body, files, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
