@@ -18,6 +18,20 @@ const fackeToken = (data) => {
 
 class UserService {
 
+    async isCustomer(userId) {
+        try {
+            const customer = await Models.Customers.findOne({
+                attributes: ['id'],
+                where: {
+                    userId: userId
+                }
+            })
+            return customer.id
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async isExists(phone) {
         try {
             return Models.Users.findAll({
@@ -228,6 +242,20 @@ class UserService {
         try {
             const follower = await Models.Followers.create({ sellerId: body.sellerId, customerId: body.customerId })
             return Response.Created('Follow doredildi!', follower)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addAddressService(body, userId) {
+        try {
+            const customerId = this.isCustomer(userId)
+            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
+            await Models.Addresses.update({ isDefault: false }, { where: { customerId: customerId } })
+                .then(() => { console.log('Default false...') })
+                .catch((err) => { console.log(err) })
+            const address = Models.Addresses.create({ address: body.address, isDefault: true, customerId: customerId })
+            return Response.Created('Address doredildi!', address)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

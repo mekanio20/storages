@@ -29,7 +29,7 @@ const Customers = database.define('customers', {
 const Addresses = database.define('adresses', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     address: { type: DataTypes.STRING(100), allowNull: false },
-    isDefault: { type: DataTypes.BOOLEAN, defaultValue: true },
+    isDefault: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })

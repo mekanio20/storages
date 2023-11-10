@@ -30,7 +30,7 @@ class ProductService {
     async addProductService(body, filenames, userId) {
         try {
             const sellerId = await this.isSeller(userId)
-            if (!sellerId) { return Response.NotFound('Satyjy tapylmady!', []) }
+            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _product = await this.isExists(Models.Products, slug)
             if (_product.length > 0) { return Response.Forbidden('Maglumat eyyam döredilen!', []) }
@@ -153,6 +153,10 @@ class ProductService {
             console.log('OBJ --> ', JSON.stringify(obj, 2, null))
             const products = await Models.Products.findAll({
                 where: obj,
+                include: {
+                    model: Models.Offers,
+                    attributes: ['id', 'discount']
+                },
                 offset: Number(offset),
                 limit: Number(limit)
             })
@@ -171,6 +175,10 @@ class ProductService {
                 },
                 attributes: { exclude: ['slug', 'createdAt', 'updatedAt'] },
                 include: [
+                    {
+                        model: Models.Offers,
+                        attributes: ['id', 'discount']
+                    },
                     {
                         model: Models.ProductImages,
                         attributes: ['id', 'img', 'order']

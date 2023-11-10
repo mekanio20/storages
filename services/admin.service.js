@@ -484,6 +484,7 @@ class AdminService {
                 { url: '/api/user/likes', method: 'GET', groupId: 1 },
                 { url: '/api/user/likes', method: 'GET', groupId: 2 },
                 { url: '/api/user/likes', method: 'GET', groupId: 3 },
+                { url: '/api/add/address', method: 'POST', groupId: 4 },
                 // SELLER ROUTERS
                 { url: '/api/seller/register', method: 'POST', groupId: 4 },
                 { url: '/api/seller/add/offer', method: 'POST', groupId: 3 },

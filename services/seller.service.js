@@ -63,7 +63,7 @@ class SellerService {
     async addCouponService(body, img, userId) {
         try {
             const sellerId = await this.isSeller(userId)
-            if (!sellerId) { return Response.NotFound('Satyjy tapylmady!', []) }
+            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
             const limit = await Models.Subscriptions.findOne({
                 attributes: ['voucher_limit'],
                 where: {

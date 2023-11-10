@@ -55,6 +55,11 @@ router.post('/add/follower',
     valdidationMiddleware(userSchema.addFollower, 'body'),
     userController.addFollower)
 
+router.post('/add/address',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.addAddress, 'body'),
+    userController.addAddress)
+
 // GET
 router.get('/profile/:id',
     authMiddleware, accessMiddleware(true),

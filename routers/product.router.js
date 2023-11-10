@@ -10,7 +10,7 @@ const productSchema = require('../validates/product.schema')
 router.post('/add',
     authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
-        { name: "img", maxCount: 5 }
+        { name: "img", maxCount: 20 }
     ]),
     validationMiddleware(productSchema.addProduct, 'body'),
     productController.addProduct)

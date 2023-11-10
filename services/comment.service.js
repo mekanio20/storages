@@ -21,7 +21,7 @@ class CommentService {
     async addCommentService(body, filenames, userId) {
         try {
             const customerId = await this.isCustomer(userId)
-            if (!customerId) { return Response.NotFound('Mushderi tapylmady!', []) }
+            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
             const order = await Models.Orders.findOne({
                 attributes: ['id'],
                 where: {
