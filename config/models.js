@@ -88,8 +88,6 @@ const Subscriptions = database.define('subscriptions', {
 
 const Chats = database.define('chats', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    chat_id: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    last_message: { type: DataTypes.DATE, allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
@@ -99,7 +97,8 @@ const Messages = database.define('messages', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     content: { type: DataTypes.STRING, allowNull: false },
     attachment: { type: DataTypes.STRING(100), allowNull: true },
-    time: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } }
+    time: { type: DataTypes.DATE, allowNull: false },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true }
 }, { timestamps: false })
 
 const Brands = database.define('brands', {
@@ -406,6 +405,11 @@ Customers.belongsToMany(Sellers, { through: Chats })
 
 Chats.hasMany(Messages)
 Messages.belongsTo(Chats)
+
+// Messages -> UserId
+
+Users.hasMany(Messages)
+Messages.belongsTo(Users)
 
 // Folowers -> SellerId, CustomerId
 

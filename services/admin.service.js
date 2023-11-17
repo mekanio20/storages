@@ -476,6 +476,8 @@ class AdminService {
                 { url: '/api/user/add/order', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/basket', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/follower', method: 'POST', groupId: 4 },
+                { url: '/api/user/add/message', method: 'POST', groupId: 4 },
+                { url: '/api/user/add/message', method: 'POST', groupId: 3 },
                 { url: '/api/user/profile', method: 'GET', groupId: 4 },
                 { url: '/api/user/basket', method: 'GET', groupId: 4 },
                 { url: '/api/user/profile', method: 'GET', groupId: 4 },

@@ -65,6 +65,11 @@ const userSchema = {
     addAddress: Joi.object({
         address: Joi.string().max(255).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý.!?-\s]+$/).required()
     }),
+
+    addMessage: Joi.object({
+        content: Joi.string().min(1).required(),
+        sellerId: Joi.number().positive().required()
+    })
 }
 
 module.exports = userSchema

@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const Axios = require('axios')
 const redis = require('../ioredis')
-const { Op } = require('sequelize')
+const { Op, Sequelize } = require('sequelize')
 const Models = require('../config/models')
 
 const generateJwt = (id, group) => {
@@ -13,7 +13,7 @@ const generateJwt = (id, group) => {
 }
 const fackeToken = (data) => {
     console.log('facke token data: ', JSON.stringify(data, 2, null))
-    return jwt.sign({ data }, process.env.PRIVATE_KEY, { expiresIn: '5m'})
+    return jwt.sign({ data }, process.env.PRIVATE_KEY, { expiresIn: '5m' })
 }
 
 class UserService {
@@ -61,12 +61,12 @@ class UserService {
 
     async userLoginService(phone, password) {
         try {
-            const user = await this.isExists(phone)
+            let user = await this.isExists(phone)
             if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             const hash = await bcrypt.compare(password, user[0].password)
             if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
             const token = generateJwt(user[0].id, user[0].groupId)
-            let response = await Response.Success('Üstünlikli!', [])
+            let response = await Response.Success('Üstünlikli!', user[0])
             response.token = token
             return response
         } catch (error) {
@@ -113,7 +113,7 @@ class UserService {
             const systemcode = await redis.get(user.phone)
             const exist = await this.isExists(user.phone)
             if (exist.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
-            if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }            
+            if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
             let _user = await Models.Users.create(user)
             let token = generateJwt(_user.id, _user.groupId)
             return Response.Created('Ulanyjy hasaba alyndy!', { token })
@@ -127,7 +127,7 @@ class UserService {
             const systemcode = await redis.get(user.data.phone)
             let exist = await this.isExists(user.data.phone)
             if (exist.length == 0) { return Response.BadRequest('Ulanyjy hasaba alynmady!', []) }
-            if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }            
+            if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
             let hash = await bcrypt.hash(user.data.orgPass, 5)
             await Models.Users.update({ password: hash }, { where: { id: user.data.id } })
                 .then(() => { console.log(true) })
@@ -143,7 +143,12 @@ class UserService {
         try {
             const { fullname, gender, email, userId } = body
             const [customer, created] = await Models.Customers.findOrCreate({
-                where: { email: email },
+                where: {
+                    [Op.or]: {
+                        email: email, 
+                        userId: userId
+                    }
+                },
                 defaults: {
                     fullname: fullname,
                     gender: gender,
@@ -152,8 +157,8 @@ class UserService {
                 }
             })
             if (created == false) { return Response.Forbidden('Müşteri hasaba alnan!', []) }
-            await Models.Users.update({ isCustomer: true }, { where: { id: userId } })
-            return Models.Response.Created('Müşteri hasaba alyndy!', customer)
+            await Models.Users.update({ isCustomer: true, isSeller: false, isStaff: false }, { where: { id: userId } })
+            return Response.Created('Müşteri hasaba alyndy!', customer)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -249,13 +254,41 @@ class UserService {
 
     async addAddressService(body, userId) {
         try {
-            const customerId = this.isCustomer(userId)
+            const customerId = await this.isCustomer(userId)
             if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
             await Models.Addresses.update({ isDefault: false }, { where: { customerId: customerId } })
                 .then(() => { console.log('Default false...') })
                 .catch((err) => { console.log(err) })
             const address = Models.Addresses.create({ address: body.address, isDefault: true, customerId: customerId })
             return Response.Created('Address doredildi!', address)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async addMessageService(body, userId) {
+        try {
+            const customerId = await this.isCustomer(userId)
+            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
+            const [customer, created] = await Models.Chats.findOrCreate({
+                where: {
+                    customerId: customerId,
+                    sellerId: body.sellerId
+                },
+                defaults: {
+                    customerId: customerId,
+                    sellerId: body.sellerId
+                }
+            })
+            await Models.Messages.create({
+                content: body.content,
+                attachment: null,
+                time: new Date(),
+                chatId: customer.id,
+                userId: Number(userId)
+            }).then(() => { console.log(true) })
+            .catch((err) => { console.log('ERROR ----> ', err) })
+            return Response.Created('Message ugradyldy!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

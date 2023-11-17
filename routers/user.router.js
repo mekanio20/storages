@@ -60,6 +60,11 @@ router.post('/add/address',
     valdidationMiddleware(userSchema.addAddress, 'body'),
     userController.addAddress)
 
+router.post('/add/message',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.addMessage, 'body'),
+    userController.addMessage)
+
 // GET
 router.get('/profile/:id',
     authMiddleware, accessMiddleware(true),

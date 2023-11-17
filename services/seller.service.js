@@ -23,7 +23,7 @@ class SellerService {
             if (seller.length > 0) { return Response.Forbidden('Satyjy registrasiýa bolan!', []) }
             if (body.main_number === body.second_number) { return Response.BadRequest('Iki sany menzesh nomer bolup bilmez!', []) }
             console.log(body);
-            const _seller = await Sellers.create({
+            const _seller = await Models.Sellers.create({
                 name: body.name,
                 store_number: body.store_number,
                 store_floor: body.store_floor,
