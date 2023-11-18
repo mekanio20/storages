@@ -1,5 +1,6 @@
 const Response = require('../services/response.service')
 const userService = require('../services/user.service')
+const socketio = require('../socket')
 
 const userPermission = (reqId, userId) => {
     if (String(reqId) !== String(userId))
@@ -290,8 +291,7 @@ class UserController {
             const data = await userService.addMessageService(body, userId)
             console.log('DATA --> ', JSON.stringify(data, 2, null))
             if (data.type === 'success') {
-                const socket = req.app.get("socketio")
-                // socket.emit()
+                const io = req.app.get("socketio")
             }
             return res.status(data.status).json({
                 status: data.status,

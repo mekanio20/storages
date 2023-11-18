@@ -16,9 +16,16 @@ const app = express()
 const port = process.env.PORT || 5001
 
 const server = http.createServer(app)
-const io = socketIo(server)
-io.on('connection', (socket) => { console.log('user connected ===> ', socket.id) })
-app.set('socketio', io)
+var io = require('socket.io')(server)
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html')
+})
+
+io.on('connection', (socket) => {
+  console.log(`new client connected with id ==> ${socket.id}`)
+  socket.emit("test", "Salam!")
+})
 
 require('./config/models')
 const database = require('./config/database')
