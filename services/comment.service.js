@@ -8,10 +8,10 @@ class CommentService {
             const customer = await Models.Customers.findOne({
                 attributes: ['id'],
                 where: {
-                    userId: userId
+                    userId: Number(userId)
                 }
             })
-            return customer.id
+            return customer ? customer.id : null
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

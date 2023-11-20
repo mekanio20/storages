@@ -478,6 +478,7 @@ class AdminService {
                 { url: '/api/user/add/follower', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/message', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/message', method: 'POST', groupId: 3 },
+                { url: '/api/user/add/address', method: 'POST', groupId: 4 },
                 { url: '/api/user/profile', method: 'GET', groupId: 4 },
                 { url: '/api/user/basket', method: 'GET', groupId: 4 },
                 { url: '/api/user/profile', method: 'GET', groupId: 4 },
@@ -486,7 +487,8 @@ class AdminService {
                 { url: '/api/user/likes', method: 'GET', groupId: 1 },
                 { url: '/api/user/likes', method: 'GET', groupId: 2 },
                 { url: '/api/user/likes', method: 'GET', groupId: 3 },
-                { url: '/api/add/address', method: 'POST', groupId: 4 },
+                { url: '/api/user/messages', method: 'GET', groupId: 3 },
+                { url: '/api/user/messages', method: 'GET', groupId: 4 },
                 // SELLER ROUTERS
                 { url: '/api/seller/register', method: 'POST', groupId: 4 },
                 { url: '/api/seller/add/offer', method: 'POST', groupId: 3 },

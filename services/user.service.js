@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const Axios = require('axios')
 const redis = require('../ioredis')
-const { Op, Sequelize } = require('sequelize')
+const { Op } = require('sequelize')
 const Models = require('../config/models')
 
 const generateJwt = (id, group) => {
@@ -18,15 +18,29 @@ const fackeToken = (data) => {
 
 class UserService {
 
+    async isSeller(userId) {
+        try {
+            const seller = await Models.Sellers.findOne({
+                attributes: ['id'],
+                where: {
+                    userId: Number(userId)
+                }
+            })
+            return seller ? seller.id : null
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async isCustomer(userId) {
         try {
             const customer = await Models.Customers.findOne({
                 attributes: ['id'],
                 where: {
-                    userId: userId
+                    userId: Number(userId)
                 }
             })
-            return customer.id
+            return customer ? customer.id : null
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -266,26 +280,27 @@ class UserService {
         }
     }
 
-    async addMessageService(body, userId) {
+    async addMessageService(body, userId, file) {
         try {
-            const customerId = await this.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
-            const [customer, created] = await Models.Chats.findOrCreate({
+            const customerId = await this.isCustomer(userId) || await this.isCustomer(body.userId)
+            const sellerId = await this.isSeller(body.userId) || await this.isSeller(userId)
+            if (!customerId || !sellerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const [chat, created] = await Models.Chats.findOrCreate({
                 where: {
                     customerId: customerId,
-                    sellerId: body.sellerId
+                    sellerId: sellerId
                 },
                 defaults: {
                     customerId: customerId,
-                    sellerId: body.sellerId
+                    sellerId: sellerId
                 }
             })
             await Models.Messages.create({
                 content: body.content,
-                attachment: null,
+                attachment: file,
                 time: new Date(),
-                chatId: customer.id,
-                userId: Number(userId)
+                chatId: chat.id,
+                userId: Number(userId) // Iberen...
             }).then(() => { console.log(true) })
             .catch((err) => { console.log('ERROR ----> ', err) })
             return Response.Created('Message ugradyldy!', [])
@@ -295,6 +310,39 @@ class UserService {
     }
 
     // GET
+    async allMessagesService(id, userId) {
+        try {
+            const customerId = await this.isCustomer(userId)
+            const sellerId = await this.isSeller(userId)
+            const chat = await Models.Chats.findOne({
+                attributes: ['id', 'sellerId', 'customerId'],
+                where: {
+                    id: id,
+                    isActive: true,
+                    [Op.or]: [
+                        { customerId: customerId },
+                        { sellerId: sellerId }
+                    ]
+                }
+            })
+            console.log('CHAT ===>', JSON.stringify(chat, 2, null))
+            if (!chat) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            const messages = await Models.Messages.findAll({
+                attributes: ['id', 'content', 'time', 'attachment', 'userId'],
+                where: {
+                    [Op.and]: [
+                        { isActive: true },
+                        { chatId: id }
+                    ]
+                },
+                order: [['id', 'DESC']]
+            })
+            return Response.Success('Üstünlikli!', messages)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async userProfileService(id) {
         try {
             const user = await Models.Users.findOne({

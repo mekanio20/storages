@@ -68,7 +68,7 @@ const userSchema = {
 
     addMessage: Joi.object({
         content: Joi.string().min(1).required(),
-        sellerId: Joi.number().positive().required()
+        userId: Joi.number().positive().required()
     })
 }
 

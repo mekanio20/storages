@@ -5,6 +5,7 @@ const accessMiddleware = require('../middlewares/access.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const userSchema = require('../validates/user.schema')
 const otpMiddleware = require('../middlewares/otp.middleware')
+const fileMiddleware = require('../middlewares/file.middleware')
 
 // POST
 router.post('/login',
@@ -62,10 +63,16 @@ router.post('/add/address',
 
 router.post('/add/message',
     authMiddleware, accessMiddleware(false),
+    fileMiddleware(process.env.MESSAGE_FILES).single('file'),
     valdidationMiddleware(userSchema.addMessage, 'body'),
     userController.addMessage)
 
 // GET
+router.get('/messages/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(userSchema.idControl, 'params'),
+    userController.allMessages)
+
 router.get('/profile/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),

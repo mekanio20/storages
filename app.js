@@ -4,7 +4,6 @@ const express = require('express')
 const session = require('express-session')
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
-const socketIo = require('socket.io')
 const helmet = require('helmet')
 const path = require('path')
 const http = require('http')
@@ -16,15 +15,16 @@ const app = express()
 const port = process.env.PORT || 5001
 
 const server = http.createServer(app)
-var io = require('socket.io')(server)
+const io = require('socket.io')(server)
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html')
-})
+// Socket test...
+// app.get('/', (req, res) => {
+//     res.sendFile(__dirname + '/public/index.html')
+// })
 
 io.on('connection', (socket) => {
   console.log(`new client connected with id ==> ${socket.id}`)
-  socket.emit("test", "Salam!")
+  app.set('socketio', socket)
 })
 
 require('./config/models')
@@ -62,7 +62,7 @@ const options = {
             }
         ]
     },
-    apis: ["./routers/documents.js"]
+    apis: ["./routers/api.documents.js"]
 }
 const specs = swaggerJsDoc(options)
 
