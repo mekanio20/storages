@@ -75,32 +75,36 @@ router.get('/all/contacts',
     authMiddleware, accessMiddleware(false),
     adminController.allContacts)
 
-// PUT
-router.put('/update/contact/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(adminSchema.idControl, 'params'),
-    adminController.updateContact)
-
 // DELETE
-router.delete('/delete/group/:id',
+router.put('/delete/group/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteGroup)
 
-router.delete('/delete/permission/:id',
+router.put('/delete/permission/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteAccessPath)
 
-router.delete('/delete/brand/:id',
+router.put('/delete/storage/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteStorage)
+
+router.put('/delete/brand/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteBrand)
 
-router.delete('/delete/feature/:id',
+router.put('/delete/feature/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteFeature)
+
+router.put('/delete/contact/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteContact)
 
 // DEFAULT
 router.get('/default', adminController.defaultCreate)

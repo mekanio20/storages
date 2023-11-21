@@ -344,17 +344,17 @@ class AdminController {
         }
     }
     
-    // PUT
-    async updateContact(req, res) {
+    // DELETE
+    async deleteGroup(req, res) {
         try {
             const { id } = req.params
-            const data = await adminService.updateContactService(id)
+            const data = await adminService.deleteGroupService(id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
-                detail: data.detail
+                detail: data.detail,
             })
         } catch (error) {
             return res.status(500).json({ 
@@ -362,16 +362,37 @@ class AdminController {
                 type: 'error',
                 msg: error.message,
                 msg_key: error.name,
-                detail: []
+                detail: [] 
             })
         }
     }
 
-    // DELETE
     async deleteAccessPath(req, res) {
         try {
             const { id } = req.params
             const data = await adminService.deleteAccessPathService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({ 
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: [] 
+            })
+        }
+    }
+
+    async deleteStorage(req, res) {
+        try {
+            const { id } = req.params
+            const data = await adminService.deleteStorageService(id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -434,16 +455,16 @@ class AdminController {
         }
     }
 
-    async deleteGroup(req, res) {
+    async deleteContact(req, res) {
         try {
             const { id } = req.params
-            const data = await adminService.deleteGroupService(id)
+            const data = await adminService.deleteContactService(id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
                 msg: data.msg,
                 msg_key: data.msg_key,
-                detail: data.detail,
+                detail: data.detail
             })
         } catch (error) {
             return res.status(500).json({ 
@@ -451,7 +472,7 @@ class AdminController {
                 type: 'error',
                 msg: error.message,
                 msg_key: error.name,
-                detail: [] 
+                detail: []
             })
         }
     }

@@ -120,10 +120,10 @@ class AdminService {
         try {
             const _features = await Models.Features.findAll({ where: { tm_name: body.tm_name } })
             if (_features.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            const feature = await Models.Features.create({ 
-                tm_name: body.tm_name, 
-                ru_name: body.ru_name || null, 
-                en_name: body.en_name || null, 
+            const feature = await Models.Features.create({
+                tm_name: body.tm_name,
+                ru_name: body.ru_name || null,
+                en_name: body.en_name || null,
                 userId: userId
             })
             return Response.Created('Maglumat döredildi!', feature)
@@ -262,24 +262,33 @@ class AdminService {
     }
 
     // PUT
-    async updateContactService(id) {
+    async deleteGroupService(id) {
         try {
-            await Models.Contacts.update({ isActive: false }, { where: { id: id } })
-                .then(() => { return Response.Success('Üstünlikli!', []) })
-                .catch((err) => {
-                    console.log(err)
-                    return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) 
-                })
+            await Models.Groups.update({ isActive: false }, { where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    // DELETE
     async deleteAccessPathService(id) {
         try {
-            const permission = await Models.GroupPermissions.destroy({ where: { id: Number(id) } })
-            if (!permission) { return Response.NotFound('Permission tapylmady!', []) }
+            await Models.GroupPermissions.update({ isActive: false }, { where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteStorageService(id) {
+        try {
+            await Models.Storages.update({ isActive: false }, { where: { id: Number(id) }})
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -288,8 +297,9 @@ class AdminService {
 
     async deleteBrandService(id) {
         try {
-            const brand = await Models.Brands.destroy({ where: { id: Number(id) } })
-            if (!brand) { return Response.NotFound('Brand tapylmady!', []) }
+            await Models.Brands.update({ isActive: false }, { where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -298,21 +308,20 @@ class AdminService {
 
     async deleteFeatureService(id) {
         try {
-            await Models.SubcategoryFeatures.destroy({ where: { featureId: Number(id) } })
-            await Models.FeatureDescriptions.destroy({ where: { featureId: Number(id) } })
-            const feature = await Models.Features.destroy({ where: { id: Number(id) } })
-            if (!feature) { return Response.NotFound('Feature tapylmady!', []) }
+            await Models.Features.update({ isActive: false }, { where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async deleteGroupService(id) {
+    async deleteContactService(id) {
         try {
-            const group = await Models.Groups.destroy({ where: { id: Number(id) }})
-            if (!group) { return Response.NotFound('Group tapylmady!', []) }
-            return Response.Success('Üstünlikli', [])
+            await Models.Contacts.update({ isActive: false }, { where: { id: id } })
+                .then(() => { return Response.Success('Üstünlikli!', []) })
+                .catch((err) => { console.log(err) })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -329,7 +338,7 @@ class AdminService {
             ]).then(() => { console.log('Groups created') }).catch((err) => { console.log(err) })
 
             let passwords = []
-            for (let i=1; i<=11; i++) {
+            for (let i = 1; i <= 11; i++) {
                 let hash = await bcrypt.hash(`user${i}`, 5)
                 passwords.push(hash)
             }
@@ -378,7 +387,7 @@ class AdminService {
                 { tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', storageId: 3, userId: 7 },
                 { tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', storageId: 4, userId: 8 }
             ]).then(() => { console.log('Categories created') }).catch((err) => { console.log(err) })
-            
+
             await Models.Features.bulkCreate([
                 { tm_name: 'renk', ru_name: 'цвет', en_name: 'color', userId: 1 },
                 { tm_name: 'olceg', ru_name: 'измерение', en_name: 'dimension', userId: 2 },
@@ -460,16 +469,17 @@ class AdminService {
                 { url: '/api/admin/add/brand', method: 'POST', groupId: 3 },
                 { url: '/api/admin/add/staff', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
-                { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
-                { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
-                { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 },
-                { url: '/api/admin/delete/feature', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/group', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/permission', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/storage', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/brand', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/feature', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/contact', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/contact', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/all/groups', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/contacts', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/contacts', method: 'GET', groupId: 2 },
-                { url: '/api/admin/update/contact', method: 'PUT', groupId: 1 },
-                { url: '/api/admin/update/contact', method: 'PUT', groupId: 2 },
                 // USER ROUTERS
                 { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/like', method: 'POST', groupId: 4 },
