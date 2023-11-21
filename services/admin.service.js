@@ -295,6 +295,17 @@ class AdminService {
         }
     }
 
+    async deleteCategoryService(id) {
+        try {
+            await Models.Categories.update({ isActive: false }, { where: { id: Number(id) }})
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async deleteBrandService(id) {
         try {
             await Models.Brands.update({ isActive: false }, { where: { id: Number(id) } })
@@ -472,6 +483,7 @@ class AdminService {
                 { url: '/api/admin/delete/group', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/storage', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/category', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/brand', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/contact', method: 'PUT', groupId: 1 },

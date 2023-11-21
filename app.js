@@ -37,7 +37,7 @@ app.use(helmet())
 
 let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 app.use(morgan('common', { stream: accessLogStream }))
-app.use(morgan())
+app.use(morgan('dev'))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

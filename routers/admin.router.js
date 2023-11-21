@@ -91,6 +91,11 @@ router.put('/delete/storage/:id',
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteStorage)
 
+router.put('/delete/category/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteCategory)
+
 router.put('/delete/brand/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),

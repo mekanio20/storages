@@ -4570,3 +4570,9 @@
 ::1 - - [21/Nov/2023:12:58:03 +0000] "GET /api/user/storages HTTP/1.1" 200 705
 ::ffff:127.0.0.1 - - [21/Nov/2023:13:01:25 +0000] "PUT /api/admin/delete/storage HTTP/1.1" 200 80
 ::ffff:127.0.0.1 - - [21/Nov/2023:13:02:08 +0000] "PUT /api/admin/delete/storage HTTP/1.1" 200 80
+::ffff:127.0.0.1 - - [21/Nov/2023:14:29:42 +0000] "POST /api/user/login HTTP/1.1" 400 99
+::ffff:127.0.0.1 - - [21/Nov/2023:14:29:52 +0000] "POST /api/user/login HTTP/1.1" 200 353
+::ffff:127.0.0.1 - - [21/Nov/2023:14:30:21 +0000] "PUT /api/admin/delete/category/1 HTTP/1.1" 200 89
+::ffff:127.0.0.1 - - [21/Nov/2023:14:30:40 +0000] "PUT /api/admin/delete/category HTTP/1.1" 403 88
+::1 - - [21/Nov/2023:14:31:33 +0000] "GET /api/admin/default HTTP/1.1" 201 103
+::ffff:127.0.0.1 - - [21/Nov/2023:14:31:42 +0000] "PUT /api/admin/delete/category HTTP/1.1" 200 80
