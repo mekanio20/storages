@@ -15,7 +15,7 @@ const Users = database.define('users', {
     isSuperAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Customers = database.define('customers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -24,7 +24,7 @@ const Customers = database.define('customers', {
     email: { type: DataTypes.STRING(50), allowNull: false, unique: true, validate: { isEmail: true } },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Addresses = database.define('adresses', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -52,7 +52,7 @@ const Sellers = database.define('sellers', {
     isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Orders = database.define('orders', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -61,7 +61,7 @@ const Orders = database.define('orders', {
     address: { type: DataTypes.STRING(50), allowNull: false },
     order_id: { type: DataTypes.STRING(30), allowNull: false },
     status: { type: DataTypes.ENUM({ values: ['new', 'inprocess', 'ondelivery', 'completed', 'cancelled'] }), allowNull: false },
-    payment: { type: DataTypes.ENUM({ values: ['online', 'cash', 'terminal']} ), allowNull: false },
+    payment: { type: DataTypes.ENUM({ values: ['online', 'cash', 'terminal'] }), allowNull: false },
     amount: { type: DataTypes.INTEGER, allowNull: false },
     time: { type: DataTypes.DATE, allowNull: false },
     note: { type: DataTypes.STRING, allowNull: true },
@@ -72,6 +72,7 @@ const Orders = database.define('orders', {
 const Subscriptions = database.define('subscriptions', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     name: { type: DataTypes.STRING(50), allowNull: false },
+    price: { type: DataTypes.INTEGER, allowNull: false },
     order: { type: DataTypes.SMALLINT, allowNull: false },
     p_limit: { type: DataTypes.SMALLINT, allowNull: false }, // product limit
     p_img_limit: { type: DataTypes.SMALLINT, allowNull: false }, // product image limit
@@ -84,22 +85,23 @@ const Subscriptions = database.define('subscriptions', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Chats = database.define('chats', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Messages = database.define('messages', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     content: { type: DataTypes.STRING, allowNull: false },
     attachment: { type: DataTypes.STRING(100), allowNull: true },
-    time: { type: DataTypes.DATE, allowNull: false },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: true }
-}, { timestamps: false })
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+    updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
+}, { paranoid: true })
 
 const Brands = database.define('brands', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -110,7 +112,7 @@ const Brands = database.define('brands', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Products = database.define('products', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -166,7 +168,7 @@ const Contacts = database.define('contacts', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Notifications = database.define('notifications', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -191,7 +193,7 @@ const Banners = database.define('banners', {
     end_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Coupons = database.define('coupons', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -212,14 +214,14 @@ const Coupons = database.define('coupons', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const CouponItem = database.define('coupon_item', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     isUsed: { type: DataTypes.BOOLEAN, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 // ----------------------------------------------------------------------------
 
@@ -232,7 +234,7 @@ const Storages = database.define('storages', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Categories = database.define('categories', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -243,7 +245,7 @@ const Categories = database.define('categories', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Subcategories = database.define('subcategories', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -254,7 +256,7 @@ const Subcategories = database.define('subcategories', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Features = database.define('features', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -264,7 +266,7 @@ const Features = database.define('features', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const FeatureDescriptions = database.define('feature_descriptions', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -272,7 +274,7 @@ const FeatureDescriptions = database.define('feature_descriptions', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Groups = database.define('groups', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -303,7 +305,7 @@ const Comments = database.define('reviews', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 const Baskets = database.define('baskets', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -349,7 +351,7 @@ const Followers = database.define('followers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-})
+}, { paranoid: true })
 
 // Products -> MeasurementId
 
@@ -473,12 +475,12 @@ Banners.belongsTo(Users)
 
 // Coupon -> SellerId
 
-Sellers.hasMany(Coupons)
+Sellers.hasMany(Coupons, { onDelete: "cascade" })
 Coupons.belongsTo(Sellers)
 
 // CouponItems -> CouponId
 
-Coupons.hasMany(CouponItem)
+Coupons.hasMany(CouponItem, { onDelete: "cascade" })
 CouponItem.belongsTo(Coupons)
 
 // CouponItems -> CustomerId
@@ -498,7 +500,7 @@ Categories.belongsTo(Users)
 
 // Categories -> StorageId
 
-Storages.hasMany(Categories)
+Storages.hasMany(Categories, { onDelete: "cascade" })
 Categories.belongsTo(Storages)
 
 // Subcategories -> UserId
@@ -508,7 +510,7 @@ Subcategories.belongsTo(Users)
 
 // Subcategories -> CategoryId
 
-Categories.hasMany(Subcategories)
+Categories.hasMany(Subcategories, { onDelete: "cascade" })
 Subcategories.belongsTo(Categories)
 
 // SubcategoryFeatures -> UserId
@@ -558,22 +560,22 @@ Comments.belongsTo(Products)
 
 // GroupPermissions -> GroupId 
 
-Groups.hasMany(GroupPermissions)
+Groups.hasMany(GroupPermissions, { onDelete: "cascade" })
 GroupPermissions.belongsTo(Groups)
 
 // Baskets -> ProductId 
 
-Products.hasMany(Baskets)
+Products.hasMany(Baskets, { onDelete: "cascade" })
 Baskets.belongsTo(Products)
 
 // Baskets -> CustomerId 
 
-Customers.hasMany(Baskets)
+Customers.hasMany(Baskets, { onDelete: "cascade" })
 Baskets.belongsTo(Customers)
 
 // Offers -> ProductId 
 
-Products.hasMany(Offers)
+Products.hasMany(Offers, { onDelete: "cascade" })
 Offers.belongsTo(Products)
 
 module.exports = {

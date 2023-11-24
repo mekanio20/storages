@@ -26,13 +26,16 @@ router.post('/add/coupon',
     sellerController.addCoupon)
 
 // GET
+router.get('/all',
+    authMiddleware, accessMiddleware(false),
+    sellerController.allSeller)
+
 router.get('/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.idControl, 'params'),
-    sellerController.fetchOneSeller)
+    sellerController.fetchOneSeller),
 
 router.get('/followers/:id',
-    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.fetchFollowers)
 
@@ -44,7 +47,7 @@ router.put('/update',
 
 // DELETE
 router.delete('/:id',
-    authMiddleware,accessMiddleware(true),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.deleteSeller)
 

@@ -76,7 +76,7 @@ router.get('/all/contacts',
     adminController.allContacts)
 
 // DELETE
-router.put('/delete/group/:id',
+router.delete('/delete/group/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteGroup)

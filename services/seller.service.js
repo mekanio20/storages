@@ -119,6 +119,24 @@ class SellerService {
         }
     }
 
+    async allSellerService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const seller = await Models.Sellers.findAll({
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                include: { model: Models.Users },
+                limit: Number(limit),
+                offset: Number(offset)
+            })
+            if (seller.length === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
+            return Response.Success('Üstünlikli!', seller)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async fetchFollowersService(id) {
         try {
             const followers = await Models.Followers.findAll({

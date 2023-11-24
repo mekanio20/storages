@@ -13,7 +13,8 @@ module.exports = (params) => {
                 where: {
                     method: req.method,
                     url: req.originalUrl,
-                    groupId: req.user.group
+                    groupId: req.user.group,
+                    isActive: true
                 },
                 attributes: ['url', 'method']
             })

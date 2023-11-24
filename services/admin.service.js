@@ -264,9 +264,7 @@ class AdminService {
     // PUT
     async deleteGroupService(id) {
         try {
-            await Models.Groups.update({ isActive: false }, { where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
+            await Models.Groups.destroy({ where: { id: Number(id) }})
             return Response.Success('Üstünlikli', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -431,9 +429,9 @@ class AdminService {
             ]).then(() => { console.log('Subcategory Features created') }).catch((err) => { console.log(err) })
 
             await Models.Subscriptions.bulkCreate([
-                { name: 'simple', order: 1, p_limit: 100, p_img_limit: 100, seller_banner_limit: 10, main_banner_limit: 1, ntf_limit: 10, smm_support: false, tech_support: false, voucher_limit: 10 },
-                { name: 'middle', order: 2, p_limit: 200, p_img_limit: 200, seller_banner_limit: 20, main_banner_limit: 2, ntf_limit: 20, smm_support: false, tech_support: false, voucher_limit: 20 },
-                { name: 'big', order: 3, p_limit: 300, p_img_limit: 300, seller_banner_limit: 30, main_banner_limit: 3, ntf_limit: 30, smm_support: false, tech_support: false, voucher_limit: 30 },
+                { name: 'simple', price: 100, order: 1, p_limit: 100, p_img_limit: 100, seller_banner_limit: 10, main_banner_limit: 1, ntf_limit: 10, smm_support: false, tech_support: false, voucher_limit: 10 },
+                { name: 'middle', price: 200, order: 2, p_limit: 200, p_img_limit: 200, seller_banner_limit: 20, main_banner_limit: 2, ntf_limit: 20, smm_support: false, tech_support: false, voucher_limit: 20 },
+                { name: 'big', price: 500, order: 3, p_limit: 300, p_img_limit: 300, seller_banner_limit: 30, main_banner_limit: 3, ntf_limit: 30, smm_support: false, tech_support: false, voucher_limit: 30 },
             ]).then(() => { console.log('Subscriptions created') }).catch((err) => { console.log(err) })
 
             await Models.Sellers.bulkCreate([
@@ -480,7 +478,7 @@ class AdminService {
                 { url: '/api/admin/add/brand', method: 'POST', groupId: 3 },
                 { url: '/api/admin/add/staff', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
-                { url: '/api/admin/delete/group', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/storage', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/category', method: 'PUT', groupId: 1 },
@@ -517,6 +515,8 @@ class AdminService {
                 { url: '/api/seller/add/coupon', method: 'POST', groupId: 3 },
                 { url: '/api/seller/add/product/feature', method: 'POST', groupId: 3 },
                 { url: '/api/seller', method: 'GET', groupId: 3 },
+                { url: '/api/seller/all', method: 'GET', groupId: 1 },
+                { url: '/api/seller/all', method: 'GET', groupId: 2 },
                 { url: '/api/seller/update', method: 'PUT', groupId: 3 },
                 { url: '/api/seller', method: 'DELETE', groupId: 3 },
                 { url: '/api/seller/delete/product', method: 'DELETE', groupId: 3 },
