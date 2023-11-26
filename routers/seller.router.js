@@ -26,18 +26,21 @@ router.post('/add/coupon',
     sellerController.addCoupon)
 
 // GET
+router.get('/top', sellerController.topSellers)
+
 router.get('/all',
     authMiddleware, accessMiddleware(false),
     sellerController.allSeller)
-
+    
 router.get('/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.idControl, 'params'),
-    sellerController.fetchOneSeller),
+    sellerController.fetchOneSeller)
 
 router.get('/followers/:id',
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.fetchFollowers)
+
 
 // PUT
 router.put('/update',

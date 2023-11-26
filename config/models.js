@@ -26,7 +26,7 @@ const Customers = database.define('customers', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
 
-const Addresses = database.define('adresses', {
+const Addresses = database.define('addresses', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     address: { type: DataTypes.STRING(100), allowNull: false },
     isDefault: { type: DataTypes.BOOLEAN, defaultValue: false },
@@ -63,7 +63,7 @@ const Orders = database.define('orders', {
     status: { type: DataTypes.ENUM({ values: ['new', 'inprocess', 'ondelivery', 'completed', 'cancelled'] }), allowNull: false },
     payment: { type: DataTypes.ENUM({ values: ['online', 'cash', 'terminal'] }), allowNull: false },
     amount: { type: DataTypes.INTEGER, allowNull: false },
-    time: { type: DataTypes.DATE, allowNull: false },
+    time: { type: DataTypes.STRING(20), allowNull: false },
     note: { type: DataTypes.STRING, allowNull: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }

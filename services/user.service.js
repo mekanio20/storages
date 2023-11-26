@@ -214,7 +214,7 @@ class UserService {
 
     async addOrderService(body) {
         try {
-            let order_id = null
+            let order_id = ''
             let today = new Date()
             const numbers = '0123456789'
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -237,7 +237,7 @@ class UserService {
                 note: body.note,
                 customerId: body.customerId,
                 productId: body.productId
-            })
+            }).catch((err) => { console.log(err) })
             return Response.Created('Hasaba alyndy!', order)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

@@ -1,5 +1,6 @@
 const Response = require('./response.service')
 const Models = require('../config/models')
+const { Sequelize } = require('../config/database')
 
 class SellerService {
 
@@ -91,7 +92,7 @@ class SellerService {
                 isPublic: body.isPublic,
                 sellerId: sellerId
             }).then((res) => { return Response.Created('Kupon doredildi!', []) })
-            .catch((err) => { return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) })
+                .catch((err) => { return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -149,6 +150,55 @@ class SellerService {
             })
             if (followers.length == 0) { return Response.NotFound('Follower yok!', []) }
             return Response.Success('Follwerler!', followers)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async topSellersSerive(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const topProducts = await Models.Orders.findAll({
+                attributes: [
+                    [Sequelize.fn('COUNT', Sequelize.col('productId')), 'salesCount']
+                ],
+                include: [
+                    {
+                        model: Models.Products,
+                        attributes: ['id'],
+                        include: [
+                            {
+                                model: Models.Sellers,
+                                attributes: ['id', 'name', 'logo']
+                            }
+                        ]
+                    }
+                ],
+                group: ['product.id', 'product.seller.id'],
+                order: [[Sequelize.fn('COUNT', Sequelize.col('productId')), 'DESC']],
+                limit: Number(limit),
+                offset: Number(offset)
+            })
+            const sellerSalesCounts = []
+            topProducts.forEach((detail) => {
+                const sellerId = detail.dataValues.product.seller.id
+                const sellerName = detail.dataValues.product.seller.name
+                const salesCount = Number(detail.dataValues.salesCount)
+                const include = sellerSalesCounts.some(item => { return item.sellerId === sellerId })
+                if (!include) {
+                    sellerSalesCounts.push({
+                        sellerId: sellerId,
+                        sellerName: sellerName,
+                        salesCount: salesCount,
+                    })
+                } else {
+                    sellerSalesCounts[sellerSalesCounts.length - 1].salesCount += salesCount
+                }
+            })
+            sellerSalesCounts.sort((a, b) => b.salesCount - a.salesCount)
+            return Response.Success('Üstünlikli!', sellerSalesCounts)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
