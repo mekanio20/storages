@@ -1,21 +1,67 @@
+// const fs = require('fs');
+// const path = require('path');
 
-function br1() {
-    const oby = {
-        name: "addidas sad"
-    }
-    const data = br2(oby)
-    return data 
-}
+// const rootFolder = '/home/mekan/Desktop/abc';
 
-function br2(oby) {
-    oby.name = oby.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + oby.name.slice(1).toLowerCase()
-    return oby
-}
+// function getFileSize(filePath) {
+//     const stats = fs.statSync(filePath);
+//     return stats.size;
+// }
 
-let result = br1()
+// function convertToBinary(filePath) {
+//     const content = fs.readFileSync(filePath);
+//     const binaryData = content.toString('binary');
+//     return binaryData.substring(0, 20);
+// }
 
-console.log(result);
+// function findMatchingFiles(folderPath, referenceBinary) {
+//     const folders = fs.readdirSync(folderPath);
 
-// let brand = 'addidAs sads '
-// brand = brand.trim().split(' ').join(' ').charAt(0).toUpperCase() + brand.slice(1).toLowerCase()
-// console.log(brand);
+//     for (const folder of folders) {
+//         const folderPath = path.join(rootFolder, folder);
+
+//         if (fs.statSync(folderPath).isDirectory()) {
+//             const files = fs.readdirSync(folderPath);
+
+//             for (const file of files) {
+//                 const filePath = path.join(folderPath, file);
+
+//                 if (filePath !== referenceBinary) {
+//                     const fileSize = getFileSize(filePath);
+
+//                     if (fileSize <= 20) {
+//                         const binaryData = convertToBinary(filePath);
+//                         if (binaryData === referenceBinary) {
+//                             console.log(`Eşleşen Dosya Bulundu: ${filePath}`);
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// function processFolder(folderPath) {
+//     const folders = fs.readdirSync(folderPath);
+
+//     for (const folder of folders) {
+//         const folderPath = path.join(rootFolder, folder);
+
+//         if (fs.statSync(folderPath).isDirectory()) {
+//             const files = fs.readdirSync(folderPath);
+
+//             for (const file of files) {
+//                 const filePath = path.join(folderPath, file);
+//                 const fileSize = getFileSize(filePath);
+
+//                 // Dosyanın boyutu 20 byte ise
+//                 if (fileSize <= 20) {
+//                     const referenceBinary = convertToBinary(filePath);
+//                     findMatchingFiles(rootFolder, referenceBinary);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// processFolder(rootFolder);

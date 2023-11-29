@@ -129,7 +129,7 @@ const Products = database.define('products', {
     org_price: { type: DataTypes.FLOAT(2), allowNull: false },
     sale_price: { type: DataTypes.FLOAT(2), allowNull: false },
     gender: { type: DataTypes.ENUM({ values: ['male', 'fmale', 'male-child', 'fmale-child', 'non-gender'] }), defaultValue: 'non-gender' },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
@@ -573,7 +573,7 @@ Baskets.belongsTo(Products)
 Customers.hasMany(Baskets, { onDelete: "cascade" })
 Baskets.belongsTo(Customers)
 
-// Offers -> ProductId 
+// Offers -> ProductId
 
 Products.hasMany(Offers, { onDelete: "cascade" })
 Offers.belongsTo(Products)

@@ -1,9 +1,10 @@
 const Response = require('../services/response.service')
 const Models = require('../config/models')
 const { Sequelize } = require('../config/database')
+const { Op } = require('sequelize')
 
 class ProductService {
-    
+
     async isExists(Model, slug) {
         try {
             return Model.findAll({ where: { slug: slug } })
@@ -36,7 +37,7 @@ class ProductService {
             if (_product.length > 0) { return Response.Forbidden('Maglumat eyyam döredilen!', []) }
             const subscription = await Models.Sellers.findOne({
                 attributes: ['subscriptionId'],
-                where: { 
+                where: {
                     id: sellerId
                 }
             })
@@ -53,7 +54,7 @@ class ProductService {
                 where: { sellerId: sellerId },
                 include: { model: Models.ProductImages },
                 order: [['id', 'ASC']]
-            }).then((res) => { 
+            }).then((res) => {
                 const product_count = res.length
                 const image_count = res.reduce((count, product) => count + product.product_images.length, 0)
                 console.log('PRODUCT COUNT: ', product_count)
@@ -88,8 +89,8 @@ class ProductService {
                         order: index + 1,
                         productId: product.id
                     })
-                    .then(() => { console.log(true) })
-                    .catch((err) => { console.log(err) })
+                        .then(() => { console.log(true) })
+                        .catch((err) => { console.log(err) })
                 })
             }
             return Response.Created('Haryt goýuldy!', product)
@@ -138,27 +139,27 @@ class ProductService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
+            let start_price = Number(q.start_price) || 0
+            let end_price = Number(q.end_price) || 100000
+            let order = q.order || 'asc'
             let query = {
-                subcategoryId: q.subcategoryId || '',
-                brandId: q.brandId || '',
-                sellerId: q.sellerId || '',
+                subcategoryId: q.subcategoryId || 0,
+                sellerId: q.sellerId || 0,
+                brandId: q.brandId || 0,
                 gender: q.gender || ''
             }
-            console.log(query)
             for (const key in query) {
                 if (query[key].length > 0) {
                     obj[key] = query[key]
                 }
             }
-            console.log('OBJ --> ', JSON.stringify(obj, 2, null))
+            obj.sale_price = { [Op.between]: [ start_price, end_price ] }
             const products = await Models.Products.findAll({
+                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
                 where: obj,
-                include: {
-                    model: Models.Offers,
-                    attributes: ['id', 'discount']
-                },
+                limit: Number(limit),
                 offset: Number(offset),
-                limit: Number(limit)
+                order: [['org_price', order]]
             })
             return Response.Success('Üstünlikli!', products)
         } catch (error) {
@@ -169,34 +170,8 @@ class ProductService {
     async fetchProductService(slug) {
         try {
             const product = await Models.Products.findOne({
-                where: {
-                    slug: slug,
-                    isActive: true
-                },
-                attributes: { exclude: ['slug', 'createdAt', 'updatedAt'] },
-                include: [
-                    {
-                        model: Models.Offers,
-                        attributes: ['id', 'discount']
-                    },
-                    {
-                        model: Models.ProductImages,
-                        attributes: ['id', 'img', 'order']
-                    },
-                    {
-                        model: Models.ProductFeatures,
-                        where: { isActive: true },
-                        include: {
-                            model: Models.FeatureDescriptions,
-                            where: { isActive: true },
-                            attributes: ['id', 'desc'],
-                            include: {
-                                model: Models.Features,
-                                where: { isActive: true }
-                            }
-                        }
-                    }
-                ]
+                where: { slug: slug , isActive: false }, // true
+                attributes: { exclude: ['slug', 'createdAt', 'updatedAt'] }
             })
             return Response.Success('Üstünlikli!', product)
         } catch (error) {

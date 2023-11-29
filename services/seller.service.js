@@ -127,7 +127,10 @@ class SellerService {
             let offset = page * limit - limit
             const seller = await Models.Sellers.findAll({
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
-                include: { model: Models.Users },
+                include: { 
+                    model: Models.Users,
+                    attributes: { exclude: ['password', 'updatedAt', 'deletedAt'] } 
+                },
                 limit: Number(limit),
                 offset: Number(offset)
             })

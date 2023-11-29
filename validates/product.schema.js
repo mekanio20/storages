@@ -33,12 +33,15 @@ const productSchema = {
     }),
 
     allProduct: Joi.object({
-        subcategoryId: Joi.number().positive().allow(null, ''),
-        brandId: Joi.number().positive().allow(null, ''),
-        sellerId: Joi.number().positive().allow(null, ''),
-        gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').allow(null, ''),
-        page: Joi.number().positive().allow(null, ''),
-        limit: Joi.number().positive().allow(null, '')
+        subcategoryId: Joi.number().positive().optional(),
+        brandId: Joi.number().positive().optional(),
+        sellerId: Joi.number().positive().optional(),
+        gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').optional(),
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        start_price: Joi.number().positive().optional(),
+        end_price: Joi.number().positive().optional(),
+        order: Joi.string().valid('asc', 'desc').optional()
     })
 }
 
