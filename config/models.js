@@ -145,7 +145,7 @@ const ProductImages = database.define('product_images', {
 
 const ProductReviews = database.define('product_reviews', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    star: { type: DataTypes.ENUM({ values: ['1', '2', '3', '4', '5'] }), allowNull: false },
+    star: { type: DataTypes.SMALLINT, allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }

@@ -453,8 +453,11 @@ class AdminService {
             ]).then(() => { console.log('Product Features created') }).catch((err) => { console.log(err) })
 
             await Models.ProductReviews.bulkCreate([
-                { star: '3', productId: 4, customerId: 1 },
-                { star: '2', productId: 4, customerId: 2 }
+                { star: 3, productId: 4, customerId: 1 },
+                { star: 2, productId: 4, customerId: 2 },
+                { star: 4, productId: 1, customerId: 2 },
+                { star: 5, productId: 2, customerId: 2 },
+                { star: 5, productId: 2, customerId: 1 }
             ]).then(() => { console.log('Product Reviews created') }).catch((err) => { console.log(err) })
 
             await Models.GroupPermissions.bulkCreate([

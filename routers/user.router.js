@@ -87,7 +87,7 @@ router.get('/likes/:id',
     valdidationMiddleware(userSchema.idControl), 
     userController.fetchLikes)
 
-router.get('/top/product', userController.topProduct)
+router.get('/top/rated', userController.topRated)
 router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)
 router.get('/subcategories', userController.allSubcategoryList)

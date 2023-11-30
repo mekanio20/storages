@@ -23,7 +23,7 @@ const productSchema = {
     }),
 
     addProductReview: Joi.object({
-        star: Joi.string().valid('1', '2', '3', '4', '5').required(),
+        star: Joi.number().positive().min(1).max(5).required(),
         productId: Joi.number().positive().required(),
         customerId: Joi.number().positive().required()
     }),

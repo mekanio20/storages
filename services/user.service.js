@@ -6,6 +6,7 @@ const Axios = require('axios')
 const redis = require('../ioredis')
 const { Op } = require('sequelize')
 const Models = require('../config/models')
+const { Sequelize } = require('../config/database')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -159,7 +160,7 @@ class UserService {
             const [customer, created] = await Models.Customers.findOrCreate({
                 where: {
                     [Op.or]: {
-                        email: email, 
+                        email: email,
                         userId: userId
                     }
                 },
@@ -302,7 +303,7 @@ class UserService {
                 chatId: chat.id,
                 userId: Number(userId) // Iberen...
             }).then(() => { console.log(true) })
-            .catch((err) => { console.log('ERROR ----> ', err) })
+                .catch((err) => { console.log('ERROR ----> ', err) })
             return Response.Created('Message ugradyldy!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -355,6 +356,39 @@ class UserService {
             })
             if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', user)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async topRatedService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const rated_products = await Models.ProductReviews.findAll({
+                attributes: [ [Sequelize.fn('SUM', Sequelize.col('star')), 'totalStar'] ],
+                include: {
+                    model: Models.Products,
+                    attributes: { exclude: ['updatedAt', 'isActive'] }
+                },
+                group: ['productId', 'product.id'],
+                order: [['totalStar', 'desc']],
+                limit: Number(limit),
+                offset: Number(offset)
+            })
+            return Response.Success('Üstünlikli!', rated_products)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async topSellingService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
