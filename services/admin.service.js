@@ -460,6 +460,12 @@ class AdminService {
                 { star: 5, productId: 2, customerId: 1 }
             ]).then(() => { console.log('Product Reviews created') }).catch((err) => { console.log(err) })
 
+            await Models.Orders.bulkCreate([
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023qwer7926', status: 'inprocess', payment: 'cash', amount: 3, time: '30-11-2023 18:15', note: 'caltrak getirayin...', customerId: 1, productId: 1 },
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui7926', status: 'inprocess', payment: 'cash', amount: 1, time: '30-11-2023 18:17', note: 'bolow...', customerId: 2, productId: 1 },
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui3219', status: 'inprocess', payment: 'cash', amount: 3, time: '30-11-2023 18:17', note: 'bolow...', customerId: 2, productId: 2 },
+            ]).then(() => { console.log('Orders created') }).catch((err) => { console.log(err) })
+
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
                 { url: '/api/admin/add/group', method: 'POST', groupId: 1 },

@@ -388,7 +388,20 @@ class UserService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            
+            const selling_products = await Models.Orders.findAll({
+                attributes: [
+                    [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalSelling'] 
+                ],
+                include: {
+                    model: Models.Products,
+                    attributes: { exclude: ['updatedAt', 'isActive'] }
+                },
+                group: ['productId', 'product.id'],
+                order: [['totalSelling', 'desc']],
+                limit: Number(limit),
+                offset: Number(offset)
+            })
+            return Response.Success('Üstünlikli!', selling_products)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
