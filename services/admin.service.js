@@ -474,6 +474,12 @@ class AdminService {
                 { customerId: 2, productId: 2 }
             ]).then(() => { console.log('Likes created') }).catch((err) => { console.log(err) })
 
+            await Models.Offers.bulkCreate([
+                { discount: 17.9, productId: 1 },
+                { discount: 17.9, productId: 2 },
+                { discount: 12.9, productId: 3 }
+            ]).then(() => { console.log('Offers created') }).catch((err) => { console.log(err) })
+
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
                 { url: '/api/admin/add/group', method: 'POST', groupId: 1 },

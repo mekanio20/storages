@@ -99,16 +99,6 @@ class ProductService {
         }
     }
 
-    async addProductFeatureService(body) {
-        try {
-            await Models.ProductFeatures.bulkCreate(body.product_features)
-                .then(() => { return Response.Created('Haryt ayratynlyklary goshuldy!', []) })
-                .catch((err) => { console.log(err) })
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async addProductReviewService(body) {
         try {
             const order = await Models.Orders.findOne({

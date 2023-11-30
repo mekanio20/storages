@@ -424,8 +424,29 @@ class UserService {
                 order: [['totalLiked', 'desc']],
                 limit: Number(limit),
                 offset: Number(offset)
-            }).catch((err) => { console.log(err) })
+            })
             return Response.Success('Üstünlikli!', top_liked)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async allOfferListService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const offers = await Models.Offers.findAll({
+                attributes: ['id', 'promocode', 'discount'],
+                include: {
+                    model: Models.Products,
+                    attributes: { exclude: ['updatedAt', 'isActive'] }
+                },
+                order: [['discount', 'asc']],
+                limit: Number(limit),
+                offset: Number(offset)
+            })
+            return Response.Success('Üstünlikli!', offers)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

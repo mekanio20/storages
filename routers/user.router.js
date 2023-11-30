@@ -68,28 +68,29 @@ router.post('/add/message',
     userController.addMessage)
 
 // GET
-router.get('/messages/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.idControl, 'params'),
-    userController.allMessages)
+router.get('/all',
+    authMiddleware, accessMiddleware(false),
+    userController.allUsers)
 
 router.get('/profile/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),
     userController.userProfile)
 
-router.get('/all',
-    authMiddleware, accessMiddleware(false),
-    userController.allUsers)
+router.get('/messages/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(userSchema.idControl, 'params'),
+    userController.allMessages)
 
 router.get('/likes/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.idControl), 
+    valdidationMiddleware(userSchema.idControl),
     userController.fetchLikes)
 
 router.get('/top/rated', userController.topRated)
 router.get('/top/selling', userController.topSelling)
 router.get('/top/liked', userController.topLiked)
+router.get('/offers', userController.allOfferList)
 router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)
 router.get('/subcategories', userController.allSubcategoryList)

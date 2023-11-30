@@ -15,25 +15,20 @@ router.post('/add',
     validationMiddleware(productSchema.addProduct, 'body'),
     productController.addProduct)
 
-router.post('/add/feature',
-    authMiddleware, accessMiddleware(false),
-    validationMiddleware(productSchema.addProductFeature, 'body'),
-    productController.addProductFeature)
-
 router.post('/add/review',
     authMiddleware, accessMiddleware(false),
     validationMiddleware(productSchema.addProductReview, 'body'),
     productController.addProductReview)
 
 // GET
-router.get('/all', 
+router.get('/all',
     validationMiddleware(productSchema.allProduct, 'query'),
     productController.allProduct)
 
-router.get('/:slug', productController.fetchProduct)
-
-router.get('/reviews/:id', 
+router.get('/reviews/:id',
     validationMiddleware(productSchema.idControl, 'params'),
     productController.fetchReview)
+
+router.get('/:slug', productController.fetchProduct)
 
 module.exports = router
