@@ -407,6 +407,30 @@ class UserService {
         }
     }
 
+    async topLikedSerive(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const top_liked = await Models.Likes.findAll({
+                attributes: [
+                    [Sequelize.fn('COUNT', Sequelize.col('productId')), 'totalLiked'] 
+                ],
+                include: {
+                    model: Models.Products,
+                    attributes: { exclude: ['updatedAt', 'isActive'] }
+                },
+                group: ['productId', 'product.id'],
+                order: [['totalLiked', 'desc']],
+                limit: Number(limit),
+                offset: Number(offset)
+            }).catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', top_liked)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async sendOtpService(user) {
         try {
             console.log('Send Otp Service --> ', JSON.stringify(user.phone, 2, null));

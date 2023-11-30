@@ -545,8 +545,8 @@ FeatureDescriptions.belongsTo(Features)
 
 // Likes -> UserId, ProductId
 
-Customers.belongsToMany(Products, { through: Likes })
-Products.belongsToMany(Customers, { through: Likes })
+Likes.belongsTo(Products, { foreignKey: 'productId' })
+Likes.belongsTo(Customers, { foreignKey: 'customerId' })
 
 // Comments -> CustomerId
 

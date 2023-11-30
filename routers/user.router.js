@@ -89,6 +89,7 @@ router.get('/likes/:id',
 
 router.get('/top/rated', userController.topRated)
 router.get('/top/selling', userController.topSelling)
+router.get('/top/liked', userController.topLiked)
 router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)
 router.get('/subcategories', userController.allSubcategoryList)

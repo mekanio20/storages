@@ -5330,3 +5330,15 @@
 ::1 - - [30/Nov/2023:13:32:23 +0000] "GET /api/user/top/selling HTTP/1.1" 200 68
 ::1 - - [30/Nov/2023:13:32:50 +0000] "GET /api/user/top/selling HTTP/1.1" 200 829
 ::1 - - [30/Nov/2023:13:33:39 +0000] "GET /api/user/top/selling HTTP/1.1" 200 833
+::1 - - [30/Nov/2023:13:41:51 +0000] "GET /api/user/top/liked HTTP/1.1" 500 41
+::1 - - [30/Nov/2023:13:42:13 +0000] "GET /api/user/top/liked HTTP/1.1" 200 68
+::1 - - [30/Nov/2023:13:45:27 +0000] "GET /api/admin/default HTTP/1.1" 201 103
+::1 - - [30/Nov/2023:13:45:41 +0000] "GET /api/user/top/liked HTTP/1.1" 304 -
+::1 - - [30/Nov/2023:13:50:37 +0000] "GET /api/user/top/liked HTTP/1.1" 500 41
+::1 - - [30/Nov/2023:13:51:05 +0000] "GET /api/user/top/liked HTTP/1.1" 200 136
+::1 - - [30/Nov/2023:13:51:38 +0000] "GET /api/user/top/liked HTTP/1.1" 200 178
+::1 - - [30/Nov/2023:13:52:35 +0000] "GET /api/user/top/liked HTTP/1.1" 200 68
+::1 - - [30/Nov/2023:14:10:19 +0000] "GET /api/admin/default HTTP/1.1" 201 103
+::1 - - [30/Nov/2023:14:10:29 +0000] "GET /api/user/top/liked HTTP/1.1" 304 -
+::1 - - [30/Nov/2023:14:12:41 +0000] "GET /api/user/top/liked HTTP/1.1" 200 1195
+::1 - - [30/Nov/2023:14:13:58 +0000] "GET /api/user/top/liked HTTP/1.1" 200 1195

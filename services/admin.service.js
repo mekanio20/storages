@@ -466,6 +466,14 @@ class AdminService {
                 { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui3219', status: 'inprocess', payment: 'cash', amount: 3, time: '30-11-2023 18:17', note: 'bolow...', customerId: 2, productId: 2 },
             ]).then(() => { console.log('Orders created') }).catch((err) => { console.log(err) })
 
+            await Models.Likes.bulkCreate([
+                { customerId: 1, productId: 1 },
+                { customerId: 1, productId: 2 },
+                { customerId: 1, productId: 3 },
+                { customerId: 2, productId: 1 },
+                { customerId: 2, productId: 2 }
+            ]).then(() => { console.log('Likes created') }).catch((err) => { console.log(err) })
+
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
                 { url: '/api/admin/add/group', method: 'POST', groupId: 1 },
