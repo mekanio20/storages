@@ -241,6 +241,7 @@ const Categories = database.define('categories', {
     tm_name: { type: DataTypes.STRING(100), allowNull: false },
     ru_name: { type: DataTypes.STRING(100), unique: true },
     en_name: { type: DataTypes.STRING(100), unique: true },
+    logo: { type: DataTypes.STRING(100), allowNull: false },
     slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
@@ -251,7 +252,7 @@ const Subcategories = database.define('subcategories', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     tm_name: { type: DataTypes.STRING(100), allowNull: false },
     ru_name: { type: DataTypes.STRING(100) },
-    en_name: { type: DataTypes.STRING(100) },
+    en_name: { type: DataTypes.STRING(100) }, // logo
     slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },

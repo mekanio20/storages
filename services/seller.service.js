@@ -67,9 +67,7 @@ class SellerService {
             if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
             const limit = await Models.Subscriptions.findOne({
                 attributes: ['voucher_limit'],
-                where: {
-                    sellerId: body.sellerId
-                }
+                where: { sellerId: body.sellerId }
             })
             const coupon_count = await Models.Coupons.count({ where: { sellerId: sellerId } })
             if (limit.voucher_limit <= coupon_count) {
@@ -91,8 +89,8 @@ class SellerService {
                 end_date: body.end_date,
                 isPublic: body.isPublic,
                 sellerId: sellerId
-            }).then((res) => { return Response.Created('Kupon doredildi!', []) })
-                .catch((err) => { return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) })
+            }).catch((err) => { console.log(err) })
+            return Response.Created('Kupon doredildi!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -188,13 +186,15 @@ class SellerService {
             topProducts.forEach((detail) => {
                 const sellerId = detail.dataValues.product.seller.id
                 const sellerName = detail.dataValues.product.seller.name
+                const sellerImage = detail.dataValues.product.seller.logo
                 const salesCount = Number(detail.dataValues.salesCount)
                 const include = sellerSalesCounts.some(item => { return item.sellerId === sellerId })
                 if (!include) {
                     sellerSalesCounts.push({
                         sellerId: sellerId,
                         sellerName: sellerName,
-                        salesCount: salesCount,
+                        sellerImage: sellerImage,
+                        salesCount: salesCount
                     })
                 } else {
                     sellerSalesCounts[sellerSalesCounts.length - 1].salesCount += salesCount

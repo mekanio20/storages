@@ -41,6 +41,7 @@ const productSchema = {
         limit: Joi.number().positive().optional(),
         start_price: Joi.number().positive().optional(),
         end_price: Joi.number().positive().optional(),
+        sort: Joi.string().valid('id', 'org_price').optional(),
         order: Joi.string().valid('asc', 'desc').optional()
     })
 }

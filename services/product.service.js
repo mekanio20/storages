@@ -2,6 +2,7 @@ const Response = require('../services/response.service')
 const Models = require('../config/models')
 const { Sequelize } = require('../config/database')
 const { Op } = require('sequelize')
+const { allCommentService } = require('./comment.service')
 
 class ProductService {
 
@@ -131,6 +132,7 @@ class ProductService {
             let offset = page * limit - limit
             let start_price = Number(q.start_price) || 0
             let end_price = Number(q.end_price) || 100000
+            let sort = q.sort || 'id'
             let order = q.order || 'asc'
             let query = {
                 subcategoryId: q.subcategoryId || 0,
@@ -143,15 +145,45 @@ class ProductService {
                     obj[key] = query[key]
                 }
             }
-            obj.sale_price = { [Op.between]: [ start_price, end_price ] }
-            const products = await Models.Products.findAll({
-                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
+            obj.sale_price = { [Op.between]: [start_price, end_price] }
+            const products = await Models.Products.findAndCountAll({
+                attributes: { exclude: ['subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] },
                 where: obj,
+                include: [
+                    {
+                        model: Models.Subcategories,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'], // logo
+                        where: { isActive: true },
+                        include: {
+                            model: Models.Categories,
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                            where: { isActive: true }
+                        }
+                    },
+                    {
+                        model: Models.Brands,
+                        attributes: ['id', 'name', 'img', 'slug'],
+                        where: { isActive: true }
+                    },
+                    {
+                        model: Models.Sellers,
+                        attributes: ['id', 'name']
+                    }
+                ],
                 limit: Number(limit),
                 offset: Number(offset),
-                order: [['org_price', order]]
+                order: [[sort, order]]
             })
-            return Response.Success('Üstünlikli!', products)
+            const _products = await Promise.all(products.rows.map(async (item) => {
+                const rating = await this.fetchReviewService(item.id)
+                const comment = await allCommentService(item.id)
+                return { 
+                    ...item.dataValues, 
+                    rating: rating.detail.rating, 
+                    comment: comment.detail.count 
+                }
+            }))
+            return Response.Success('Üstünlikli!', _products)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -160,7 +192,7 @@ class ProductService {
     async fetchProductService(slug) {
         try {
             const product = await Models.Products.findOne({
-                where: { slug: slug , isActive: false }, // true
+                where: { slug: slug, isActive: false }, // true
                 attributes: { exclude: ['slug', 'createdAt', 'updatedAt'] }
             })
             return Response.Success('Üstünlikli!', product)
