@@ -388,13 +388,13 @@ class AdminService {
             ]).then(() => { console.log('Storages created') }).catch((err) => { console.log(err) })
 
             await Models.Categories.bulkCreate([
-                { tm_name: 'Gök we bakja önümleri', ru_name: 'Овощи и садовая продукция', en_name: 'Vegetables and garden products', slug: 'gök-we-bakja-önümleri', storageId: 2, userId: 1 },
-                { tm_name: 'Süýt önümleri', ru_name: 'Молочные продукты', en_name: 'Dairy products', slug: 'süýt-önümleri', storageId: 2, userId: 1 },
-                { tm_name: 'Telefon', ru_name: 'Телефон', en_name: 'Phone', slug: 'telefon', storageId: 1, userId: 2 },
-                { tm_name: 'Telewizor', ru_name: 'Телевидение', en_name: 'Television', slug: 'telewizor', storageId: 1, userId: 5 },
-                { tm_name: 'Oglan aýakgap', ru_name: 'Мужская обувь', en_name: 'Men shoes', slug: 'oglan-aýakgap', storageId: 3, userId: 6 },
-                { tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', storageId: 3, userId: 7 },
-                { tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', storageId: 4, userId: 8 }
+                { logo: 'image.jpg', tm_name: 'Gök we bakja önümleri', ru_name: 'Овощи и садовая продукция', en_name: 'Vegetables and garden products', slug: 'gök-we-bakja-önümleri', storageId: 2, userId: 1 },
+                { logo: 'image.jpg', tm_name: 'Süýt önümleri', ru_name: 'Молочные продукты', en_name: 'Dairy products', slug: 'süýt-önümleri', storageId: 2, userId: 1 },
+                { logo: 'image.jpg', tm_name: 'Telefon', ru_name: 'Телефон', en_name: 'Phone', slug: 'telefon', storageId: 1, userId: 2 },
+                { logo: 'image.jpg', tm_name: 'Telewizor', ru_name: 'Телевидение', en_name: 'Television', slug: 'telewizor', storageId: 1, userId: 5 },
+                { logo: 'image.jpg', tm_name: 'Oglan aýakgap', ru_name: 'Мужская обувь', en_name: 'Men shoes', slug: 'oglan-aýakgap', storageId: 3, userId: 6 },
+                { logo: 'image.jpg', tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', storageId: 3, userId: 7 },
+                { logo: 'image.jpg', tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', storageId: 4, userId: 8 }
             ]).then(() => { console.log('Categories created') }).catch((err) => { console.log(err) })
 
             await Models.Features.bulkCreate([
@@ -413,13 +413,13 @@ class AdminService {
             ]).then(() => { console.log('Feature Descriptions created') }).catch((err) => { console.log(err) })
 
             await Models.Subcategories.bulkCreate([
-                { tm_name: 'Miweler', ru_name: 'Фрукты', en_name: 'Fruits', slug: 'miweler', categoryId: 1, userId: 1 },
-                { tm_name: 'Gök önümler', ru_name: 'Овощи', en_name: 'Vegetables', slug: 'gök-önümler', categoryId: 1, userId: 2 },
-                { tm_name: 'Ýumurtga', ru_name: 'Яйцо', en_name: 'An egg', slug: 'ýumurtga', categoryId: 2, userId: 5 },
-                { tm_name: 'Peýnir', ru_name: 'Сыр', en_name: 'Cheese', slug: 'peýnir', categoryId: 2, userId: 6 },
-                { tm_name: 'Öýjükli telefon', ru_name: 'Мобильный телефон', en_name: 'Mobile phone', slug: 'öýjükli-telefon', categoryId: 3, userId: 7 },
-                { tm_name: 'Sensor telefon', ru_name: 'Сенсорный телефон', en_name: 'Touchscreen phone', slug: 'sensor-telefon', categoryId: 3 },
-                { tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4, userId: 1 }
+                { logo: 'image.jpg', tm_name: 'Miweler', ru_name: 'Фрукты', en_name: 'Fruits', slug: 'miweler', categoryId: 1, userId: 1 },
+                { logo: 'image.jpg', tm_name: 'Gök önümler', ru_name: 'Овощи', en_name: 'Vegetables', slug: 'gök-önümler', categoryId: 1, userId: 2 },
+                { logo: 'image.jpg', tm_name: 'Ýumurtga', ru_name: 'Яйцо', en_name: 'An egg', slug: 'ýumurtga', categoryId: 2, userId: 5 },
+                { logo: 'image.jpg', tm_name: 'Peýnir', ru_name: 'Сыр', en_name: 'Cheese', slug: 'peýnir', categoryId: 2, userId: 6 },
+                { logo: 'image.jpg', tm_name: 'Öýjükli telefon', ru_name: 'Мобильный телефон', en_name: 'Mobile phone', slug: 'öýjükli-telefon', categoryId: 3, userId: 7 },
+                { logo: 'image.jpg', tm_name: 'Sensor telefon', ru_name: 'Сенсорный телефон', en_name: 'Touchscreen phone', slug: 'sensor-telefon', categoryId: 3 },
+                { logo: 'image.jpg', tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4, userId: 1 }
             ]).then(() => { console.log('Subcategories created') }).catch((err) => { console.log(err) })
 
             await Models.SubcategoryFeatures.bulkCreate([
@@ -479,6 +479,11 @@ class AdminService {
                 { discount: 17.9, productId: 2 },
                 { discount: 12.9, productId: 3 }
             ]).then(() => { console.log('Offers created') }).catch((err) => { console.log(err) })
+
+            await Models.Comments.bulkCreate([
+                { comment: 'gaty gowey', productId: 1, customerId: 1 },
+                { comment: 'aldama gowy dal', productId: 1, customerId: 2 }
+            ])
 
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS

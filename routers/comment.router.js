@@ -16,8 +16,8 @@ router.post('/add',
     commentController.addComment)
 
 // GET
-router.get('/all/:id',
-    valdidationMiddleware(commentSchema.idControl, 'params'),
+router.get('/all',
+    valdidationMiddleware(commentSchema.allComment, 'query'),
     commentController.allComment)
 
 module.exports = router

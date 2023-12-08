@@ -30,8 +30,8 @@ class CommentController {
     // GET
     async allComment(req, res) {
         try {
-            const productId = req.params.id
-            const data = await commentService.allCommentService(productId)
+            const query = req.query
+            const data = await commentService.allCommentService(query)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

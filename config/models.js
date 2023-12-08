@@ -20,6 +20,7 @@ const Users = database.define('users', {
 const Customers = database.define('customers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     fullname: { type: DataTypes.STRING(40), allowNull: false },
+    img: { type: DataTypes.STRING, defaultValue: 'profile.jpg' },
     gender: { type: DataTypes.ENUM({ values: ['male', 'fmale'] }), allowNull: false },
     email: { type: DataTypes.STRING(50), allowNull: false, unique: true, validate: { isEmail: true } },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
@@ -252,7 +253,8 @@ const Subcategories = database.define('subcategories', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     tm_name: { type: DataTypes.STRING(100), allowNull: false },
     ru_name: { type: DataTypes.STRING(100) },
-    en_name: { type: DataTypes.STRING(100) }, // logo
+    en_name: { type: DataTypes.STRING(100) },
+    logo: { type: DataTypes.STRING(50), allowNull: false },
     slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },

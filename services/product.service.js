@@ -145,18 +145,19 @@ class ProductService {
                     obj[key] = query[key]
                 }
             }
+            obj.isActive = true
             obj.sale_price = { [Op.between]: [start_price, end_price] }
             const products = await Models.Products.findAndCountAll({
-                attributes: { exclude: ['subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] },
+                attributes: { exclude: ['tm_desc', 'en_desc', 'ru_desc', 'subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] },
                 where: obj,
                 include: [
                     {
                         model: Models.Subcategories,
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'], // logo
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'logo'],
                         where: { isActive: true },
                         include: {
                             model: Models.Categories,
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'logo'],
                             where: { isActive: true }
                         }
                     },
@@ -175,12 +176,14 @@ class ProductService {
                 order: [[sort, order]]
             })
             const _products = await Promise.all(products.rows.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id }})
                 const rating = await this.fetchReviewService(item.id)
-                const comment = await allCommentService(item.id)
+                const comment = await allCommentService({ productId: item.id })
                 return { 
                     ...item.dataValues, 
                     rating: rating.detail.rating, 
-                    comment: comment.detail.count 
+                    comment: comment.detail.count,
+                    images: images
                 }
             }))
             return Response.Success('Üstünlikli!', _products)
@@ -192,10 +195,40 @@ class ProductService {
     async fetchProductService(slug) {
         try {
             const product = await Models.Products.findOne({
-                where: { slug: slug, isActive: false }, // true
-                attributes: { exclude: ['slug', 'createdAt', 'updatedAt'] }
+                where: { slug: slug, isActive: true },
+                include: [
+                    {
+                        model: Models.Subcategories,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'logo'],
+                        where: { isActive: true },
+                        include: {
+                            model: Models.Categories,
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'logo'],
+                            where: { isActive: true }
+                        }
+                    },
+                    {
+                        model: Models.Brands,
+                        attributes: ['id', 'name', 'img', 'slug'],
+                        where: { isActive: true }
+                    },
+                    {
+                        model: Models.Sellers,
+                        attributes: ['id', 'name', 'logo', 'isVerified']
+                    }
+                ],
+                attributes: { exclude: ['slug', 'subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] }
             })
-            return Response.Success('Üstünlikli!', product)
+            const images = await Models.ProductImages.findAndCountAll({ where: { productId: product.id }})
+            const rating = await this.fetchReviewService(product.id)
+            const comment = await allCommentService({ productId: product.id })
+            const response = {
+                ...product.dataValues, 
+                images: images,
+                rating: rating.detail.rating, 
+                reviews: comment.detail
+            }
+            return Response.Success('Üstünlikli!', response)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

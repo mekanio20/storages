@@ -8,6 +8,12 @@ const commentSchema = {
 
     idControl: Joi.object({
         id: Joi.number().positive().required()
+    }),
+
+    allComment: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        productId: Joi.number().positive().required()
     })
 }
 

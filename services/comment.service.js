@@ -36,7 +36,7 @@ class CommentService {
                 productId: body.productId,
                 comment: body.comment
             })
-            if (filenames.review) {
+            if (filenames?.review) {
                 filenames.review.forEach(async (item) => {
                     await Models.ProductReviewImages.create({ img: item.filename })
                     .then(() => { console.log(true) })
@@ -50,28 +50,40 @@ class CommentService {
     }
 
     // GET
-    async allCommentService(productId) {
+    async allCommentService(q) {
         try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
             const comments = await Models.Comments.findAndCountAll({
                 where: {
-                    productId: productId,
+                    productId: q.productId,
                     isActive: true
                 },
-                attributes: ['id', 'comment'],
+                attributes: ['id', 'comment', 'createdAt'],
                 include: [
                     {
                         model: Models.Customers,
-                        attributes: ['id', 'fullname']
+                        attributes: ['id', 'fullname', 'img']
                     },
                     {
                         model: Models.ProductReviewImages,
-                        where: { isActive: true },
+                        where: { isActive: true }, required: false,
                         attributes: ['id', 'img']
                     }
                 ],
+                limit: Number(limit),
+                offset: Number(offset),
                 order: [['id', 'ASC']]
             })
-            return Response.Success('Üstünlikli!', comments)
+            const result = await Promise.all(comments.rows.map(async (item) => {
+                const star = await Models.ProductReviews.findOne({ where: { productId: q.productId }})
+                return { 
+                    ...item.dataValues, 
+                    star: star.star
+                }
+            }))
+            return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
