@@ -98,6 +98,10 @@ router.get('/features', userController.allFeatureList)
 router.get('/brands', userController.allBrandList)
 router.get('/product/search', userController.productSearch)
 
+router.get('/favorite', 
+    valdidationMiddleware(userSchema.favoriteProducts, 'query'),
+    userController.favoriteProducts)
+
 router.get('/basket/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),

@@ -69,6 +69,10 @@ const userSchema = {
     addMessage: Joi.object({
         content: Joi.string().min(1).required(),
         userId: Joi.number().positive().required()
+    }),
+
+    favoriteProducts: Joi.object({
+        user: Joi.number().positive().required()
     })
 }
 

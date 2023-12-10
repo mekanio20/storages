@@ -4,9 +4,11 @@ const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const Axios = require('axios')
 const redis = require('../ioredis')
-const { Op } = require('sequelize')
 const Models = require('../config/models')
+const { Op } = require('sequelize')
 const { Sequelize } = require('../config/database')
+const { fetchReviewService } = require('./product.service')
+const { allCommentService } = require('./comment.service')
 
 const generateJwt = (id, group) => {
     console.log('id: ', id, 'groupId: ', group);
@@ -613,6 +615,41 @@ class UserService {
                 order: [['id', 'DESC']]
             })
             return Response.Success('Gozleg netijesi...', product)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async favoriteProductsService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let customerId = await this.isCustomer(q.user)
+            const products = await Models.Likes.findAndCountAll({
+                attributes: ['id', 'customerId'],
+                where: { customerId: customerId },
+                include: {
+                    model: Models.Products,
+                    where: { isActive: true },
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'org_price', 'sale_price']
+                },
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'desc']]
+            })
+            const _products = await Promise.all(products.rows.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id }})
+                const rating = await fetchReviewService(item.id)
+                const comment = await allCommentService({ productId: item.id })
+                return { 
+                    ...item.dataValues, 
+                    images: images,
+                    rating: rating.detail.rating, 
+                    comment: comment.detail.count,
+                }
+            }))
+            return Response.Success('Halayan harytlarymm...', _products)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

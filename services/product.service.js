@@ -135,10 +135,10 @@ class ProductService {
             let sort = q.sort || 'id'
             let order = q.order || 'asc'
             let query = {
+                gender: q.gender || '',
                 subcategoryId: q.subcategoryId || 0,
                 sellerId: q.sellerId || 0,
                 brandId: q.brandId || 0,
-                gender: q.gender || ''
             }
             for (const key in query) {
                 if (query[key].length > 0) {
