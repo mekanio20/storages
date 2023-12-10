@@ -87,7 +87,6 @@ router.get('/likes/:id',
     valdidationMiddleware(userSchema.idControl),
     userController.fetchLikes)
 
-router.get('/top/rated', userController.topRated)
 router.get('/top/selling', userController.topSelling)
 router.get('/top/liked', userController.topLiked)
 router.get('/offers', userController.allOfferList)
@@ -98,7 +97,8 @@ router.get('/features', userController.allFeatureList)
 router.get('/brands', userController.allBrandList)
 router.get('/product/search', userController.productSearch)
 
-router.get('/favorite', 
+router.get('/favorite',
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.favoriteProducts, 'query'),
     userController.favoriteProducts)
 

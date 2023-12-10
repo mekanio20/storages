@@ -363,30 +363,9 @@ class UserService {
         }
     }
 
-    async topRatedService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            const rated_products = await Models.ProductReviews.findAll({
-                attributes: [ [Sequelize.fn('SUM', Sequelize.col('star')), 'totalStar'] ],
-                include: {
-                    model: Models.Products,
-                    attributes: { exclude: ['updatedAt', 'isActive'] }
-                },
-                group: ['productId', 'product.id'],
-                order: [['totalStar', 'desc']],
-                limit: Number(limit),
-                offset: Number(offset)
-            })
-            return Response.Success('Üstünlikli!', rated_products)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async topSellingService(q) {
         try {
+            let result = []
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
@@ -394,16 +373,54 @@ class UserService {
                 attributes: [
                     [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalSelling'] 
                 ],
-                include: {
-                    model: Models.Products,
-                    attributes: { exclude: ['updatedAt', 'isActive'] }
-                },
-                group: ['productId', 'product.id'],
-                order: [['totalSelling', 'desc']],
+                include: [
+                    {
+                        model: Models.Products,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'quantity', 'org_price', 'sale_price'],
+                        include: [
+                            {
+                                model: Models.Subcategories,
+                                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                                where: { isActive: true },
+                                include: {
+                                    model: Models.Categories,
+                                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                                    where: { isActive: true }
+                                }
+                            },
+                            {
+                                model: Models.Brands,
+                                attributes: ['id', 'name', 'img', 'slug'],
+                                where: { isActive: true }
+                            },
+                            {
+                                model: Models.Sellers,
+                                attributes: ['id', 'name']
+                            }
+                        ],
+                    }
+                ],
+                group: [
+                    'product.id', 'product.subcategory.id', 
+                    'product.subcategory.category.id', 
+                    'product.brand.id', 'product.seller.id'
+                ],
                 limit: Number(limit),
                 offset: Number(offset)
             })
-            return Response.Success('Üstünlikli!', selling_products)
+            await Promise.all(selling_products.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id }})
+                const rating = await fetchReviewService(item.product.id)
+                const comment = await allCommentService({ productId: item.product.id })
+                result.push({ 
+                    ...item.dataValues,
+                    images: images,
+                    rating: rating.detail.rating,
+                    comment: comment.detail.count,
+                })
+            }))
+            result.sort((a, b) => Number(b.totalSelling) - Number(a.totalSelling))
+            return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -411,6 +428,7 @@ class UserService {
 
     async topLikedSerive(q) {
         try {
+            let result = []
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
@@ -418,16 +436,54 @@ class UserService {
                 attributes: [
                     [Sequelize.fn('COUNT', Sequelize.col('productId')), 'totalLiked'] 
                 ],
-                include: {
-                    model: Models.Products,
-                    attributes: { exclude: ['updatedAt', 'isActive'] }
-                },
-                group: ['productId', 'product.id'],
-                order: [['totalLiked', 'desc']],
+                include: [
+                    {
+                        model: Models.Products,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'quantity', 'org_price', 'sale_price'],
+                        include: [
+                            {
+                                model: Models.Subcategories,
+                                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                                where: { isActive: true },
+                                include: {
+                                    model: Models.Categories,
+                                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                                    where: { isActive: true }
+                                }
+                            },
+                            {
+                                model: Models.Brands,
+                                attributes: ['id', 'name', 'img', 'slug'],
+                                where: { isActive: true }
+                            },
+                            {
+                                model: Models.Sellers,
+                                attributes: ['id', 'name']
+                            }
+                        ],
+                    }
+                ],
+                group: [
+                    'product.id', 'product.subcategory.id', 
+                    'product.subcategory.category.id', 
+                    'product.brand.id', 'product.seller.id'
+                ],
                 limit: Number(limit),
                 offset: Number(offset)
             })
-            return Response.Success('Üstünlikli!', top_liked)
+            await Promise.all(top_liked.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id }})
+                const rating = await fetchReviewService(item.product.id)
+                const comment = await allCommentService({ productId: item.product.id })
+                result.push({ 
+                    ...item.dataValues,
+                    images: images,
+                    rating: rating.detail.rating,
+                    comment: comment.detail.count,
+                })
+            }))
+            result.sort((a, b) => Number(b.totalLiked) - Number(a.totalLiked))
+            return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -456,7 +512,7 @@ class UserService {
 
     async sendOtpService(user) {
         try {
-            console.log('Send Otp Service --> ', JSON.stringify(user.phone, 2, null));
+            console.log('Send Otp Service --> ', JSON.stringify(user.phone, 2, null))
             const bodyParameters = { phone: user.phone }
             const { data } = await Axios.post('http://localhost:3000/otp', bodyParameters)
             const random = data.pass
@@ -578,7 +634,7 @@ class UserService {
                 where: { productId: productId },
                 include: {
                     model: Models.Customers,
-                    attributes: ['fullname']
+                    attributes: ['fullname', 'img']
                 },
                 order: [['id', 'DESC']]
             })
@@ -636,20 +692,23 @@ class UserService {
                 },
                 limit: Number(limit),
                 offset: Number(offset),
-                order: [['id', 'desc']]
+                order: [['id', 'DESC']]
             })
-            const _products = await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id }})
-                const rating = await fetchReviewService(item.id)
-                const comment = await allCommentService({ productId: item.id })
-                return { 
-                    ...item.dataValues, 
+            if (products.length === 0) { return Response.NotFound('Halanyan haryt yok!', []) }
+            const result = { count: 0, rows: [] }
+            result.count = products.count
+            await Promise.all(products.rows.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id }})
+                const rating = await fetchReviewService(item.product.id)
+                const comment = await allCommentService({ productId: item.product.id })
+                result.rows.push({
+                    ...item.dataValues,
                     images: images,
-                    rating: rating.detail.rating, 
-                    comment: comment.detail.count,
-                }
+                    rating: rating.detail.rating,
+                    comment: comment.detail.count
+                })
             }))
-            return Response.Success('Halayan harytlarymm...', _products)
+            return Response.Success('Halayan harytlarymm...', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

@@ -134,6 +134,7 @@ class ProductService {
             let end_price = Number(q.end_price) || 100000
             let sort = q.sort || 'id'
             let order = q.order || 'asc'
+            let rating = q.rating || 'asc'
             let query = {
                 gender: q.gender || '',
                 subcategoryId: q.subcategoryId || 0,
@@ -148,16 +149,16 @@ class ProductService {
             obj.isActive = true
             obj.sale_price = { [Op.between]: [start_price, end_price] }
             const products = await Models.Products.findAndCountAll({
-                attributes: { exclude: ['tm_desc', 'en_desc', 'ru_desc', 'subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] },
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'quantity', 'org_price', 'sale_price'],
                 where: obj,
                 include: [
                     {
                         model: Models.Subcategories,
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'logo'],
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                         where: { isActive: true },
                         include: {
                             model: Models.Categories,
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'logo'],
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                             where: { isActive: true }
                         }
                     },
@@ -175,18 +176,22 @@ class ProductService {
                 offset: Number(offset),
                 order: [[sort, order]]
             })
-            const _products = await Promise.all(products.rows.map(async (item) => {
+            const result = { count: 0, rows: [] }
+            result.count = products.count
+            await Promise.all(products.rows.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id }})
                 const rating = await this.fetchReviewService(item.id)
                 const comment = await allCommentService({ productId: item.id })
-                return { 
+                result.rows.push({ 
                     ...item.dataValues, 
+                    images: images,
                     rating: rating.detail.rating, 
                     comment: comment.detail.count,
-                    images: images
-                }
+                })
             }))
-            return Response.Success('Üstünlikli!', _products)
+            if (rating === 'asc') { result.rows.sort((a, b) => b.rating - a.rating) }
+            else if (rating === 'desc') { result.rows.sort((a, b) => a.rating - b.rating) }
+            return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -199,11 +204,11 @@ class ProductService {
                 include: [
                     {
                         model: Models.Subcategories,
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'logo'],
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                         where: { isActive: true },
                         include: {
                             model: Models.Categories,
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'logo'],
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                             where: { isActive: true }
                         }
                     },
@@ -239,7 +244,7 @@ class ProductService {
             let sum1 = 0
             let sum2 = 0
             const reviews = await Models.ProductReviews.findAll({
-                where: { productId: id },
+                where: { productId: id, isActive: true },
                 attributes: [
                     'star',
                     [Sequelize.fn('COUNT', Sequelize.col('customerId')), 'total_customers']
@@ -247,6 +252,9 @@ class ProductService {
                 group: ['star'],
                 order: [['star', 'DESC']]
             })
+            if (reviews.length === 0) {
+                return Response.Success('Üstünlikli!', { reviews: [], rating: 0 })
+            }
             reviews.forEach((item) => {
                 sum1 += Number(item.dataValues.total_customers)
                 sum2 += Number(item.dataValues.star) * Number(item.dataValues.total_customers)

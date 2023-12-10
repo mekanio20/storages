@@ -364,28 +364,6 @@ class UserController {
         }
     }
 
-    async topRated(req, res) {
-        try {
-            const query = req.params
-            const data = await userService.topRatedService(query)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
     async topSelling(req, res) {
         try {
             const query = req.params
@@ -627,7 +605,7 @@ class UserController {
     async favoriteProducts(req, res) {
         try {
             const q = req.query
-            const user = userPermission(4, q.user)
+            const user = userPermission(req.user.id, q.user)
             if (!user) { 
                 let result = await Response.Forbidden('Rugsat edilmedi!', [])
                 return res.json(result)

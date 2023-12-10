@@ -76,12 +76,14 @@ class CommentService {
                 offset: Number(offset),
                 order: [['id', 'ASC']]
             })
-            const result = await Promise.all(comments.rows.map(async (item) => {
+            const result = { count: 0, rows: [] }
+            result.count = comments.count
+            await Promise.all(comments.rows.map(async (item) => {
                 const star = await Models.ProductReviews.findOne({ where: { productId: q.productId }})
-                return { 
-                    ...item.dataValues, 
+                result.rows.push({
+                    ...item.dataValues,
                     star: star.star
-                }
+                })
             }))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
