@@ -58,6 +58,12 @@ const sellerSchema = {
         star_date: Joi.string().isoDate().required(),
         end_date: Joi.string().isoDate().required(),
         isPublic: Joi.boolean().required()
+    }),
+    
+    allOrders: Joi.object({
+        id: Joi.number().positive().required(),
+        sort: Joi.string().valid('id', 'time').optional(),
+        order: Joi.string().valid('asc', 'desc').optional()
     })
 }
 

@@ -139,6 +139,46 @@ class SellerService {
         }
     }
 
+    async allOrdersService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let status = q.status || 'inprocess'
+            let sort = q.sort || 'id'
+            let order = q.order || 'desc'
+            const orders = await Models.Orders.findAndCountAll({
+                attributes: ['id', 'order_id', 'status', 'time'],
+                where: { status: status },
+                include: [
+                    {
+                        model: Models.Products,
+                        where: { isActive: true },
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
+                        include: [
+                            {
+                                model: Models.ProductImages,
+                                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
+                                where: { isActive: true }, required: false
+                            },
+                            {
+                                model: Models.Sellers,
+                                attributes: ['userId'],
+                                where: { userId: q.id }
+                            }
+                        ]
+                    }
+                ],
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [[sort, order]]
+            })
+            return Response.Success('Üstünlikli!', orders)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async fetchFollowersService(id) {
         try {
             const followers = await Models.Followers.findAll({

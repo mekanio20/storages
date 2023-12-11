@@ -31,6 +31,11 @@ router.get('/top', sellerController.topSellers)
 router.get('/all',
     authMiddleware, accessMiddleware(false),
     sellerController.allSeller)
+
+router.get('/orders',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(sellerSchema.allOrders, 'query'),
+    sellerController.allOrders)
     
 router.get('/:id',
     authMiddleware, accessMiddleware(true),
