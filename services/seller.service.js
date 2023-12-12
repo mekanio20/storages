@@ -148,7 +148,7 @@ class SellerService {
             let sort = q.sort || 'id'
             let order = q.order || 'desc'
             const orders = await Models.Orders.findAndCountAll({
-                attributes: ['id', 'order_id', 'status', 'time'],
+                attributes: ['id', 'customerId', 'order_id', 'status', 'time'],
                 where: { status: status },
                 include: [
                     {
@@ -158,22 +158,73 @@ class SellerService {
                         include: [
                             {
                                 model: Models.ProductImages,
+                                where: { isActive: true }, required: false,
                                 attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
-                                where: { isActive: true }, required: false
                             },
                             {
                                 model: Models.Sellers,
-                                attributes: ['userId'],
-                                where: { userId: q.id }
+                                where: { userId: q.id },
+                                attributes: [],
+                            },
+                            {
+                                model: Models.Offers,
+                                where: { isActive: true }, required: false,
+                                attributes: ['id', 'discount']
                             }
                         ]
+                    },
+                    {
+                        model: Models.Customers,
+                        attributes: ['fullname']
                     }
                 ],
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [[sort, order]]
             })
+            if (orders.length === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
             return Response.Success('Üstünlikli!', orders)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async orderDetailService(id, userId) {
+        try {
+            const order = await Models.Orders.findOne({
+                attributes: { exclude: ['createdAt', 'updatedAt', 'customerId', 'productId'] },
+                where: { id: id },
+                include: [
+                    {
+                        model: Models.Products,
+                        where: { isActive: true },
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
+                        include: [
+                            {
+                                model: Models.ProductImages,
+                                where: { isActive: true }, required: false,
+                                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
+                            },
+                            {
+                                model: Models.Sellers,
+                                where: { userId: userId },
+                                attributes: [],
+                            },
+                            {
+                                model: Models.Offers,
+                                where: { isActive: true }, required: false,
+                                attributes: ['id', 'discount']
+                            }
+                        ]
+                    },
+                    {
+                        model: Models.Customers,
+                        attributes: ['fullname']
+                    }
+                ]
+            })
+            if (!order) { return Response.NotFound('Sargyt tapylmady!', []) }
+            return Response.Success('Üstünlikli!', order)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

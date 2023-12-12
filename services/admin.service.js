@@ -549,6 +549,7 @@ class AdminService {
                 { url: '/api/seller/orders', method: 'GET', groupId: 1 },
                 { url: '/api/seller/orders', method: 'GET', groupId: 2 },
                 { url: '/api/seller/orders', method: 'GET', groupId: 3 },
+                { url: '/api/seller/order/detail', method: 'GET', groupId: 3 },
                 { url: '/api/seller/update', method: 'PUT', groupId: 3 },
                 { url: '/api/seller', method: 'DELETE', groupId: 3 },
                 { url: '/api/seller/delete/product', method: 'DELETE', groupId: 3 },
