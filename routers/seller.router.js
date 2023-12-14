@@ -30,6 +30,7 @@ router.get('/top', sellerController.topSellers)
 
 router.get('/all',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(sellerSchema.allSeller, 'query'),
     sellerController.allSeller)
 
 router.get('/orders',
@@ -41,15 +42,15 @@ router.get('/order/detail/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.orderDetail)
-    
-router.get('/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.idControl, 'params'),
-    sellerController.fetchOneSeller)
 
 router.get('/followers/:id',
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.fetchFollowers)
+
+router.get('/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(sellerSchema.idControl, 'params'),
+    sellerController.fetchOneSeller)
 
 
 // PUT

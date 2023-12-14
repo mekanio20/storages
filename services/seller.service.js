@@ -123,14 +123,28 @@ class SellerService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const seller = await Models.Sellers.findAll({
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
-                include: { 
-                    model: Models.Users,
-                    attributes: { exclude: ['password', 'updatedAt', 'deletedAt'] } 
+            let conditions = {}
+            let _conditions = {
+                store_number: q.store_number || null,
+                store_floor: q.store_floor || null,
+                categoryId: q.categoryId || null
+            }
+            for (let i in _conditions) {
+                if (_conditions[i] !== null) {
+                    conditions[i] = _conditions[i]
+                }
+            }
+            const seller = await Models.Sellers.findAndCountAll({
+                where: conditions,
+                attributes: ['id', 'name', 'logo', 'store_number', 'store_floor'],
+                include: {
+                    model: Models.Categories,
+                    where: { isActive: true },
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug']
                 },
                 limit: Number(limit),
-                offset: Number(offset)
+                offset: Number(offset),
+                order: [['id', 'asc']]
             })
             if (seller.length === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', seller)

@@ -64,6 +64,14 @@ const sellerSchema = {
         id: Joi.number().positive().required(),
         sort: Joi.string().valid('id', 'time').optional(),
         order: Joi.string().valid('asc', 'desc').optional()
+    }),
+
+    allSeller: Joi.object({
+        store_number: Joi.number().positive().optional(),
+        store_floor: Joi.number().positive().optional(),
+        categoryId: Joi.number().positive().optional(),
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional()
     })
 }
 
