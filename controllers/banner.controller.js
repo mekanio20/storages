@@ -1,4 +1,4 @@
-const Response = require('../services/response.service')
+const Response = require('../helpers/response.service')
 const bannerService = require('../services/banner.service')
 
 class BannerController {

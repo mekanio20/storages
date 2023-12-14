@@ -56,11 +56,6 @@ router.post('/add/follower',
     valdidationMiddleware(userSchema.addFollower, 'body'),
     userController.addFollower)
 
-router.post('/add/address',
-    authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.addAddress, 'body'),
-    userController.addAddress)
-
 router.post('/add/message',
     authMiddleware, accessMiddleware(false),
     fileMiddleware(process.env.MESSAGE_FILES).single('file'),

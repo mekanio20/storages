@@ -1,4 +1,6 @@
-const Response = require('../services/response.service')
+const Verification = require('../helpers/verification.service')
+const Functions = require('../helpers/functions.service')
+const Response = require('../helpers/response.service')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
@@ -10,79 +12,15 @@ const { Sequelize } = require('../config/database')
 const { fetchReviewService } = require('./product.service')
 const { allCommentService } = require('./comment.service')
 
-const generateJwt = (id, group) => {
-    console.log('id: ', id, 'groupId: ', group);
-    return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
-}
-const fackeToken = (data) => {
-    console.log('facke token data: ', JSON.stringify(data, 2, null))
-    return jwt.sign({ data }, process.env.PRIVATE_KEY, { expiresIn: '5m' })
-}
-
 class UserService {
-
-    async isSeller(userId) {
-        try {
-            const seller = await Models.Sellers.findOne({
-                attributes: ['id'],
-                where: {
-                    userId: Number(userId)
-                }
-            })
-            return seller ? seller.id : null
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async isCustomer(userId) {
-        try {
-            const customer = await Models.Customers.findOne({
-                attributes: ['id'],
-                where: {
-                    userId: Number(userId)
-                }
-            })
-            return customer ? customer.id : null
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async isExists(phone) {
-        try {
-            return Models.Users.findAll({
-                where: {
-                    [Op.or]: {
-                        phone: phone
-                    }
-                },
-                attributes: ['id', 'password', 'phone', 'groupId']
-            })
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async getGroupId(group) {
-        try {
-            let group_id = await Models.Groups.findOne({ where: { name: group }, attributes: ['id'] })
-            if (!group_id) { group_id = await Models.Groups.create({ name: group }) }
-            group_id = JSON.stringify(group_id)
-            group_id = Number(JSON.parse(group_id).id)
-            return group_id
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
 
     async userLoginService(phone, password) {
         try {
-            let user = await this.isExists(phone)
+            let user = await Verification.isExists(phone)
             if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             const hash = await bcrypt.compare(password, user[0].password)
             if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
-            const token = generateJwt(user[0].id, user[0].groupId)
+            const token = await Functions.generateJwt(user[0].id, user[0].groupId)
             let response = await Response.Success('Üstünlikli!', user[0])
             response.token = token
             return response
@@ -93,7 +31,7 @@ class UserService {
 
     async forgotPasswordService(phone, orgPass, verifPass) {
         try {
-            let user = await this.isExists(phone)
+            let user = await Verification.isExists(phone)
             if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
             if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             user[0].dataValues.orgPass = orgPass
@@ -106,17 +44,18 @@ class UserService {
 
     async userRegisterService(body, ip, device) {
         try {
-            const user = await this.isExists(body.phone)
+            const user = await Verification.isExists(body.phone)
             if (user.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             const hash = await bcrypt.hash(body.password, 5)
-            const groupId = await this.getGroupId('USERS')
+            const groupId = await Models.Groups.findOne({ where: { name: 'USERS' }, attributes: ['id'] })
+            if (!groupId) { return Response.NotFound('Beyle grupba yok!', []) }
             let _user = {
                 phone: body.phone,
                 password: hash,
                 ip: ip,
                 device: device,
                 uuid: uuid.v4(),
-                groupId: groupId
+                groupId: groupId.id
             }
             const response = await this.sendOtpService(_user)
             return response
@@ -128,11 +67,11 @@ class UserService {
     async checkControlService(code, user) {
         try {
             const systemcode = await redis.get(user.phone)
-            const exist = await this.isExists(user.phone)
+            const exist = await Verification.isExists(user.phone)
             if (exist.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
             let _user = await Models.Users.create(user)
-            let token = generateJwt(_user.id, _user.groupId)
+            let token = await Functions.generateJwt(_user.id, _user.groupId)
             return Response.Created('Ulanyjy hasaba alyndy!', { token })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -142,14 +81,14 @@ class UserService {
     async resetPasswordService(code, user) {
         try {
             const systemcode = await redis.get(user.data.phone)
-            let exist = await this.isExists(user.data.phone)
+            let exist = await Verification.isExists(user.data.phone)
             if (exist.length == 0) { return Response.BadRequest('Ulanyjy hasaba alynmady!', []) }
             if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
             let hash = await bcrypt.hash(user.data.orgPass, 5)
             await Models.Users.update({ password: hash }, { where: { id: user.data.id } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
-            let token = generateJwt(user.data.id, user.data.groupId)
+            let token = await Functions.generateJwt(user.data.id, user.data.groupId)
             return Response.Created('Ulanyjy paroly tazelendi!', { token })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -269,24 +208,10 @@ class UserService {
         }
     }
 
-    async addAddressService(body, userId) {
-        try {
-            const customerId = await this.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
-            await Models.Addresses.update({ isDefault: false }, { where: { customerId: customerId } })
-                .then(() => { console.log('Default false...') })
-                .catch((err) => { console.log(err) })
-            const address = Models.Addresses.create({ address: body.address, isDefault: true, customerId: customerId })
-            return Response.Created('Address doredildi!', address)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async addMessageService(body, userId, file) {
         try {
-            const customerId = await this.isCustomer(userId) || await this.isCustomer(body.userId)
-            const sellerId = await this.isSeller(body.userId) || await this.isSeller(userId)
+            const customerId = await Verification.isCustomer(userId) || await Verification.isCustomer(body.userId)
+            const sellerId = await Verification.isSeller(body.userId) || await Verification.isSeller(userId)
             if (!customerId || !sellerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const [chat, created] = await Models.Chats.findOrCreate({
                 where: {
@@ -315,8 +240,8 @@ class UserService {
     // GET
     async allMessagesService(id, userId) {
         try {
-            const customerId = await this.isCustomer(userId)
-            const sellerId = await this.isSeller(userId)
+            const customerId = await Verification.isCustomer(userId)
+            const sellerId = await Verification.isSeller(userId)
             const chat = await Models.Chats.findOne({
                 attributes: ['id', 'sellerId', 'customerId'],
                 where: {
@@ -516,7 +441,7 @@ class UserService {
             const bodyParameters = { phone: user.phone }
             const { data } = await Axios.post('http://localhost:3000/otp', bodyParameters)
             const random = data.pass
-            const token = fackeToken(user)
+            const token = jwt.sign({ user }, process.env.PRIVATE_KEY, { expiresIn: '5m' })
             await redis.set(user.phone, random)
             await redis.expire(user.phone, 300)
             return Response.Success('Tassyklama kody ugradyldy!', { token })
@@ -681,7 +606,7 @@ class UserService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            let customerId = await this.isCustomer(q.user)
+            let customerId = await Verification.isCustomer(q.user)
             const products = await Models.Likes.findAndCountAll({
                 attributes: ['id', 'customerId'],
                 where: { customerId: customerId },

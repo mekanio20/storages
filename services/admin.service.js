@@ -1,36 +1,11 @@
-const uuid = require('uuid')
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
-const Response = require('../services/response.service')
+const Verification = require('../helpers/verification.service')
+const Functions = require('../helpers/functions.service')
+const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-
-const generateJwt = (id, group) => {
-    console.log('id: ', id, 'groupId: ', group);
-    return jwt.sign({ id, group }, process.env.PRIVATE_KEY, { expiresIn: '30d' })
-}
+const bcrypt = require('bcrypt')
+const uuid = require('uuid')
 
 class AdminService {
-
-    async isExists(Model, slug) {
-        try {
-            return Model.findAll({ where: { slug: slug } })
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async getGroupId(group) {
-        try {
-            let group_id = await Models.Groups.findOne({ where: { name: group }, attributes: ['id'] })
-            if (!group_id) { group_id = await Models.Groups.create({ name: group }) }
-            group_id = JSON.stringify(group_id)
-            group_id = Number(JSON.parse(group_id).id)
-            console.log('groupId --------- > ', group_id);
-            return group_id
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
 
     // POST
     async addGroupService(name) {
@@ -63,7 +38,7 @@ class AdminService {
     async addStorageService(body, userId) {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _storage = await this.isExists(Models.Storages, slug)
+            const _storage = await Verification.isFound(Models.Storages, slug)
             if (_storage.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const storage = await Models.Storages.create({
                 tm_name: body.tm_name,
@@ -81,7 +56,7 @@ class AdminService {
     async addCategoryService(body, userId) {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _category = await this.isExists(Models.Categories, slug)
+            const _category = await Verification.isFound(Models.Categories, slug)
             if (_category.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const category = await Models.Categories.create({
                 tm_name: body.tm_name,
@@ -100,7 +75,7 @@ class AdminService {
     async addSubcategoryService(body, userId) {
         try {
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _subcategory = await this.isExists(Models.Subcategories, slug)
+            const _subcategory = await Verification.isFound(Models.Subcategories, slug)
             if (_subcategory.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const subcategory = await Models.Subcategories.create({
                 tm_name: body.tm_name,
@@ -160,7 +135,7 @@ class AdminService {
         try {
             if (!brand_img) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.name.split(" ").join('-').toLowerCase()
-            const brand = await this.isExists(Models.Brands, slug)
+            const brand = await Verification.isFound(Models.Brands, slug)
             if (brand.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
             const brands = await Models.Brands.create({ name: body.name, slug: slug, img: brand_img.filename, desc: body.desc || null, userId: userId })
@@ -172,11 +147,12 @@ class AdminService {
 
     async addStaffService(userId) {
         try {
-            const groupId = await this.getGroupId('STAFF')
+            const groupId = await Models.Groups.findOne({ where: { name: 'STAFF' }, attributes: ['id'] })
+            if (!groupId) { return Response.NotFound('Beyle grupba yok!', []) }
             const staff = await Models.Users.findOne({ where: { id: Number(userId), isStaff: true } })
             if (staff.length > 0) { return Response.BadRequest('Admin doredilen!', []) }
-            await Models.Users.update({ isStaff: true, isCustomer: false, isSeller: false, groupId: groupId }, { where: { id: Number(userId) } })
-            const token = generateJwt(userId, groupId)
+            await Models.Users.update({ isStaff: true, isCustomer: false, isSeller: false, groupId: groupId.id }, { where: { id: Number(userId) } })
+            const token = await Functions.generateJwt(userId, groupId.id)
             let response = await Response.Created('Admin hasaba alyndy!', [])
             response.token = token
             return response

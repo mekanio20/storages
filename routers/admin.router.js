@@ -53,7 +53,7 @@ router.post('/add/brand',
     adminController.addBrand)
 
 router.post('/add/staff',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.idControl, 'body'),
     adminController.addStaff)
 

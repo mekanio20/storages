@@ -1,4 +1,5 @@
-const Response = require('../services/response.service')
+const Verification = require('../helpers/verification.service')
+const Response = require('../helpers/response.service')
 const Models = require('../config/models')
 const { Sequelize } = require('../config/database')
 const { Op } = require('sequelize')
@@ -6,35 +7,13 @@ const { allCommentService } = require('./comment.service')
 
 class ProductService {
 
-    async isExists(Model, slug) {
-        try {
-            return Model.findAll({ where: { slug: slug } })
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async isSeller(userId) {
-        try {
-            const seller = await Models.Sellers.findOne({
-                attributes: ['id'],
-                where: {
-                    userId: Number(userId)
-                }
-            })
-            return seller ? seller.id : null
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     // POST
     async addProductService(body, filenames, userId) {
         try {
-            const sellerId = await this.isSeller(userId)
+            const sellerId = await Verification.isSeller(userId)
             if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _product = await this.isExists(Models.Products, slug)
+            const _product = await Verification.isFound(Models.Products, slug)
             if (_product.length > 0) { return Response.Forbidden('Maglumat eyyam döredilen!', []) }
             const subscription = await Models.Sellers.findOne({
                 attributes: ['subscriptionId'],

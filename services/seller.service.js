@@ -1,23 +1,9 @@
-const Response = require('./response.service')
+const Verification = require('../helpers/verification.service')
+const Response = require('../helpers/response.service')
 const Models = require('../config/models')
 const { Sequelize } = require('../config/database')
 
 class SellerService {
-
-    async isSeller(userId) {
-        try {
-            const seller = await Models.Sellers.findOne({
-                attributes: ['id'],
-                where: {
-                    userId: Number(userId)
-                }
-            })
-            return seller ? seller.id : null
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async sellerRegisterService(body, filenames) {
         try {
             const seller = await Models.Sellers.findAll({ attributes: ['id'], where: { name: body.name } })
@@ -63,7 +49,7 @@ class SellerService {
 
     async addCouponService(body, img, userId) {
         try {
-            const sellerId = await this.isSeller(userId)
+            const sellerId = await Verification.isSeller(userId)
             if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
             const limit = await Models.Subscriptions.findOne({
                 attributes: ['voucher_limit'],
@@ -387,7 +373,6 @@ class SellerService {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-
 }
 
 module.exports = new SellerService()

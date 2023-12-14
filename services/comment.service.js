@@ -1,26 +1,13 @@
-const Response = require('../services/response.service')
+const Verification = require('../helpers/verification.service')
+const Response = require('../helpers/response.service')
 const Models = require('../config/models')
 
 class CommentService {
 
-    async isCustomer(userId) {
-        try {
-            const customer = await Models.Customers.findOne({
-                attributes: ['id'],
-                where: {
-                    userId: Number(userId)
-                }
-            })
-            return customer ? customer.id : null
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     // POST
     async addCommentService(body, filenames, userId) {
         try {
-            const customerId = await this.isCustomer(userId)
+            const customerId = await Verification.isCustomer(userId)
             if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
             const order = await Models.Orders.findOne({
                 attributes: ['id'],

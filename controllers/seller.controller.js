@@ -1,5 +1,5 @@
 const sellerService = require('../services/seller.service')
-const Response = require('../services/response.service')
+const Response = require('../helpers/response.service')
 
 const userPermission = (reqId, userId) => {
     if (String(reqId) !== String(userId))
