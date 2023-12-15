@@ -2,7 +2,7 @@ const Joi = require('joi')
 
 const addressSchema = {     
     addAddress: Joi.object({
-        address: Joi.string().max(255).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý.!?-\s]+$/).required()
+        address: Joi.string().max(255).required()
     }),
 }
 

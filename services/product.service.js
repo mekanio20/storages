@@ -1,8 +1,8 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-const { Sequelize } = require('../config/database')
 const { Op } = require('sequelize')
+const { Sequelize } = require('../config/database')
 const { allCommentService } = require('./comment.service')
 
 class ProductService {

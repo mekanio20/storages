@@ -109,6 +109,8 @@ class SellerService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
+            let sort = q.sort || 'name'
+            let order = q.order || 'asc'
             let conditions = {}
             let _conditions = {
                 store_number: q.store_number || null,
@@ -130,7 +132,7 @@ class SellerService {
                 },
                 limit: Number(limit),
                 offset: Number(offset),
-                order: [['id', 'asc']]
+                order: [[sort, order]]
             })
             if (seller.length === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', seller)

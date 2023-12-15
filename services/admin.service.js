@@ -502,7 +502,6 @@ class AdminService {
                 { url: '/api/user/add/follower', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/message', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/message', method: 'POST', groupId: 3 },
-                { url: '/api/user/add/address', method: 'POST', groupId: 4 },
                 { url: '/api/user/profile', method: 'GET', groupId: 4 },
                 { url: '/api/user/basket', method: 'GET', groupId: 4 },
                 { url: '/api/user/profile', method: 'GET', groupId: 4 },
@@ -544,6 +543,9 @@ class AdminService {
                 { url: '/api/product/add', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/feature', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/review', method: 'POST', groupId: 4 },
+                // ADDRESS ROUTER
+                { url: '/api/address/add', method: 'POST', groupId: 4 },
+                { url: '/api/address/all', method: 'GET', groupId: 4 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])

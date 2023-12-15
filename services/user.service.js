@@ -17,11 +17,11 @@ class UserService {
     async userLoginService(phone, password) {
         try {
             let user = await Verification.isExists(phone)
-            if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
-            const hash = await bcrypt.compare(password, user[0].password)
+            if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            const hash = await bcrypt.compare(password, user.password)
             if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
-            const token = await Functions.generateJwt(user[0].id, user[0].groupId)
-            let response = await Response.Success('Üstünlikli!', user[0])
+            const token = await Functions.generateJwt(user.id, user.groupId)
+            let response = await Response.Success('Üstünlikli!', user)
             response.token = token
             return response
         } catch (error) {

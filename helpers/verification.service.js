@@ -12,13 +12,9 @@ class VerificationService {
 
     async isExists(phone) {
         try {
-            return Models.Users.findAll({
-                where: {
-                    [Op.or]: {
-                        phone: phone
-                    }
-                },
-                attributes: ['id', 'password', 'phone', 'groupId']
+            return Models.Users.findOne({
+                attributes: ['id', 'password', 'phone', 'groupId'],
+                where: { phone: phone },
             })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

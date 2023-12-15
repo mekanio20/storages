@@ -70,6 +70,8 @@ const sellerSchema = {
         store_number: Joi.number().positive().optional(),
         store_floor: Joi.number().positive().optional(),
         categoryId: Joi.number().positive().optional(),
+        sort: Joi.string().valid('name', 'store_number').optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional()
     })
