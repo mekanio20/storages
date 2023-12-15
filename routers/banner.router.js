@@ -6,6 +6,7 @@ const imagesMiddleware = require('../middlewares/images.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const bannerSchema = require('../validates/banner.schema')
 
+// POST
 router.post('/add',
     authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.BANNERS_PATH).fields([

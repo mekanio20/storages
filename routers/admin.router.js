@@ -6,6 +6,7 @@ const imagesMiddleware = require('../middlewares/images.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const adminSchema = require('../validates/admin.schema')
 
+// POST
 router.post('/add/group',
     authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addGroup, 'body'),

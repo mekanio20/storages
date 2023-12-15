@@ -6,6 +6,7 @@ const imagesMiddleware = require('../middlewares/images.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const sellerSchema = require('../validates/seller.schema')
 
+// POST
 router.post('/register',
     authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.SELLERS_PATH).fields([

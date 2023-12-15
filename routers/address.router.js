@@ -16,4 +16,11 @@ router.get('/all',
     authMiddleware, accessMiddleware(false),
     addressController.allAddress)
 
+// PUT
+router.put(':id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(addressSchema.idControl, 'params'),
+    valdidationMiddleware(addressSchema.addAddress, 'body'),
+    addressController.updateAddress)
+
 module.exports = router
