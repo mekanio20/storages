@@ -17,10 +17,15 @@ router.get('/all',
     addressController.allAddress)
 
 // PUT
-router.put(':id',
+router.put('/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(addressSchema.idControl, 'params'),
     valdidationMiddleware(addressSchema.addAddress, 'body'),
     addressController.updateAddress)
+
+router.delete('/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(addressSchema.idControl, 'params'),
+    addressController.deleteAddress)
 
 module.exports = router

@@ -26,7 +26,8 @@ class AddressService {
             if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
             const addresses = await Models.Addresses.findAll({
                 attributes: ['id', 'address', 'isDefault'],
-                where: { customerId: customerId }
+                where: { customerId: customerId },
+                order: [['id', 'desc']]
             })
             if (addresses.length === 0) { return Response.NotFound('Salgy yok!', []) }
             return Response.Success('Salgylar...', addresses)
@@ -42,7 +43,7 @@ class AddressService {
             if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
             let isDefault = body.isDefault ? true : false
             if (isDefault === true) {
-                await Models.Addresses.update({ isDefault: false }, { where: { id: addressId, customerId: customerId } })
+                await Models.Addresses.update({ isDefault: false }, { where: { customerId: customerId } })
                     .then(() => { console.log('Default false...') })
                     .catch((err) => { console.log(err) })
             }
@@ -51,6 +52,24 @@ class AddressService {
                 { where: { id: addressId, customerId: customerId } 
             })
             return Response.Success('Salgy uytgedildi!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // DELETE
+    async deleteAddressService(addressId, userId) {
+        try {
+            const customerId = await Verification.isCustomer(userId)
+            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
+            const address = await Models.Addresses.destroy({
+                where: {
+                    id: addressId,
+                    customerId: customerId
+                }
+            })
+            if (!address) { return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) }
+            return Response.Success('Salgy pozuldy!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

@@ -459,7 +459,12 @@ class AdminService {
             await Models.Comments.bulkCreate([
                 { comment: 'gaty gowey', productId: 1, customerId: 1 },
                 { comment: 'aldama gowy dal', productId: 1, customerId: 2 }
-            ])
+            ]).then(() => { console.log('Comments created') }).catch((err) => { console.log(err) })
+
+            await Models.Addresses.bulkCreate([
+                { address: 'Anew, 27-nji mekdep', customerId: 1, isDefault: false },
+                { address: 'Kone polidin yany...', customerId: 1, isDefault: true }
+            ]).then(() => { console.log('Addresses created') }).catch((err) => { console.log(err) })
 
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
@@ -546,6 +551,8 @@ class AdminService {
                 // ADDRESS ROUTER
                 { url: '/api/address/add', method: 'POST', groupId: 4 },
                 { url: '/api/address/all', method: 'GET', groupId: 4 },
+                { url: '/api/address', method: 'PUT', groupId: 4 },
+                { url: '/api/address', method: 'DELETE', groupId: 4 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])
