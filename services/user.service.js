@@ -199,9 +199,11 @@ class UserService {
         }
     }
 
-    async addFollowerService(body) {
+    async addFollowerService(sellerId, userId) {
         try {
-            const follower = await Models.Followers.create({ sellerId: body.sellerId, customerId: body.customerId })
+            const customerId = await Verification.isCustomer(userId)
+            if (customerId) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            const follower = await Models.Followers.create({ sellerId: sellerId, customerId: customerId })
             return Response.Created('Follow doredildi!', follower)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

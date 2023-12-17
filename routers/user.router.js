@@ -51,9 +51,9 @@ router.post('/add/basket',
     valdidationMiddleware(userSchema.addBasket, 'body'),
     userController.addBasket)
 
-router.post('/add/follower',
-    authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.addFollower, 'body'),
+router.post('/add/follower/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(userSchema.idControl, 'params'),
     userController.addFollower)
 
 router.post('/add/message',

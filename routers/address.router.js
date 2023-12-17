@@ -23,6 +23,7 @@ router.put('/:id',
     valdidationMiddleware(addressSchema.addAddress, 'body'),
     addressController.updateAddress)
 
+// DELETE
 router.delete('/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(addressSchema.idControl, 'params'),

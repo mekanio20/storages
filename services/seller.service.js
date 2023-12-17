@@ -104,6 +104,24 @@ class SellerService {
         }
     }
 
+    async profileSellerService(id, userId) {
+        try {
+            const seller = await Models.Sellers.findOne({
+                attributes: { exclude: ['seller_type', 'userId', 'categoryId', 'subscriptionId', 'createdAt', 'updatedAt', 'deletedAt'] },
+                where: { id: id }
+            })
+            if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
+            seller.dataValues.followers = await Models.Followers.count({ where: { sellerId: id } })
+            seller.dataValues.products = await Models.Products.count({ where: { sellerId: id } })
+            const customerId = await Verification.isCustomer(userId)
+            if (!customerId) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            seller.dataValues.follower = await Models.Followers.findOne({ where: { customerId: customerId, sellerId: id } }) ? true : false
+            return Response.Success('Satyjy Maglumaty!', seller)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async allSellerService(q) {
         try {
             let page = q.page || 1

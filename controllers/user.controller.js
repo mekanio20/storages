@@ -241,8 +241,9 @@ class UserController {
 
     async addFollower(req, res) {
         try {
-            const body = req.body
-            const data = await userService.addFollowerService(body)
+            const { id } = req.params
+            const userId = req.user.id
+            const data = await userService.addFollowerService(id, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

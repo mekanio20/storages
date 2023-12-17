@@ -48,6 +48,11 @@ router.get('/followers/:id',
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.fetchFollowers)
 
+router.get('/profile/:id',
+    authMiddleware,
+    valdidationMiddleware(sellerSchema.idControl, 'params'),
+    sellerController.profileSeller)
+
 router.get('/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(sellerSchema.idControl, 'params'),
