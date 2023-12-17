@@ -33,6 +33,7 @@ const productSchema = {
     }),
 
     allProduct: Joi.object({
+        name: Joi.string().max(100).optional(),
         subcategoryId: Joi.number().positive().optional(),
         brandId: Joi.number().positive().optional(),
         sellerId: Joi.number().positive().optional(),

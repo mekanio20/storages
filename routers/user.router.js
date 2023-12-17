@@ -90,7 +90,6 @@ router.get('/categories', userController.allCategoryList)
 router.get('/subcategories', userController.allSubcategoryList)
 router.get('/features', userController.allFeatureList)
 router.get('/brands', userController.allBrandList)
-router.get('/product/search', userController.productSearch)
 
 router.get('/favorite',
     authMiddleware, accessMiddleware(false),

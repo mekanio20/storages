@@ -572,37 +572,6 @@ class UserService {
         }
     }
 
-    async productSearchService(search) {
-        try {
-            let page = search.page || 1
-            let limit = search.limit || 10
-            let offset = page * limit - limit
-            if (search.name) {
-                search = [
-                    { tm_name: { [Op.iLike]: `%${search.name}%` } },
-                    { ru_name: { [Op.iLike]: `%${search.name}%` } },
-                    { en_name: { [Op.iLike]: `%${search.name}%` } },
-                    { tm_desc: { [Op.iLike]: `%${search.name}%` } },
-                    { ru_desc: { [Op.iLike]: `%${search.name}%` } },
-                    { en_desc: { [Op.iLike]: `%${search.name}%` } }
-                ]
-            } else { search = [] }
-            const product = await Models.Products.findAll({
-                where: {
-                    isActive: true,
-                    [Op.or]: search
-                },
-                attributes: { exclude: ['gender', 'isActive', 'createdAt', 'updatedAt'] },
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['id', 'DESC']]
-            })
-            return Response.Success('Gozleg netijesi...', product)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async favoriteProductsService(q) {
         try {
             let page = q.page || 1

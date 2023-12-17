@@ -114,6 +114,17 @@ class ProductService {
             let sort = q.sort || 'id'
             let order = q.order || 'asc'
             let rating = q.rating || 'asc'
+            let search = []
+            if (q.name) {
+                search = [
+                    { tm_name: { [Op.iLike]: `%${q.name}%` } },
+                    { ru_name: { [Op.iLike]: `%${q.name}%` } },
+                    { en_name: { [Op.iLike]: `%${q.name}%` } },
+                    { tm_desc: { [Op.iLike]: `%${q.name}%` } },
+                    { ru_desc: { [Op.iLike]: `%${q.name}%` } },
+                    { en_desc: { [Op.iLike]: `%${q.name}%` } }
+                ]
+            }
             let query = {
                 gender: q.gender || '',
                 subcategoryId: q.subcategoryId || 0,
@@ -127,9 +138,10 @@ class ProductService {
             }
             obj.isActive = true
             obj.sale_price = { [Op.between]: [start_price, end_price] }
+            search.push(obj)
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'quantity', 'org_price', 'sale_price'],
-                where: obj,
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'org_price', 'sale_price'],
+                where: { [Op.or]: search },
                 include: [
                     {
                         model: Models.Subcategories,
