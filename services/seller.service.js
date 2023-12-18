@@ -2,6 +2,7 @@ const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
 const { Sequelize } = require('../config/database')
+const { fetchReviewService } = require('./product.service')
 
 class SellerService {
     async sellerRegisterService(body, filenames) {
@@ -106,6 +107,7 @@ class SellerService {
 
     async profileSellerService(id, userId) {
         try {
+            let rating = 0
             const seller = await Models.Sellers.findOne({
                 attributes: { exclude: ['seller_type', 'userId', 'categoryId', 'subscriptionId', 'createdAt', 'updatedAt', 'deletedAt'] },
                 where: { id: id }
@@ -116,6 +118,11 @@ class SellerService {
             const customerId = await Verification.isCustomer(userId)
             if (!customerId) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             seller.dataValues.follower = await Models.Followers.findOne({ where: { customerId: customerId, sellerId: id } }) ? true : false
+            const _seller = await Models.Products.findAll({ attributes: ['id'], where: { sellerId: id } })
+            for (let i = 0; i < _seller.length; i++) {
+                rating += await (await fetchReviewService(_seller[i].id)).detail.rating
+            }
+            seller.dataValues.rating = rating / _seller.length
             return Response.Success('Satyjy Maglumaty!', seller)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -152,7 +159,7 @@ class SellerService {
                 offset: Number(offset),
                 order: [[sort, order]]
             })
-            if (seller.length === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
+            if (seller.count === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', seller)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -202,7 +209,7 @@ class SellerService {
                 offset: Number(offset),
                 order: [[sort, order]]
             })
-            if (orders.length === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
+            if (orders.count === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
             return Response.Success('Üstünlikli!', orders)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

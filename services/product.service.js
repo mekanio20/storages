@@ -219,9 +219,9 @@ class ProductService {
             const rating = await this.fetchReviewService(product.id)
             const comment = await allCommentService({ productId: product.id })
             const response = {
-                ...product.dataValues, 
+                ...product.dataValues,
                 images: images,
-                rating: rating.detail.rating, 
+                rating: rating.detail.rating,
                 reviews: comment.detail
             }
             return Response.Success('Üstünlikli!', response)
@@ -251,8 +251,7 @@ class ProductService {
                 sum2 += Number(item.dataValues.star) * Number(item.dataValues.total_customers)
             })
             const sum = sum2 / sum1
-            const obj = { reviews: reviews, rating: sum }
-            return Response.Success('Üstünlikli!', obj)
+            return Response.Success('Üstünlikli!', { reviews: reviews, rating: sum })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

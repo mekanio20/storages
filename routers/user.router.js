@@ -101,6 +101,11 @@ router.get('/basket/:id',
     valdidationMiddleware(userSchema.idControl, 'params'),
     userController.fetchOneBasket)
 
+router.get('/followed/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(userSchema.idControl, 'params'),
+    userController.fetchFollowed)
+
 // DELETE
 router.delete('/delete/product/:productId/user/:userId',
     authMiddleware,

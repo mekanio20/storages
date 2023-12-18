@@ -418,8 +418,11 @@ Messages.belongsTo(Users)
 
 // Folowers -> SellerId, CustomerId
 
-Sellers.belongsToMany(Customers, { through: Followers })
-Customers.belongsToMany(Sellers, { through: Followers })
+Customers.hasMany(Followers)
+Followers.belongsTo(Customers)
+// ---
+Sellers.hasMany(Followers)
+Followers.belongsTo(Sellers)
 
 // Products -> SubcategoryId,
 

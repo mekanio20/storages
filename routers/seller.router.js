@@ -58,7 +58,6 @@ router.get('/:id',
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.fetchOneSeller)
 
-
 // PUT
 router.put('/update',
     authMiddleware, accessMiddleware(true),

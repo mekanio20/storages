@@ -639,6 +639,26 @@ class UserService {
         }
     }
 
+    async fetchFollowedService(id) {
+        try {
+            const customerId = await Verification.isCustomer(id)
+            if (!customerId) { return Response.NotFound('Ulanyjy tapylmady!') }
+            const followed = await Models.Followers.findAndCountAll({
+                where: { customerId: customerId },
+                attributes: ['id'],
+                include: {
+                    model: Models.Sellers,
+                    attributes: ['id', 'name', 'logo']
+                },
+                order: [['id', 'desc']]
+            })
+            if (followed.count === 0) { return Response.NotFound('Yzarlanyan satyjy yok!', []) }
+            return Response.Success('Yzarlanyanlar', followed)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteLikeService(userId, productId) {
         try {
