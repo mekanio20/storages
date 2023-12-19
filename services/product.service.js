@@ -116,6 +116,9 @@ class ProductService {
             let rating = q.rating || 'asc'
             let search = []
             if (q.name) {
+                // await Models.Searches.create({ input: q.name, userId: 1 })
+                //     .then(() => { console.log('search created...') })
+                //     .catch((err) => { console.log(err) })
                 search = [
                     { tm_name: { [Op.iLike]: `%${q.name}%` } },
                     { ru_name: { [Op.iLike]: `%${q.name}%` } },

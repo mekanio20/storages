@@ -96,14 +96,12 @@ router.get('/favorite',
     valdidationMiddleware(userSchema.favoriteProducts, 'query'),
     userController.favoriteProducts)
 
-router.get('/basket/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.idControl, 'params'),
+router.get('/basket',
+    authMiddleware, accessMiddleware(false),
     userController.fetchOneBasket)
 
-router.get('/followed/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.idControl, 'params'),
+router.get('/followed',
+    authMiddleware, accessMiddleware(false),
     userController.fetchFollowed)
 
 // DELETE

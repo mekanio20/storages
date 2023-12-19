@@ -344,7 +344,7 @@ class UserController {
 
     async topSelling(req, res) {
         try {
-            const query = req.params
+            const query = req.query
             const data = await userService.topSellingService(query)
             return res.status(data.status).json({
                 status: data.status,
@@ -366,7 +366,7 @@ class UserController {
 
     async topLiked(req, res) {
         try {
-            const query = req.params
+            const query = req.query
             const data = await userService.topLikedSerive(query)
             return res.status(data.status).json({
                 status: data.status,
@@ -388,7 +388,7 @@ class UserController {
 
     async allOfferList(req, res) {
         try {
-            const query = req.params
+            const query = req.query
             const data = await userService.allOfferListService(query)
             return res.status(data.status).json({
                 status: data.status,
@@ -587,7 +587,7 @@ class UserController {
 
     async fetchOneBasket(req, res) {
         try {
-            const { id } = req.params
+            const id = req.user.id
             const data = await userService.fetchOneBasketService(id)
             return res.status(data.status).json({
                 status: data.status,
@@ -609,7 +609,7 @@ class UserController {
 
     async fetchFollowed(req, res) {
         try {
-            const { id } = req.params
+            const id = req.user.id
             const data = await userService.fetchFollowedService(id)
             return res.status(data.status).json({
                 status: data.status,

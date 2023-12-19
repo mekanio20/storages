@@ -17,7 +17,7 @@ class UserService {
     async userLoginService(phone, password) {
         try {
             let user = await Verification.isExists(phone)
-            if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const hash = await bcrypt.compare(password, user.password)
             if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
             const token = await Functions.generateJwt(user.id, user.groupId)
@@ -33,9 +33,9 @@ class UserService {
         try {
             let user = await Verification.isExists(phone)
             if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
-            if (user.length === 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
-            user[0].dataValues.orgPass = orgPass
-            const response = await this.sendOtpService(user[0])
+            if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            user.orgPass = orgPass
+            const response = await this.sendOtpService(user)
             return response
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -45,7 +45,7 @@ class UserService {
     async userRegisterService(body, ip, device) {
         try {
             const user = await Verification.isExists(body.phone)
-            if (user.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
+            if (user) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             const hash = await bcrypt.hash(body.password, 5)
             const groupId = await Models.Groups.findOne({ where: { name: 'USERS' }, attributes: ['id'] })
             if (!groupId) { return Response.NotFound('Beyle grupba yok!', []) }
@@ -68,7 +68,7 @@ class UserService {
         try {
             const systemcode = await redis.get(user.phone)
             const exist = await Verification.isExists(user.phone)
-            if (exist.length > 0) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
+            if (exist) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
             let _user = await Models.Users.create(user)
             let token = await Functions.generateJwt(_user.id, _user.groupId)
@@ -202,7 +202,7 @@ class UserService {
     async addFollowerService(sellerId, userId) {
         try {
             const customerId = await Verification.isCustomer(userId)
-            if (customerId) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const follower = await Models.Followers.create({ sellerId: sellerId, customerId: customerId })
             return Response.Created('Follow doredildi!', follower)
         } catch (error) {
@@ -578,6 +578,7 @@ class UserService {
             let limit = q.limit || 10
             let offset = page * limit - limit
             let customerId = await Verification.isCustomer(q.user)
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const products = await Models.Likes.findAndCountAll({
                 attributes: ['id', 'customerId'],
                 where: { customerId: customerId },
@@ -590,7 +591,7 @@ class UserService {
                 offset: Number(offset),
                 order: [['id', 'DESC']]
             })
-            if (products.length === 0) { return Response.NotFound('Halanyan haryt yok!', []) }
+            if (products.count === 0) { return Response.NotFound('Halanyan haryt yok!', []) }
             const result = { count: 0, rows: [] }
             result.count = products.count
             await Promise.all(products.rows.map(async (item) => {
@@ -612,6 +613,8 @@ class UserService {
 
     async fetchOneBasketService(id) {
         try {
+            const customerId = await Verification.isCustomer(id)
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const basket = await Models.Baskets.findOne({
                 where: {
                     isActive: true,
@@ -633,6 +636,7 @@ class UserService {
                     }
                 }
             })
+            if (!basket) { return Response.NotFound('Haryt yok!', []) }
             return Response.Success('Sebedim', basket)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -642,7 +646,7 @@ class UserService {
     async fetchFollowedService(id) {
         try {
             const customerId = await Verification.isCustomer(id)
-            if (!customerId) { return Response.NotFound('Ulanyjy tapylmady!') }
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const followed = await Models.Followers.findAndCountAll({
                 where: { customerId: customerId },
                 attributes: ['id'],

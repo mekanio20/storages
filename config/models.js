@@ -356,10 +356,22 @@ const Followers = database.define('followers', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
 
+const Searches = database.define('searches', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
+    input: { type: DataTypes.STRING, allowNull: false },
+    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+    updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
+}, { paranoid: true })
+
 // Products -> MeasurementId
 
 // Measurements.hasMany(Products)
 // Products.belongsTo(Measurements)
+
+// Searches -> UserId
+
+Users.hasMany(Searches)
+Searches.belongsTo(Users)
 
 // Users -> GroupId 
 
@@ -592,5 +604,5 @@ module.exports = {
     Coupons, CouponItem, Storages, Categories, Subcategories,
     Features, FeatureDescriptions, Groups, GroupPermissions,
     Likes, Comments, Baskets, Offers, SubcategoryFeatures,
-    ProductFeatures, Followers, //Measurements
+    ProductFeatures, Followers, Searches, //Measurements
 }

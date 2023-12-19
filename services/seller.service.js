@@ -116,7 +116,7 @@ class SellerService {
             seller.dataValues.followers = await Models.Followers.count({ where: { sellerId: id } })
             seller.dataValues.products = await Models.Products.count({ where: { sellerId: id } })
             const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             seller.dataValues.follower = await Models.Followers.findOne({ where: { customerId: customerId, sellerId: id } }) ? true : false
             const _seller = await Models.Products.findAll({ attributes: ['id'], where: { sellerId: id } })
             for (let i = 0; i < _seller.length; i++) {
