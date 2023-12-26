@@ -154,8 +154,10 @@ class UserService {
         }
     }
 
-    async addOrderService(body) {
+    async addOrderService(body, userId) {
         try {
+            const customerId = await Verification.isCustomer(userId)
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             let order_id = ''
             let today = new Date()
             const numbers = '0123456789'
@@ -172,12 +174,12 @@ class UserService {
                 phone: body.phone,
                 address: body.address,
                 order_id: order_id,
-                status: 'inprocess',
+                status: 'ondelivery',
                 payment: body.payment,
                 amount: body.amount,
                 time: today,
                 note: body.note,
-                customerId: body.customerId,
+                customerId: customerId,
                 productId: body.productId
             }).catch((err) => { console.log(err) })
             return Response.Created('Hasaba alyndy!', order)

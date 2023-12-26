@@ -319,7 +319,7 @@ class AdminService {
                 { name: 'SUPERADMIN' },
                 { name: 'STAFF' },
                 { name: 'SELLERS' },
-                { name: 'USERS' },
+                { name: 'USERS' }
             ]).then(() => { console.log('Groups created') }).catch((err) => { console.log(err) })
 
             let passwords = []
@@ -437,9 +437,9 @@ class AdminService {
             ]).then(() => { console.log('Product Reviews created') }).catch((err) => { console.log(err) })
 
             await Models.Orders.bulkCreate([
-                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023qwer7926', status: 'inprocess', payment: 'cash', amount: 3, time: '30-11-2023 18:15', note: 'caltrak getirayin...', customerId: 1, productId: 1 },
-                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui7926', status: 'inprocess', payment: 'cash', amount: 1, time: '30-11-2023 18:17', note: 'bolow...', customerId: 2, productId: 1 },
-                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui3219', status: 'inprocess', payment: 'cash', amount: 3, time: '30-11-2023 18:17', note: 'bolow...', customerId: 2, productId: 2 },
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023qwer7926', status: 'ondelivery', payment: 'cash', amount: 3, time: '30-11-2023 18:15', note: 'caltrak getirayin...', customerId: 1, productId: 1 },
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui7926', status: 'ondelivery', payment: 'cash', amount: 1, time: '30-11-2023 18:17', note: 'bolow...', customerId: 2, productId: 1 },
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui3219', status: 'ondelivery', payment: 'cash', amount: 3, time: '30-11-2023 18:17', note: 'bolow...', customerId: 2, productId: 2 },
             ]).then(() => { console.log('Orders created') }).catch((err) => { console.log(err) })
 
             await Models.Likes.bulkCreate([
@@ -451,9 +451,9 @@ class AdminService {
             ]).then(() => { console.log('Likes created') }).catch((err) => { console.log(err) })
 
             await Models.Offers.bulkCreate([
-                { discount: 17.9, productId: 1 },
-                { discount: 17.9, productId: 2 },
-                { discount: 12.9, productId: 3 }
+                { discount: 17.9, productId: 1, currency: 'manat' },
+                { discount: 17.9, productId: 2, currency: 'manat' },
+                { discount: 12.9, productId: 3, currency: 'manat' }
             ]).then(() => { console.log('Offers created') }).catch((err) => { console.log(err) })
 
             await Models.Comments.bulkCreate([
@@ -465,6 +465,11 @@ class AdminService {
                 { address: 'Anew, 27-nji mekdep', customerId: 1, isDefault: false },
                 { address: 'Kone polidin yany...', customerId: 1, isDefault: true }
             ]).then(() => { console.log('Addresses created') }).catch((err) => { console.log(err) })
+
+            await Models.Coupons.bulkCreate([
+                { tm_name: 'boss', ru_name: 'босс', en_name: 'boss', tm_desc: 'desc boss', ru_name: 'босс', en_name: 'desc boss', img: 'test1.jpg', conditions: 'on-register', limit: 10, start_date: '2023-12-21', end_date: '2023-12-22', isPublic: true },
+                { tm_name: 'al', ru_name: 'босс', en_name: 'al', tm_desc: 'desc al', ru_name: 'босс', en_name: 'desc al', img: 'test2.jpg', conditions: 'on-follow', limit: 10, start_date: '2023-12-21', end_date: '2023-12-30', isPublic: false }
+            ]).then(() => { console.log('Coupons created') }).catch((err) => { console.log(err) })
 
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
@@ -524,7 +529,6 @@ class AdminService {
                 // SELLER ROUTERS
                 { url: '/api/seller/register', method: 'POST', groupId: 4 },
                 { url: '/api/seller/add/offer', method: 'POST', groupId: 3 },
-                { url: '/api/seller/add/coupon', method: 'POST', groupId: 3 },
                 { url: '/api/seller/add/product/feature', method: 'POST', groupId: 3 },
                 { url: '/api/seller', method: 'GET', groupId: 3 },
                 { url: '/api/seller/all', method: 'GET', groupId: 1 },
@@ -551,6 +555,8 @@ class AdminService {
                 { url: '/api/product/add', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/feature', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/review', method: 'POST', groupId: 4 },
+                { url: '/api/product/add/coupon', method: 'POST', groupId: 1 },
+                { url: '/api/product/add/coupon', method: 'POST', groupId: 3 },
                 // ADDRESS ROUTER
                 { url: '/api/address/add', method: 'POST', groupId: 4 },
                 { url: '/api/address/all', method: 'GET', groupId: 4 },

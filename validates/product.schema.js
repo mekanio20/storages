@@ -45,7 +45,23 @@ const productSchema = {
         sort: Joi.string().valid('id', 'org_price').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         rating: Joi.string().valid('asc', 'desc').optional()
-    })
+    }),
+
+    addCoupon: Joi.object({
+        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
+        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
+        tm_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
+        ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
+        en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
+        conditions: Joi.string().valid('on-register', 'on-follow', 'min-buy').required(),
+        min_amount: Joi.number().positive().required(),
+        // amount: Joi.number().positive().required(),
+        limit: Joi.number().positive().required(),
+        star_date: Joi.string().isoDate().required(),
+        end_date: Joi.string().isoDate().required(),
+        isPublic: Joi.boolean().required()
+    }),
 }
 
 module.exports = productSchema

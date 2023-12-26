@@ -47,7 +47,6 @@ const userSchema = {
         payment: Joi.string().valid('online', 'cash', 'terminal').required(),
         amount: Joi.number().positive().required(),
         note: Joi.string().min(10).allow(null, ''),
-        customerId: Joi.number().positive().required(),
         productId: Joi.number().positive().required()
     }),
 

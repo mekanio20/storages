@@ -48,6 +48,34 @@ class productController {
         }
     }
 
+    async addCoupon(req, res) {
+        try {
+            const body = req.body
+            const userId = req.user.id
+            const { img } = req.files
+            if (!img) {
+                let result = await Response.BadRequest('surat gerek!', [])
+                return res.json(result)
+            }
+            const data = await productService.addCouponService(body, img, userId)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     // GET
     async allProduct(req, res) {
         try {

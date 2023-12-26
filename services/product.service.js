@@ -102,6 +102,40 @@ class ProductService {
         }
     }
 
+    async addCouponService(body, img, userId) {
+        try {
+            const sellerId = await Verification.isSeller(userId)
+            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            const limit = await Models.Subscriptions.findOne({
+                attributes: ['voucher_limit'],
+                where: { sellerId: sellerId }
+            })
+            const coupon_count = await Models.Coupons.count({ where: { sellerId: sellerId } })
+            if (limit.voucher_limit <= coupon_count) {
+                return Response.Forbidden('Limidiniz doldy!', [])
+            }
+            await Models.Coupons.create({
+                tm_name: body.tm_name,
+                ru_name: body.ru_name || null,
+                en_name: body.en_name || null,
+                tm_desc: body.tm_desc,
+                ru_desc: body.ru_desc || null,
+                en_desc: body.en_desc || null,
+                img: img[0].filename,
+                conditions: body.conditions,
+                min_amount: body.min_amount,
+                limit: body.limit,
+                star_date: body.star_date,
+                end_date: body.end_date,
+                isPublic: body.isPublic,
+                sellerId: sellerId
+            }).catch((err) => { console.log(err) })
+            return Response.Created('Kupon doredildi!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // GET
     async allProductService(q) {
         try {
@@ -173,13 +207,13 @@ class ProductService {
             const result = { count: 0, rows: [] }
             result.count = products.count
             await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id }})
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 const comment = await allCommentService({ productId: item.id })
-                result.rows.push({ 
-                    ...item.dataValues, 
+                result.rows.push({
+                    ...item.dataValues,
                     images: images,
-                    rating: rating.detail.rating, 
+                    rating: rating.detail.rating,
                     comment: comment.detail.count,
                 })
             }))
@@ -218,7 +252,7 @@ class ProductService {
                 ],
                 attributes: { exclude: ['slug', 'subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] }
             })
-            const images = await Models.ProductImages.findAndCountAll({ where: { productId: product.id }})
+            const images = await Models.ProductImages.findAndCountAll({ where: { productId: product.id } })
             const rating = await this.fetchReviewService(product.id)
             const comment = await allCommentService({ productId: product.id })
             const response = {

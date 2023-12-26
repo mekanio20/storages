@@ -38,46 +38,12 @@ class SellerService {
     async addOfferService(body) {
         try {
             const offer = await Models.Offers.create({
-                promocode: body.promocode || null,
+                // promocode: body.promocode || null,
+                currency: body.currency,
                 discount: body.discount,
                 productId: body.productId
             })
             return Response.Success('Arzanladysh goshuldy!', offer)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addCouponService(body, img, userId) {
-        try {
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
-            const limit = await Models.Subscriptions.findOne({
-                attributes: ['voucher_limit'],
-                where: { sellerId: body.sellerId }
-            })
-            const coupon_count = await Models.Coupons.count({ where: { sellerId: sellerId } })
-            if (limit.voucher_limit <= coupon_count) {
-                return Response.Forbidden('Limidiniz doldy!', [])
-            }
-            await Models.Coupons.create({
-                tm_name: body.tm_name,
-                ru_name: body.ru_name || null,
-                en_name: body.en_name || null,
-                tm_desc: body.tm_desc,
-                ru_desc: body.ru_desc || null,
-                en_desc: body.en_desc || null,
-                img: img[0].filename,
-                conditions: body.conditions,
-                min_amount: body.min_amount,
-                amount: body.amount,
-                limit: body.limit,
-                star_date: body.star_date,
-                end_date: body.end_date,
-                isPublic: body.isPublic,
-                sellerId: sellerId
-            }).catch((err) => { console.log(err) })
-            return Response.Created('Kupon doredildi!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -171,7 +137,7 @@ class SellerService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            let status = q.status || 'inprocess'
+            let status = q.status || 'ondelivery'
             let sort = q.sort || 'id'
             let order = q.order || 'desc'
             const orders = await Models.Orders.findAndCountAll({

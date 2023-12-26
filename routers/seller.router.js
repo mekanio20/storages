@@ -21,11 +21,6 @@ router.post('/add/offer',
     valdidationMiddleware(sellerSchema.addOffer, 'body'),
     sellerController.addOffer)
 
-router.post('/add/coupon',
-    authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(sellerSchema.addCoupon, 'body'),
-    sellerController.addCoupon)
-
 // GET
 router.get('/top', sellerController.topSellers)
 

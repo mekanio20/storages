@@ -39,25 +39,10 @@ const sellerSchema = {
     }),
 
     addOffer: Joi.object({
-        promocde: Joi.string().max(50).allow(null, ''),
+        // promocde: Joi.string().max(50).allow(null, ''),
+        currency: Joi.string().valid('manat', 'goterim').required(),
         discount: Joi.number().positive().required(),
         productId: Joi.number().positive().required()
-    }),
-
-    addCoupon: Joi.object({
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
-        tm_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
-        ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
-        en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
-        conditions: Joi.string().valid('on-register', 'on-follow', 'min-buy').required(),
-        min_amount: Joi.number().positive().required(),
-        amount: Joi.number().positive().required(),
-        limit: Joi.number().positive().required(),
-        star_date: Joi.string().isoDate().required(),
-        end_date: Joi.string().isoDate().required(),
-        isPublic: Joi.boolean().required()
     }),
     
     allOrders: Joi.object({

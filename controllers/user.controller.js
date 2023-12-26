@@ -198,7 +198,8 @@ class UserController {
     async addOrder(req, res) {
         try {
             const body = req.body
-            const data = await userService.addOrderService(body)
+            const userId = req.user.id
+            const data = await userService.addOrderService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

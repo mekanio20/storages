@@ -61,7 +61,7 @@ const Orders = database.define('orders', {
     phone: { type: DataTypes.STRING(12), allowNull: false },
     address: { type: DataTypes.STRING(50), allowNull: false },
     order_id: { type: DataTypes.STRING(30), allowNull: false },
-    status: { type: DataTypes.ENUM({ values: ['new', 'inprocess', 'ondelivery', 'completed', 'cancelled'] }), allowNull: false },
+    status: { type: DataTypes.ENUM({ values: ['new', 'ondelivery', 'completed', 'cancelled'] }), allowNull: false },
     payment: { type: DataTypes.ENUM({ values: ['online', 'cash', 'terminal'] }), allowNull: false },
     amount: { type: DataTypes.INTEGER, allowNull: false },
     time: { type: DataTypes.STRING(20), allowNull: false },
@@ -177,7 +177,7 @@ const Notifications = database.define('notifications', {
     title: { type: DataTypes.STRING(100), allowNull: false },
     desc: { type: DataTypes.STRING, allowNull: false },
     status: { type: DataTypes.ENUM({ values: ['new', 'on-wait', 'scheduled', 'sent'], allowNull: false }) },
-    send_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
+    send_date: { type: DataTypes.DATE, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
@@ -190,8 +190,8 @@ const Banners = database.define('banners', {
     url: { type: DataTypes.STRING(100), allowNull: false, validate: { isUrl: true } },
     type: { type: DataTypes.ENUM({ values: ['home', 'product', 'profile', 'ad', 'category', 'etc'] }), allowNull: false },
     sort_order: { type: DataTypes.SMALLINT, allowNull: false },
-    start_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
-    end_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
+    start_date: { type: DataTypes.DATE, allowNull: false },
+    end_date: { type: DataTypes.DATE, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
@@ -206,11 +206,11 @@ const Coupons = database.define('coupons', {
     en_desc: { type: DataTypes.STRING, allowNull: true },
     img: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     conditions: { type: DataTypes.ENUM({ values: ['on-register', 'on-follow', 'min-buy'] }), allowNull: false },
-    min_amount: { type: DataTypes.SMALLINT, allowNull: false },
-    amount: { type: DataTypes.SMALLINT, allowNull: false },
+    min_amount: { type: DataTypes.SMALLINT, allowNull: true },
+    // amount: { type: DataTypes.SMALLINT, allowNull: false }, ??
     limit: { type: DataTypes.SMALLINT, allowNull: false },
-    star_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
-    end_date: { type: DataTypes.DATE, allowNull: false, validate: { isDate: true } },
+    start_date: { type: DataTypes.STRING, allowNull: false },
+    end_date: { type: DataTypes.STRING, allowNull: false },
     isPublic: { type: DataTypes.BOOLEAN, allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
@@ -320,8 +320,9 @@ const Baskets = database.define('baskets', {
 
 const Offers = database.define('offers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    promocode: { type: DataTypes.STRING(50), allowNull: true },
+    // promocode: { type: DataTypes.STRING(50), allowNull: true },
     discount: { type: DataTypes.FLOAT(2), allowNull: false },
+    currency: { type: DataTypes.ENUM({ values: ['manat', 'goterim'] }), allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
@@ -363,10 +364,25 @@ const Searches = database.define('searches', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
 
+const Videos = database.define('videos', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
+    video: { type: DataTypes.STRING(100), allowNull: false },
+    hesdek: { type: DataTypes.STRING, allowNull: true },
+    desc: { type: DataTypes.STRING, allowNull: true },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
+    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+    updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
+})
+
 // Products -> MeasurementId
 
 // Measurements.hasMany(Products)
 // Products.belongsTo(Measurements)
+
+// Videos -> SellerId
+
+Sellers.hasMany(Videos)
+Videos.belongsTo(Sellers)
 
 // Searches -> UserId
 
@@ -456,6 +472,11 @@ Brands.belongsTo(Users)
 Sellers.hasMany(Products)
 Products.belongsTo(Sellers)
 
+// Products -> CouponId
+
+Coupons.hasMany(Products)
+Products.belongsTo(Coupons)
+
 // ProductImages -> ProductId,
 
 Products.hasMany(ProductImages)
@@ -491,10 +512,10 @@ Notifications.belongsTo(Users)
 Users.hasMany(Banners)
 Banners.belongsTo(Users)
 
-// Coupon -> SellerId
+// Coupon -> UserId
 
-Sellers.hasMany(Coupons, { onDelete: "cascade" })
-Coupons.belongsTo(Sellers)
+Users.hasMany(Coupons, { onDelete: "cascade" })
+Coupons.belongsTo(Users)
 
 // CouponItems -> CouponId
 
@@ -604,5 +625,5 @@ module.exports = {
     Coupons, CouponItem, Storages, Categories, Subcategories,
     Features, FeatureDescriptions, Groups, GroupPermissions,
     Likes, Comments, Baskets, Offers, SubcategoryFeatures,
-    ProductFeatures, Followers, Searches, //Measurements
+    ProductFeatures, Followers, Searches, Videos, //Measurements
 }

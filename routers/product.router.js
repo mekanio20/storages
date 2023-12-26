@@ -20,6 +20,11 @@ router.post('/add/review',
     validationMiddleware(productSchema.addProductReview, 'body'),
     productController.addProductReview)
 
+router.post('/add/coupon',
+    authMiddleware, accessMiddleware(false),
+    validationMiddleware(productSchema.addCoupon, 'body'),
+    productController.addCoupon)
+
 // GET
 router.get('/all',
     validationMiddleware(productSchema.allProduct, 'query'),
