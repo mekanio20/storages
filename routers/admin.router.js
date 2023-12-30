@@ -54,7 +54,7 @@ router.post('/add/brand',
     adminController.addBrand)
 
 router.post('/add/staff',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.idControl, 'body'),
     adminController.addStaff)
 
@@ -75,6 +75,12 @@ router.get('/all/permissions',
 router.get('/all/contacts',
     authMiddleware, accessMiddleware(false),
     adminController.allContacts)
+
+// PUT
+router.post('/update/permission',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.addPermission, 'body'),
+    adminController.updatePermission)
 
 // DELETE
 router.delete('/delete/group/:id',

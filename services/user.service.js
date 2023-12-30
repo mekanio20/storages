@@ -665,6 +665,15 @@ class UserService {
         }
     }
 
+    // PUT
+    async updateOrderService(id, userId) {
+        try {
+            
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteLikeService(userId, productId) {
         try {

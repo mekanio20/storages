@@ -204,14 +204,13 @@ class AdminService {
             let limit = q.limit || 10
             let offset = page * limit - limit
             const permissions = await Models.GroupPermissions.findAll({
-                attributes: ['id', 'method', 'url'],
                 include: {
                     model: Models.Groups,
-                    attributes: ['name']
+                    attributes: ['id', 'name']
                 },
                 limit: Number(limit),
                 offset: Number(offset),
-                order: [['id', 'ASC']]
+                order: [['id', 'DESC']]
             })
             if (permissions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', permissions)
@@ -237,7 +236,21 @@ class AdminService {
         }
     }
 
-    // PUT
+    // UPDATE
+    async updatePermissionService(body) {
+        try {
+            const permission = await Models.GroupPermissions.update(
+                { url: body.url, method: body.method, groupId: body.groupId }, 
+                { where: { id: body.id } }
+            )
+            if (!permission) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // DELETE
     async deleteGroupService(id) {
         try {
             await Models.Groups.destroy({ where: { id: Number(id) }})
@@ -492,6 +505,7 @@ class AdminService {
                 { url: '/api/admin/add/brand', method: 'POST', groupId: 3 },
                 { url: '/api/admin/add/staff', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
+                { url: '/api/admin/update/permission', method: 'POST', groupId: 1 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/storage', method: 'PUT', groupId: 1 },

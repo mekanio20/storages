@@ -11,6 +11,7 @@ const adminSchema = {
     }),
 
     addPermission: Joi.object({
+        id: Joi.number().positive().required(),
         url: Joi.string().min(5).max(100).regex(/^[a-zA-Z0-9\-\/]/).required(),
         method: Joi.string().uppercase().valid('GET', 'POST', 'PUT', 'DELETE').required(),
         groupId: Joi.number().positive().required()

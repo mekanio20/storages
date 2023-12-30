@@ -104,6 +104,13 @@ router.get('/followed',
     authMiddleware, accessMiddleware(false),
     userController.fetchFollowed)
 
+// PUT
+router.put('/update/order/:id',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.idControl, 'params'),
+    valdidationMiddleware(userSchema.updateOrder, 'body'),
+    userController.updateOrder)
+
 // DELETE
 router.delete('/delete/product/:productId/user/:userId',
     authMiddleware,
