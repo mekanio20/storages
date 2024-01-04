@@ -76,8 +76,12 @@ router.get('/all/contacts',
     authMiddleware, accessMiddleware(false),
     adminController.allContacts)
 
+router.get('/all/subscriptions',
+    authMiddleware, accessMiddleware(false),
+    adminController.allSubscriptions)
+
 // PUT
-router.post('/update/permission',
+router.put('/update/permission',
     authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addPermission, 'body'),
     adminController.updatePermission)
@@ -88,7 +92,7 @@ router.delete('/delete/group/:id',
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteGroup)
 
-router.put('/delete/permission/:id',
+router.delete('/delete/permission/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteAccessPath)

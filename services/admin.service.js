@@ -203,7 +203,8 @@ class AdminService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const permissions = await Models.GroupPermissions.findAll({
+            const permissions = await Models.GroupPermissions.findAndCountAll({
+                attributes: { exclude: ['groupId' ] },
                 include: {
                     model: Models.Groups,
                     attributes: ['id', 'name']
@@ -236,6 +237,24 @@ class AdminService {
         }
     }
 
+    async allSubscriptionsService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const subscriptions = await Models.Subscriptions.findAndCountAll({
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                where: { isActive: true },
+                limit: Number(limit),
+                offset: Number(offset)
+            })
+            if (subscriptions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', subscriptions)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // UPDATE
     async updatePermissionService(body) {
         try {
@@ -262,7 +281,7 @@ class AdminService {
 
     async deleteAccessPathService(id) {
         try {
-            await Models.GroupPermissions.update({ isActive: false }, { where: { id: Number(id) } })
+            await Models.GroupPermissions.destroy({ where: { id: id }})
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -505,9 +524,10 @@ class AdminService {
                 { url: '/api/admin/add/brand', method: 'POST', groupId: 3 },
                 { url: '/api/admin/add/staff', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
-                { url: '/api/admin/update/permission', method: 'POST', groupId: 1 },
+                { url: '/api/admin/update/permission', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/subscription', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
-                { url: '/api/admin/delete/permission', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/storage', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/category', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/brand', method: 'PUT', groupId: 1 },
@@ -518,6 +538,8 @@ class AdminService {
                 { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/contacts', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/contacts', method: 'GET', groupId: 2 },
+                { url: '/api/admin/all/subscriptions', method: 'GET', groupId: 1 },
+                { url: '/api/admin/all/subscriptions', method: 'GET', groupId: 2 },
                 // USER ROUTERS
                 { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/like', method: 'POST', groupId: 4 },
