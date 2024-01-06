@@ -59,7 +59,9 @@ const adminSchema = {
     }),
 
     addSubscription: Joi.object({
+        id: Joi.number().positive().optional(),
         name: Joi.string().max(50).required(),
+        price: Joi.number().integer().positive().required(),
         order: Joi.number().integer().positive().required(),
         p_limit: Joi.number().integer().positive().required(),
         p_img_limit: Joi.number().integer().positive().required(),

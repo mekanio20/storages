@@ -86,6 +86,11 @@ router.put('/update/permission',
     valdidationMiddleware(adminSchema.addPermission, 'body'),
     adminController.updatePermission)
 
+router.put('/update/subscription',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.addSubscription, 'body'),
+    adminController.updateSubscription)
+
 // DELETE
 router.delete('/delete/group/:id',
     authMiddleware, accessMiddleware(true),

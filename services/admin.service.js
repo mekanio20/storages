@@ -167,6 +167,7 @@ class AdminService {
             if (_subscription.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const subscription = await Models.Subscriptions.create({
                 name: body.name,
+                price: body.price,
                 order: body.order,
                 p_limit: body.p_limit,
                 p_img_limit: body.p_img_limit,
@@ -204,7 +205,7 @@ class AdminService {
             let limit = q.limit || 10
             let offset = page * limit - limit
             const permissions = await Models.GroupPermissions.findAndCountAll({
-                attributes: { exclude: ['groupId' ] },
+                attributes: { exclude: ['groupId'] },
                 include: {
                     model: Models.Groups,
                     attributes: ['id', 'name']
@@ -259,7 +260,7 @@ class AdminService {
     async updatePermissionService(body) {
         try {
             const permission = await Models.GroupPermissions.update(
-                { url: body.url, method: body.method, groupId: body.groupId }, 
+                { url: body.url, method: body.method, groupId: body.groupId },
                 { where: { id: body.id } }
             )
             if (!permission) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
@@ -269,10 +270,35 @@ class AdminService {
         }
     }
 
+    async updateSubscriptionService(body) {
+        try {
+            console.log(body);
+            const subscription = await Models.Subscriptions.update(
+                {
+                    name: body.name,
+                    order: body.order,
+                    p_limit: body.p_limit,
+                    p_img_limit: body.p_img_limit,
+                    seller_banner_limit: body.seller_banner_limit,
+                    main_banner_limit: body.main_banner_limit,
+                    ntf_limit: body.ntf_limit,
+                    voucher_limit: body.voucher_limit,
+                    smm_support: body.smm_support,
+                    tech_support: body.tech_support
+                },
+                { where: { id: body.id } }
+            )
+            if (!subscription) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteGroupService(id) {
         try {
-            await Models.Groups.destroy({ where: { id: Number(id) }})
+            await Models.Groups.destroy({ where: { id: Number(id) } })
             return Response.Success('Üstünlikli', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -281,7 +307,7 @@ class AdminService {
 
     async deleteAccessPathService(id) {
         try {
-            await Models.GroupPermissions.destroy({ where: { id: id }})
+            await Models.GroupPermissions.destroy({ where: { id: id } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -292,7 +318,7 @@ class AdminService {
 
     async deleteStorageService(id) {
         try {
-            await Models.Storages.update({ isActive: false }, { where: { id: Number(id) }})
+            await Models.Storages.update({ isActive: false }, { where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -303,7 +329,7 @@ class AdminService {
 
     async deleteCategoryService(id) {
         try {
-            await Models.Categories.update({ isActive: false }, { where: { id: Number(id) }})
+            await Models.Categories.update({ isActive: false }, { where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
