@@ -316,6 +316,17 @@ class AdminService {
         }
     }
 
+    async deleteScubscriptionService(id) {
+        try {
+            await Models.Subscriptions.destroy({ where: { id: id } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async deleteStorageService(id) {
         try {
             await Models.Storages.update({ isActive: false }, { where: { id: Number(id) } })
@@ -554,6 +565,7 @@ class AdminService {
                 { url: '/api/admin/update/subscription', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/storage', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/category', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/brand', method: 'PUT', groupId: 1 },

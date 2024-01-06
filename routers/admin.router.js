@@ -102,6 +102,11 @@ router.delete('/delete/permission/:id',
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteAccessPath)
 
+router.delete('/delete/subscription/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteScubscription)
+
 router.put('/delete/storage/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
