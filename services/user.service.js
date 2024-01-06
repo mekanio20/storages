@@ -492,9 +492,11 @@ class UserService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const brands = await Models.Brands.findAll({
-                where: { isActive: true },
-                attributes: { exclude: ['desc', 'createdAt', 'updatedAt'] },
+            let _whereState = { isActive: true } 
+            if (q.status === 'all') { _whereState = {} }
+            const brands = await Models.Brands.findAndCountAll({
+                where: _whereState,
+                attributes: { exclude: ['userId'] },
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [['id', 'DESC']]

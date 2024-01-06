@@ -54,8 +54,10 @@ const adminSchema = {
     }),
 
     addBrand: Joi.object({
+        id: Joi.number().positive().optional(),
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).required(),
-        desc: Joi.string().min(10).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).allow('', null)
+        desc: Joi.string().min(10).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).allow('', null),
+        isActive: Joi.boolean().optional()
     }),
 
     addSubscription: Joi.object({

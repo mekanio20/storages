@@ -411,6 +411,29 @@ class AdminController {
         }
     }
 
+    async updateBrand(req, res) {
+        try {
+            const body = req.body
+            const file = req.file
+            const data = await adminService.updateBrandService(body, file)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     // DELETE
     async deleteGroup(req, res) {
         try {
@@ -478,6 +501,28 @@ class AdminController {
         }
     }
 
+    async deleteBrand(req, res) {
+        try {
+            const { id } = req.params
+            const data = await adminService.deleteBrandService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     async deleteStorage(req, res) {
         try {
             const { id } = req.params
@@ -504,28 +549,6 @@ class AdminController {
         try {
             const { id } = req.params
             const data = await adminService.deleteCategoryService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail,
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
-    async deleteBrand(req, res) {
-        try {
-            const { id } = req.params
-            const data = await adminService.deleteBrandService(id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

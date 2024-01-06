@@ -272,7 +272,6 @@ class AdminService {
 
     async updateSubscriptionService(body) {
         try {
-            console.log(body);
             const subscription = await Models.Subscriptions.update(
                 {
                     name: body.name,
@@ -290,6 +289,30 @@ class AdminService {
             )
             if (!subscription) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
             return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async updateBrandService(body, file) {
+        try {
+            const obj = {}
+            for (const item in body) {
+                if (item.length > 0 && item !== 'id') {
+                    if (item == 'isActive') {
+                        obj[item] = body[item] == 'true' ? true : false
+                    } else {
+                        obj[item] = body[item]
+                    }
+                }
+            }
+            if (file) { obj.img = file.filename }
+            obj.slug = obj.name.split(" ").join('-').toLowerCase()
+            obj.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
+            await Models.Brands.update(obj, { where: { id: Number(body.id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -327,6 +350,17 @@ class AdminService {
         }
     }
 
+    async deleteBrandService(id) {
+        try {
+            await Models.Brands.destroy({ where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async deleteStorageService(id) {
         try {
             await Models.Storages.update({ isActive: false }, { where: { id: Number(id) } })
@@ -341,17 +375,6 @@ class AdminService {
     async deleteCategoryService(id) {
         try {
             await Models.Categories.update({ isActive: false }, { where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteBrandService(id) {
-        try {
-            await Models.Brands.update({ isActive: false }, { where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -563,21 +586,22 @@ class AdminService {
                 { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
                 { url: '/api/admin/update/permission', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/subscription', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/brand', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/storage', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/category', method: 'PUT', groupId: 1 },
-                { url: '/api/admin/delete/brand', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/contact', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/contact', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/all/groups', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
-                { url: '/api/admin/all/contacts', method: 'GET', groupId: 1 },
-                { url: '/api/admin/all/contacts', method: 'GET', groupId: 2 },
                 { url: '/api/admin/all/subscriptions', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/subscriptions', method: 'GET', groupId: 2 },
+                { url: '/api/admin/all/contacts', method: 'GET', groupId: 1 },
+                { url: '/api/admin/all/contacts', method: 'GET', groupId: 2 },
                 // USER ROUTERS
                 { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/like', method: 'POST', groupId: 4 },

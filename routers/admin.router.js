@@ -72,13 +72,13 @@ router.get('/all/permissions',
     authMiddleware, accessMiddleware(false),
     adminController.allPermissions)
 
-router.get('/all/contacts',
-    authMiddleware, accessMiddleware(false),
-    adminController.allContacts)
-
 router.get('/all/subscriptions',
     authMiddleware, accessMiddleware(false),
     adminController.allSubscriptions)
+
+router.get('/all/contacts',
+    authMiddleware, accessMiddleware(false),
+    adminController.allContacts)
 
 // PUT
 router.put('/update/permission',
@@ -90,6 +90,12 @@ router.put('/update/subscription',
     authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addSubscription, 'body'),
     adminController.updateSubscription)
+
+router.put('/update/brand',
+    authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
+    valdidationMiddleware(adminSchema.addBrand, 'body'),
+    adminController.updateBrand)
 
 // DELETE
 router.delete('/delete/group/:id',
@@ -107,6 +113,11 @@ router.delete('/delete/subscription/:id',
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteScubscription)
 
+router.delete('/delete/brand/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteBrand)
+
 router.put('/delete/storage/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
@@ -116,11 +127,6 @@ router.put('/delete/category/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteCategory)
-
-router.put('/delete/brand/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(adminSchema.idControl, 'params'),
-    adminController.deleteBrand)
 
 router.put('/delete/feature/:id',
     authMiddleware, accessMiddleware(true),
