@@ -138,7 +138,14 @@ class AdminService {
             const brand = await Verification.isFound(Models.Brands, slug)
             if (brand.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
-            const brands = await Models.Brands.create({ name: body.name, slug: slug, img: brand_img.filename, desc: body.desc || null, userId: userId })
+            const brands = await Models.Brands.create({ 
+                name: body.name,
+                slug: slug,
+                img: brand_img.filename,
+                isActive: body.isActive || true,
+                desc: body.desc || null,
+                userId: userId 
+            })
             return Response.Created('Maglumat döredildi!', brands)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -247,7 +254,8 @@ class AdminService {
                 attributes: { exclude: ['createdAt', 'updatedAt'] },
                 where: { isActive: true },
                 limit: Number(limit),
-                offset: Number(offset)
+                offset: Number(offset),
+                order: [['order', 'asc']]
             })
             if (subscriptions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', subscriptions)
@@ -276,6 +284,7 @@ class AdminService {
                 {
                     name: body.name,
                     order: body.order,
+                    price: body.price,
                     p_limit: body.p_limit,
                     p_img_limit: body.p_img_limit,
                     seller_banner_limit: body.seller_banner_limit,
@@ -286,7 +295,7 @@ class AdminService {
                     tech_support: body.tech_support
                 },
                 { where: { id: body.id } }
-            )
+            ).catch((err) => { console.log(err) })
             if (!subscription) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
