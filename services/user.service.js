@@ -454,33 +454,21 @@ class UserService {
         }
     }
 
-    async allStorageListService() {
+    async allCategoryService(q) {
         try {
-            const storages = await Models.Storages.findAll({
-                where: { isActive: true },
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let _whereState = { isActive: true }
+            if (q.status === 'all') { _whereState = {} }
+            const categories = await Models.Categories.findAndCountAll({
+                where: _whereState,
+                attributes: { exclude: ['createdAt', 'updatedAt', 'userId'] },
+                limit: Number(limit),
+                offset: Number(offset),
                 order: [['id', 'DESC']]
             })
-            if (storages.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', storages)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async allCategoryService() {
-        try {
-            const categories = await Models.Categories.findAll({
-                where: { isActive: true },
-                attributes: { exclude: ['createdAt', 'updatedAt', 'storageId'] },
-                include: {
-                    model: Models.Storages,
-                    where: { isActive: true },
-                    attributes: { exclude: ['createdAt', 'updatedAt'] },
-                },
-                order: [['id', 'DESC']]
-            })
-            if (categories.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (categories.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', categories)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -501,7 +489,7 @@ class UserService {
                 offset: Number(offset),
                 order: [['id', 'DESC']]
             })
-            if (brands.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (brands.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', brands)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

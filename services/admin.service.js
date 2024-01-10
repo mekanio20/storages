@@ -35,26 +35,11 @@ class AdminService {
         }
     }
 
-    async addStorageService(body, userId) {
+    async addCategoryService(body, userId, img) {
         try {
-            let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _storage = await Verification.isFound(Models.Storages, slug)
-            if (_storage.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            const storage = await Models.Storages.create({
-                tm_name: body.tm_name,
-                ru_name: body.ru_name || null,
-                en_name: body.en_name || null,
-                slug: slug,
-                userId: userId
-            })
-            return Response.Created('Maglumat döredildi!', storage)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addCategoryService(body, userId) {
-        try {
+            console.log('Body --> ', body)
+            console.log('Image --> ', img)
+            if (!img.filename) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _category = await Verification.isFound(Models.Categories, slug)
             if (_category.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
@@ -63,9 +48,10 @@ class AdminService {
                 ru_name: body.ru_name || null,
                 en_name: body.en_name || null,
                 slug: slug,
-                storageId: body.storageId,
-                userId: userId
-            })
+                userId: userId,
+                logo: img.filename,
+                isActive: body.isActive || true,
+            }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', category)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -327,6 +313,29 @@ class AdminService {
         }
     }
 
+    async updateCategoryService(body, file) {
+        try {
+            const obj = {}
+            for (const item in body) {
+                if (item.length > 0 && item !== 'id') {
+                    if (item == 'isActive') {
+                        obj[item] = body[item] == 'true' ? true : false
+                    } else {
+                        obj[item] = body[item]
+                    }
+                }
+            }
+            if (file) { obj.logo = file.filename }
+            obj.slug = obj.tm_name.split(" ").join('-').toLowerCase()
+            await Models.Categories.update(obj, { where: { id: Number(body.id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteGroupService(id) {
         try {
@@ -370,20 +379,9 @@ class AdminService {
         }
     }
 
-    async deleteStorageService(id) {
-        try {
-            await Models.Storages.update({ isActive: false }, { where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async deleteCategoryService(id) {
         try {
-            await Models.Categories.update({ isActive: false }, { where: { id: Number(id) } })
+            await Models.Categories.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -455,23 +453,14 @@ class AdminService {
                 { name: 'galaxy', slug: 'galaxy', img: 'test4.jpg', desc: 'abcdefg', userId: 2 }
             ]).then(() => { console.log('Brands created') }).catch((err) => { console.log(err) })
 
-            await Models.Storages.bulkCreate([
-                { tm_name: 'Elektronika', ru_name: 'Электроника', en_name: 'Electronics', slug: 'elektronika', userId: 1 },
-                { tm_name: 'Supermarket', ru_name: 'Супермаркет', en_name: 'Supermarket', slug: 'supermarket', userId: 1 },
-                { tm_name: 'Aýakgap & Sumka', ru_name: 'Сумка & Обувь', en_name: 'Shoes & Bag', slug: 'aýakgap-&-sumka', userId: 2 },
-                { tm_name: 'Egin-Eşikler', ru_name: 'Одежда', en_name: 'Clothes', slug: 'egin-eşikler', userId: 2 },
-                { tm_name: 'Sport Geýimler', ru_name: 'Спортивная Одежда', en_name: 'Sportswear', slug: 'sport-geýimler', userId: 5 },
-                { tm_name: 'Kosmetika önümleri', ru_name: 'Косметическая Продукция', en_name: 'Cosmetic Products', slug: 'kosmetika-önümleri', userId: 6 }
-            ]).then(() => { console.log('Storages created') }).catch((err) => { console.log(err) })
-
             await Models.Categories.bulkCreate([
-                { logo: 'image.jpg', tm_name: 'Gök we bakja önümleri', ru_name: 'Овощи и садовая продукция', en_name: 'Vegetables and garden products', slug: 'gök-we-bakja-önümleri', storageId: 2, userId: 1 },
-                { logo: 'image.jpg', tm_name: 'Süýt önümleri', ru_name: 'Молочные продукты', en_name: 'Dairy products', slug: 'süýt-önümleri', storageId: 2, userId: 1 },
-                { logo: 'image.jpg', tm_name: 'Telefon', ru_name: 'Телефон', en_name: 'Phone', slug: 'telefon', storageId: 1, userId: 2 },
-                { logo: 'image.jpg', tm_name: 'Telewizor', ru_name: 'Телевидение', en_name: 'Television', slug: 'telewizor', storageId: 1, userId: 5 },
-                { logo: 'image.jpg', tm_name: 'Oglan aýakgap', ru_name: 'Мужская обувь', en_name: 'Men shoes', slug: 'oglan-aýakgap', storageId: 3, userId: 6 },
-                { logo: 'image.jpg', tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', storageId: 3, userId: 7 },
-                { logo: 'image.jpg', tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', storageId: 4, userId: 8 }
+                { logo: 'image.jpg', tm_name: 'Gök we bakja önümleri', ru_name: 'Овощи и садовая продукция', en_name: 'Vegetables and garden products', slug: 'gök-we-bakja-önümleri', userId: 1 },
+                { logo: 'image.jpg', tm_name: 'Süýt önümleri', ru_name: 'Молочные продукты', en_name: 'Dairy products', slug: 'süýt-önümleri', userId: 1 },
+                { logo: 'image.jpg', tm_name: 'Telefon', ru_name: 'Телефон', en_name: 'Phone', slug: 'telefon', userId: 2 },
+                { logo: 'image.jpg', tm_name: 'Telewizor', ru_name: 'Телевидение', en_name: 'Television', slug: 'telewizor', userId: 5 },
+                { logo: 'image.jpg', tm_name: 'Oglan aýakgap', ru_name: 'Мужская обувь', en_name: 'Men shoes', slug: 'oglan-aýakgap', userId: 6 },
+                { logo: 'image.jpg', tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', userId: 7 },
+                { logo: 'image.jpg', tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', userId: 8 }
             ]).then(() => { console.log('Categories created') }).catch((err) => { console.log(err) })
 
             await Models.Features.bulkCreate([
@@ -576,8 +565,6 @@ class AdminService {
                 // ADMIN ROUTERS
                 { url: '/api/admin/add/group', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/permission', method: 'POST', groupId: 1 },
-                { url: '/api/admin/add/storage', method: 'POST', groupId: 1 },
-                { url: '/api/admin/add/storage', method: 'POST', groupId: 2 },
                 { url: '/api/admin/add/category', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/category', method: 'POST', groupId: 2 },
                 { url: '/api/admin/add/subcategory', method: 'POST', groupId: 1 },
@@ -596,12 +583,13 @@ class AdminService {
                 { url: '/api/admin/update/permission', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/subscription', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/brand', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/category', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/category', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 },
-                { url: '/api/admin/delete/storage', method: 'PUT', groupId: 1 },
-                { url: '/api/admin/delete/category', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/delete/category', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/contact', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/contact', method: 'PUT', groupId: 2 },

@@ -85,7 +85,6 @@ router.get('/likes/:id',
 router.get('/top/selling', userController.topSelling)
 router.get('/top/liked', userController.topLiked)
 router.get('/offers', userController.allOfferList)
-router.get('/storages', userController.allStorageList)
 router.get('/categories', userController.allCategoryList)
 router.get('/subcategories', userController.allSubcategoryList)
 router.get('/features', userController.allFeatureList)

@@ -17,17 +17,12 @@ const adminSchema = {
         groupId: Joi.number().positive().required()
     }),
 
-    addStorage: Joi.object({
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z]/).allow('', null)
-    }),
-
     addCategory: Joi.object({
+        id: Joi.number().positive().optional(),
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z-]/).allow('', null),
-        storageId: Joi.number().positive().required()
+        ru_name: Joi.string().min(3).max(100).optional(), // .regex(/^[\u0400-\u04FF]+$/),
+        en_name: Joi.string().min(3).max(100).optional(), //regex(/^[a-zA-Z-]/),
+        isActive: Joi.boolean().optional()
     }),
 
     addSubcategory: Joi.object({

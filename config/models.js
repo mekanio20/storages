@@ -110,7 +110,7 @@ const Brands = database.define('brands', {
     slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     img: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     desc: { type: DataTypes.STRING, allowNull: true },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
@@ -226,25 +226,14 @@ const CouponItem = database.define('coupon_item', {
 
 // ----------------------------------------------------------------------------
 
-const Storages = database.define('storages', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    tm_name: { type: DataTypes.STRING(100), allowNull: false },
-    ru_name: { type: DataTypes.STRING(100) },
-    en_name: { type: DataTypes.STRING(100) },
-    slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
-    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
-    updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
-
 const Categories = database.define('categories', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    tm_name: { type: DataTypes.STRING(100), allowNull: false },
-    ru_name: { type: DataTypes.STRING(100), unique: true },
-    en_name: { type: DataTypes.STRING(100), unique: true },
+    tm_name: { type: DataTypes.STRING(100), allowNull: false, unique: true },
+    ru_name: { type: DataTypes.STRING(100), allowNull: true },
+    en_name: { type: DataTypes.STRING(100), allowNull: true },
     logo: { type: DataTypes.STRING(100), allowNull: false },
     slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
@@ -527,20 +516,10 @@ CouponItem.belongsTo(Coupons)
 Customers.hasMany(CouponItem)
 CouponItem.belongsTo(Customers)
 
-// Storages -> UserId
-
-Users.hasMany(Storages)
-Storages.belongsTo(Users)
-
 // Categories -> UserId
 
 Users.hasMany(Categories)
 Categories.belongsTo(Users)
-
-// Categories -> StorageId
-
-Storages.hasMany(Categories, { onDelete: "cascade" })
-Categories.belongsTo(Storages)
 
 // Subcategories -> UserId
 
@@ -622,7 +601,7 @@ module.exports = {
     Sellers, Orders, Subscriptions, Chats, Messages,
     Brands, Products, ProductImages, ProductReviews,
     ProductReviewImages, Contacts, Notifications, Banners,
-    Coupons, CouponItem, Storages, Categories, Subcategories,
+    Coupons, CouponItem, Categories, Subcategories,
     Features, FeatureDescriptions, Groups, GroupPermissions,
     Likes, Comments, Baskets, Offers, SubcategoryFeatures,
     ProductFeatures, Followers, Searches, Videos, //Measurements

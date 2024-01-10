@@ -17,13 +17,9 @@ router.post('/add/permission',
     valdidationMiddleware(adminSchema.addPermission, 'body'),
     adminController.addAccessPath)
 
-router.post('/add/storage',
-    authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(adminSchema.addStorage, 'body'),
-    adminController.addStorage)
-
 router.post('/add/category',
     authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.STORAGE_PATH).single('logo'),
     valdidationMiddleware(adminSchema.addCategory, 'body'),
     adminController.addCategory)
 
@@ -97,6 +93,12 @@ router.put('/update/brand',
     valdidationMiddleware(adminSchema.addBrand, 'body'),
     adminController.updateBrand)
 
+router.put('/update/category',
+    authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.BRANDS_PATH).single('logo'),
+    valdidationMiddleware(adminSchema.addCategory, 'body'),
+    adminController.updateCategory)
+
 // DELETE
 router.delete('/delete/group/:id',
     authMiddleware, accessMiddleware(true),
@@ -118,12 +120,7 @@ router.delete('/delete/brand/:id',
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteBrand)
 
-router.put('/delete/storage/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(adminSchema.idControl, 'params'),
-    adminController.deleteStorage)
-
-router.put('/delete/category/:id',
+router.delete('/delete/category/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteCategory)
