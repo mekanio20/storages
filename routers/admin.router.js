@@ -25,6 +25,7 @@ router.post('/add/category',
 
 router.post('/add/subcategory',
     authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.STORAGE_PATH).single('logo'),
     valdidationMiddleware(adminSchema.addSubcategory, 'body'),
     adminController.addSubcategory)
 
@@ -98,6 +99,12 @@ router.put('/update/category',
     imagesMiddleware(process.env.BRANDS_PATH).single('logo'),
     valdidationMiddleware(adminSchema.addCategory, 'body'),
     adminController.updateCategory)
+
+router.put('/update/subcategory',
+    authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.BRANDS_PATH).single('logo'),
+    valdidationMiddleware(adminSchema.addSubcategory, 'body'),
+    adminController.updateSubCategory)
 
 // DELETE
 router.delete('/delete/group/:id',

@@ -37,8 +37,6 @@ class AdminService {
 
     async addCategoryService(body, userId, img) {
         try {
-            console.log('Body --> ', body)
-            console.log('Image --> ', img)
             if (!img.filename) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _category = await Verification.isFound(Models.Categories, slug)
@@ -58,8 +56,9 @@ class AdminService {
         }
     }
 
-    async addSubcategoryService(body, userId) {
+    async addSubcategoryService(body, userId, img) {
         try {
+            if (!img.filename) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _subcategory = await Verification.isFound(Models.Subcategories, slug)
             if (_subcategory.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
@@ -68,9 +67,11 @@ class AdminService {
                 ru_name: body.ru_name || null,
                 en_name: body.en_name || null,
                 slug: slug,
+                userId: userId,
+                logo: img.filename,
                 categoryId: body.categoryId,
-                userId: userId
-            })
+                isActive: body.isActive || true,
+            }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', subcategory)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -336,6 +337,29 @@ class AdminService {
         }
     }
 
+    async updateSubCategoryService(body, file) {
+        try {
+            const obj = {}
+            for (const item in body) {
+                if (item.length > 0 && item !== 'id') {
+                    if (item == 'isActive') {
+                        obj[item] = body[item] == 'true' ? true : false
+                    } else {
+                        obj[item] = body[item]
+                    }
+                }
+            }
+            if (file) { obj.logo = file.filename }
+            obj.slug = obj.tm_name.split(" ").join('-').toLowerCase()
+            await Models.Subcategories.update(obj, { where: { id: Number(body.id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteGroupService(id) {
         try {
@@ -585,6 +609,8 @@ class AdminService {
                 { url: '/api/admin/update/brand', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/category', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/category', method: 'PUT', groupId: 2 },
+                { url: '/api/admin/update/subcategory', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/subcategory', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },

@@ -431,6 +431,28 @@ class UserController {
         }
     }
 
+    async allSubcategoryList(req, res) {
+        try {
+            const q = req.query
+            const data = await userService.allSubcategoryListService(q)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     async allBrandList(req, res) {
         try {
             const q = req.query
@@ -478,27 +500,6 @@ class UserController {
     async allFeatureList(req, res) {
         try {
             const data = await userService.allFeatureListService()
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
-    async allSubcategoryList(req, res) {
-        try {
-            const data = await userService.allSubcategoryListService()
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

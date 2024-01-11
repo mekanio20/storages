@@ -475,6 +475,31 @@ class UserService {
         }
     }
 
+    async allSubcategoryListService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let _whereState = { isActive: true }
+            if (q.status === 'all') { _whereState = {} }
+            const subcategories = await Models.Subcategories.findAndCountAll({
+                where: _whereState,
+                attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt', 'userId', 'categoryId'] },
+                include: {
+                    model: Models.Categories,
+                    attributes: ['id', 'tm_name']
+                },
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'DESC']]
+            })
+            if (subcategories.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', subcategories)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async allBrandListService(q) {
         try {
             let page = q.page || 1
@@ -528,20 +553,6 @@ class UserService {
             })
             if (features.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', features)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async allSubcategoryListService() {
-        try {
-            const subcategories = await Models.Subcategories.findAll({
-                where: { isActive: true },
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name'],
-                order: [['id', 'DESC']]
-            })
-            if (subcategories.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', subcategories)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
