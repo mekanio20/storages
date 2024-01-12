@@ -106,6 +106,11 @@ router.put('/update/subcategory',
     valdidationMiddleware(adminSchema.addSubcategory, 'body'),
     adminController.updateSubCategory)
 
+router.put('/update/user',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.updateUser, 'body'),
+    adminController.updateUser)
+
 // DELETE
 router.delete('/delete/group/:id',
     authMiddleware, accessMiddleware(true),
@@ -131,6 +136,16 @@ router.delete('/delete/category/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteCategory)
+
+router.delete('/delete/subcategory/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteSubCategory)
+
+router.delete('/delete/user/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteUser)
 
 router.put('/delete/feature/:id',
     authMiddleware, accessMiddleware(true),

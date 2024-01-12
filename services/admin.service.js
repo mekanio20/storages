@@ -360,6 +360,24 @@ class AdminService {
         }
     }
 
+    async updateUserService(body) {
+        try {
+            const obj = {}
+            const superadmin = await Models.Users.findOne({ where: { id: body.id, isSuperAdmin: true }})
+            if (superadmin) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            for (const item in body) {
+                if (item.length > 0 && item !== 'id' && item !== 'isSuperadmin') {
+                    obj[item] = body[item]
+                }
+            }
+            await Models.Users.update(obj, { where: { id: Number(body.id) } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteGroupService(id) {
         try {
@@ -406,6 +424,30 @@ class AdminService {
     async deleteCategoryService(id) {
         try {
             await Models.Categories.destroy({ where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteSubCategoryService(id) {
+        try {
+            await Models.Subcategories.destroy({ where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteUserService(id) {
+        try {
+            const superadmin = await Models.Users.findOne({ where: { id: id, isSuperAdmin: true }})
+            if (superadmin) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            await Models.Users.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -611,11 +653,14 @@ class AdminService {
                 { url: '/api/admin/update/category', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/update/subcategory', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/subcategory', method: 'PUT', groupId: 2 },
+                { url: '/api/admin/update/user', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/brand', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/category', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/subcategory', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/user', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/contact', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/contact', method: 'PUT', groupId: 2 },

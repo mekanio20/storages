@@ -459,6 +459,28 @@ class AdminController {
         }
     }
 
+    async updateUser(req, res) {
+        try {
+            const body = req.body
+            const data = await adminService.updateUserService(body)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     // DELETE
     async deleteGroup(req, res) {
         try {
@@ -552,6 +574,50 @@ class AdminController {
         try {
             const { id } = req.params
             const data = await adminService.deleteCategoryService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async deleteSubCategory(req, res) {
+        try {
+            const { id } = req.params
+            const data = await adminService.deleteSubCategoryService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async deleteUser(req, res) {
+        try {
+            const { id } = req.params
+            const data = await adminService.deleteUserService(id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

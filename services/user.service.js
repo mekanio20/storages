@@ -505,7 +505,7 @@ class UserService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            let _whereState = { isActive: true } 
+            let _whereState = { isActive: true }
             if (q.status === 'all') { _whereState = {} }
             const brands = await Models.Brands.findAndCountAll({
                 where: _whereState,
@@ -526,9 +526,11 @@ class UserService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const users = await Models.Users.findAll({
-                where: { isActive: true },
-                attributes: { exclude: ['password', 'uuid', 'groupId', 'createdAt', 'updatedAt'] },
+            let _whereState = { isActive: true }
+            if (q.status === 'all') { _whereState = {} }
+            const users = await Models.Users.findAndCountAll({
+                where: _whereState,
+                attributes: { exclude: ['password', 'uuid', 'groupId', 'createdAt', 'updatedAt', 'deletedAt'] },
                 include: {
                     model: Models.Groups,
                     attributes: ['id', 'name']
@@ -537,7 +539,7 @@ class UserService {
                 offset: Number(offset),
                 order: [['id', 'DESC']]
             })
-            if (users.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            if (users.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', users)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

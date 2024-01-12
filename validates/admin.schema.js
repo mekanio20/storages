@@ -74,6 +74,14 @@ const adminSchema = {
     
     idControl: Joi.object({
         id: Joi.number().positive().required()
+    }),
+
+    updateUser: Joi.object({
+        id: Joi.number().positive().required(),
+        isActive: Joi.boolean().optional(),
+        isCustomer: Joi.boolean().optional(),
+        isSeller: Joi.boolean().optional(),
+        isStaff: Joi.boolean().optional()
     })
     
 }
