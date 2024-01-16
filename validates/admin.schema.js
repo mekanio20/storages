@@ -1,6 +1,11 @@
 const Joi = require('joi')
 
 const adminSchema = {
+
+    idControl: Joi.object({
+        id: Joi.number().positive().required()
+    }),
+
     // ADD
     addGroup: Joi.object({
         name: Joi.string().uppercase().min(3).max(20).regex(/^[a-zA-Z]/).required()
@@ -71,17 +76,19 @@ const adminSchema = {
         smm_support: Joi.boolean().required(),
         tech_support: Joi.boolean().required(),
     }),
-    
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
 
+    // UPDATE
     updateUser: Joi.object({
         id: Joi.number().positive().required(),
         isActive: Joi.boolean().optional(),
         isCustomer: Joi.boolean().optional(),
         isSeller: Joi.boolean().optional(),
         isStaff: Joi.boolean().optional()
+    }),
+
+    updateSeller: Joi.object({
+        id: Joi.number().positive().required(),
+        isVerified: Joi.boolean().required()
     })
     
 }

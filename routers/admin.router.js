@@ -111,6 +111,11 @@ router.put('/update/user',
     valdidationMiddleware(adminSchema.updateUser, 'body'),
     adminController.updateUser)
 
+router.put('/update/seller',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.updateSeller, 'body'),
+    adminController.updateSeller)
+
 // DELETE
 router.delete('/delete/group/:id',
     authMiddleware, accessMiddleware(true),
@@ -146,6 +151,11 @@ router.delete('/delete/user/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteUser)
+
+router.delete('/delete/seller/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteSeller)
 
 router.put('/delete/feature/:id',
     authMiddleware, accessMiddleware(true),

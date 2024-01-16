@@ -11,12 +11,13 @@ class SellerController {
     async sellerRegister(req, res) {
         try {
             const body = req.body
+            const userId = req.user.id
             const { logo } = req.files
             if (!logo) {
                 let result = await Response.BadRequest('logo gerek!', [])
                 return res.json(result)
             }
-            const data = await sellerService.sellerRegisterService(body, req.files)
+            const data = await sellerService.sellerRegisterService(body, req.files, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -227,12 +228,8 @@ class SellerController {
     async updateSellerProfile(req, res) {
         try {
             const body = req.body
-            const user = userPermission(req.user.id, body.id)
-            if (!user) { 
-                let result = await Response.Forbidden('Rugsat edilmedi!', [])
-                return res.json(result)
-            }
-            const data = await sellerService.updateSellerProfileService(body)
+            const userId = req.user.id
+            const data = await sellerService.updateSellerProfileService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

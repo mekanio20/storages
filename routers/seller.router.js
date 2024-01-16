@@ -55,7 +55,7 @@ router.get('/:id',
 
 // PUT
 router.put('/update',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware, accessMiddleware(false),
     valdidationMiddleware(sellerSchema.updateSellerProfile, 'body'),
     sellerController.updateSellerProfile)
 

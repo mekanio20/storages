@@ -48,7 +48,6 @@ class UserService {
             if (user) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             const hash = await bcrypt.hash(body.password, 5)
             const groupId = await Models.Groups.findOne({ where: { name: 'USERS' }, attributes: ['id'] })
-            if (!groupId) { return Response.NotFound('Beyle grupba yok!', []) }
             let _user = {
                 phone: body.phone,
                 password: hash,

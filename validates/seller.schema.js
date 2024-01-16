@@ -1,6 +1,10 @@
 const Joi = require('joi')
 
 const sellerSchema = {
+    idControl: Joi.object({
+        id: Joi.number().positive().required()
+    }),
+
     sellerRegister: Joi.object({
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/),
         store_number: Joi.number().positive().required(),
@@ -13,13 +17,11 @@ const sellerSchema = {
         tiktok: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).allow(null, ''),
         main_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required(),
         second_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).allow(null, ''),
-        userId: Joi.number().positive().required(),
         categoryId: Joi.number().positive().required(),
         subscriptionId: Joi.number().positive().required()
     }),
     
     updateSellerProfile: Joi.object({
-        id: Joi.number().positive().required(),
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).allow('', null),
         store_number: Joi.number().positive().allow('', null),
         store_floor: Joi.number().positive().allow('', null),
@@ -32,10 +34,6 @@ const sellerSchema = {
         main_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).allow('', null),
         second_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).allow('', null),
         categoryId: Joi.number().positive()
-    }),
-
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
     }),
 
     addOffer: Joi.object({
@@ -55,7 +53,8 @@ const sellerSchema = {
         store_number: Joi.number().positive().optional(),
         store_floor: Joi.number().positive().optional(),
         categoryId: Joi.number().positive().optional(),
-        sort: Joi.string().valid('name', 'store_number').optional(),
+        isVerified: Joi.boolean().optional(),
+        sort: Joi.string().valid('id', 'name', 'store_number').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional()

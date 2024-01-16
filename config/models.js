@@ -43,7 +43,6 @@ const Sellers = database.define('sellers', {
     about: { type: DataTypes.STRING, allowNull: true },
     logo: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     bg_img: { type: DataTypes.STRING(100), defaultValue: 'bg.jpg' },
-    // color: { type: DataTypes.STRING(10), allowNull: false },
     seller_type: { type: DataTypes.ENUM({ values: ['in-opt', 'out-opt'] }), allowNull: false },
     sell_type: { type: DataTypes.ENUM({ values: ['wholesale', 'partial', 'both'] }), allowNull: false },
     instagram: { type: DataTypes.STRING(50), allowNull: true },

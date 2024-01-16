@@ -5,12 +5,17 @@ const { Sequelize } = require('../config/database')
 const { fetchReviewService } = require('./product.service')
 
 class SellerService {
-    async sellerRegisterService(body, filenames) {
+    async sellerRegisterService(body, filenames, userId) {
         try {
-            const seller = await Models.Sellers.findAll({ attributes: ['id'], where: { name: body.name } })
+            const seller = await Models.Sellers.findAll({
+                attributes: ['id'],
+                where: {
+                    name: body.name,
+                    main_number: body.main_number
+                }
+            })
             if (seller.length > 0) { return Response.Forbidden('Satyjy registrasiýa bolan!', []) }
             if (body.main_number === body.second_number) { return Response.BadRequest('Iki sany menzesh nomer bolup bilmez!', []) }
-            console.log(body);
             const _seller = await Models.Sellers.create({
                 name: body.name,
                 store_number: body.store_number,
@@ -18,14 +23,13 @@ class SellerService {
                 about: body.about,
                 logo: filenames.logo[0].filename,
                 bg_img: filenames.bg_img[0].filename || 'bg.jpg',
-                color: body.color,
                 seller_type: body.seller_type,
                 sell_type: body.sell_type,
                 instagram: body.instagram,
                 tiktok: body.tiktok,
                 main_number: body.main_number,
                 second_number: body.second_number,
-                userId: body.userId,
+                userId: Number(userId),
                 categoryId: body.categoryId,
                 subscriptionId: body.subscriptionId
             })
@@ -38,7 +42,6 @@ class SellerService {
     async addOfferService(body) {
         try {
             const offer = await Models.Offers.create({
-                // promocode: body.promocode || null,
                 currency: body.currency,
                 discount: body.discount,
                 productId: body.productId
@@ -104,6 +107,7 @@ class SellerService {
             let order = q.order || 'asc'
             let conditions = {}
             let _conditions = {
+                isVerified: q.isVerified || null,
                 store_number: q.store_number || null,
                 store_floor: q.store_floor || null,
                 categoryId: q.categoryId || null
@@ -115,10 +119,10 @@ class SellerService {
             }
             const seller = await Models.Sellers.findAndCountAll({
                 where: conditions,
-                attributes: ['id', 'name', 'logo', 'store_number', 'store_floor'],
+                attributes: { exclude: ['userId', 'categoryId', 'subscriptionId'] },
                 include: {
                     model: Models.Categories,
-                    where: { isActive: true },
+                    where: { isActive: true }, required: false,
                     attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug']
                 },
                 limit: Number(limit),
@@ -292,20 +296,15 @@ class SellerService {
     }
 
     // PUT
-    async updateSellerProfileService(body) {
+    async updateSellerProfileService(body, userId) {
         try {
             let newObj = {}
-            for (const key in body) {
-                if (body[key].length > 0) {
-                    newObj[key] = body[key]
-                }
-            }
-            await Models.Sellers.update({ newObj }, { where: { id: body.id } })
-                .then(() => { return Response.Success('Satyjy maglumatlary täzelendi!', []) })
-                .catch((err) => {
-                    console.log(err)
-                    return Response.BadRequest('Yalnyshlyk yuze cykdy!', [])
-                })
+            const sellerId = await Verification.isSeller(userId)
+            if (!sellerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            for (const key in body) { if (body[key]) { newObj[key] = body[key] } }
+            await Models.Sellers.update(newObj, { where: { id: Number(body.id) } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Satyjy maglumaty täzelendi!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -329,15 +328,6 @@ class SellerService {
             console.log(JSON.stringify(sellerId, null, 2))
             if (!sellerId) { return Response.NotFound('Haryt tapylmady!', []) }
 
-            await Models.ProductImages.destroy({ where: { productId: productId } })
-            await Models.ProductReviews.destroy({ where: { productId: productId } })
-            await Models.ProductReviewImages.destroy({ where: { productId: productId } })
-            await Models.ProductFeatures.destroy({ where: { productId: productId } })
-            await Models.Offers.destroy({ where: { productId: productId } })
-            await Models.Baskets.destroy({ where: { productId: productId } })
-            await Models.Comments.destroy({ where: { productId: productId } })
-            await Models.Likes.destroy({ where: { productId: productId } })
-            await Models.Orders.destroy({ where: { productId: productId } })
             await Models.Products.destroy({ where: { sellerId: sellerId.id, id: productId } })
             return Response.Success('Haryt pozuldy!', [])
 
@@ -352,13 +342,6 @@ class SellerService {
             console.log(JSON.stringify(seller, null, 2))
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
 
-            await Models.Users.destroy({ where: { id: userId } })
-            await Models.Brands.destroy({ where: { userId: userId } })
-            await Models.Notifications.destroy({ where: { userId: userId } })
-            await Models.Banners.destroy({ where: { userId: userId } })
-            await Models.Chats.destroy({ where: { sellerId: sellerId } })
-            await Models.Products.destroy({ where: { sellerId: sellerId } })
-            await Models.Coupons.destroy({ where: { sellerId: sellerId } })
             await Models.Sellers.destroy({ where: { id: sellerId } })
             return Response.Success('Satyjy pozuldy!', [])
 
