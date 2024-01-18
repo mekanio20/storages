@@ -120,11 +120,18 @@ class SellerService {
             const seller = await Models.Sellers.findAndCountAll({
                 where: conditions,
                 attributes: { exclude: ['userId', 'categoryId', 'subscriptionId'] },
-                include: {
-                    model: Models.Categories,
-                    where: { isActive: true }, required: false,
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug']
-                },
+                include: [
+                    {
+                        model: Models.Categories,
+                        where: { isActive: true }, required: false,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug']
+                    },
+                    {
+                        model: Models.Subscriptions,
+                        where: { isActive: true },
+                        attributes: ['name']
+                    }
+                ],
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [[sort, order]]

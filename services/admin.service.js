@@ -757,6 +757,9 @@ class AdminService {
                 { url: '/api/address/all', method: 'GET', groupId: 4 },
                 { url: '/api/address', method: 'PUT', groupId: 4 },
                 { url: '/api/address', method: 'DELETE', groupId: 4 },
+                // CUSTOMER ROUTER
+                { url: '/api/customer/all', method: 'GET', groupId: 1 },
+                { url: '/api/customer/all', method: 'GET', groupId: 2 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])

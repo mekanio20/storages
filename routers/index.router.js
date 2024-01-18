@@ -8,6 +8,7 @@ const bannerRouter = require('./banner.router')
 const notificationRouter = require('./notification.router')
 const addressRouter = require('./address.router')
 const videoRouter = require('./video.router')
+const customerRouter = require('./customer.router')
 
 router.use('/user', userRouter)
 router.use('/admin', adminRouter)
@@ -17,6 +18,7 @@ router.use('/comment', commentRouter)
 router.use('/banner', bannerRouter)
 router.use('/notification', notificationRouter)
 router.use('/address', addressRouter)
+router.use('/customer', customerRouter)
 router.use('/video', videoRouter)
 
 module.exports = router
