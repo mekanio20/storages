@@ -169,7 +169,7 @@ class ProductService {
                 brandId: q.brandId || 0,
             }
             for (const key in query) {
-                if (query[key].length > 0) {
+                if (query[key]) {
                     obj[key] = query[key]
                 }
             }
@@ -183,17 +183,17 @@ class ProductService {
                     {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                        where: { isActive: true },
+                        where: { isActive: true }, required: false,
                         include: {
                             model: Models.Categories,
                             attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                            where: { isActive: true }
+                            where: { isActive: true }, require: false
                         }
                     },
                     {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
-                        where: { isActive: true }
+                        where: { isActive: true }, required: false
                     },
                     {
                         model: Models.Sellers,

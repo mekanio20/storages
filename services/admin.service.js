@@ -125,13 +125,13 @@ class AdminService {
             const brand = await Verification.isFound(Models.Brands, slug)
             if (brand.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
-            const brands = await Models.Brands.create({ 
+            const brands = await Models.Brands.create({
                 name: body.name,
                 slug: slug,
                 img: brand_img.filename,
                 isActive: body.isActive || true,
                 desc: body.desc || null,
-                userId: userId 
+                userId: userId
             })
             return Response.Created('Maglumat döredildi!', brands)
         } catch (error) {
@@ -363,7 +363,7 @@ class AdminService {
     async updateUserService(body) {
         try {
             const obj = {}
-            const superadmin = await Models.Users.findOne({ where: { id: body.id, isSuperAdmin: true }})
+            const superadmin = await Models.Users.findOne({ where: { id: body.id, isSuperAdmin: true } })
             if (superadmin) { return Response.Forbidden('Rugsat edilmedi!', []) }
             for (const item in body) {
                 if (item && item !== 'id' && item !== 'isSuperadmin') {
@@ -461,7 +461,7 @@ class AdminService {
 
     async deleteUserService(id) {
         try {
-            const superadmin = await Models.Users.findOne({ where: { id: id, isSuperAdmin: true }})
+            const superadmin = await Models.Users.findOne({ where: { id: id, isSuperAdmin: true } })
             if (superadmin) { return Response.Forbidden('Rugsat edilmedi!', []) }
             await Models.Users.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
@@ -472,8 +472,29 @@ class AdminService {
         }
     }
 
+    async deleteCustomerService(id) {
+        try {
+            const customer = await Models.Customers.findOne({ where: { id: id } })
+            if (!customer) { return Response.NotFound('Müşderi tapylmady!', []) }
+            await Models.Users.update({ isCustomer: false }, { where: { id: customer.userId } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            await Models.Customers.destroy({ where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async deleteSellerService(id) {
         try {
+            const seller = await Models.Sellers.findOne({ where: { id: id } })
+            if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
+            await Models.Users.update({ isSeller: false }, { where: { id: seller.userId } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
             await Models.Sellers.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
@@ -689,6 +710,7 @@ class AdminService {
                 { url: '/api/admin/delete/category', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subcategory', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/user', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/customer', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/seller', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/delete/contact', method: 'PUT', groupId: 1 },

@@ -152,6 +152,11 @@ router.delete('/delete/user/:id',
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteUser)
 
+router.delete('/delete/customer/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteCustomer)
+
 router.delete('/delete/seller/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
