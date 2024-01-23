@@ -146,8 +146,8 @@ class ProductService {
             let start_price = Number(q.start_price) || 0
             let end_price = Number(q.end_price) || 100000
             let sort = q.sort || 'id'
-            let order = q.order || 'asc'
-            let rating = q.rating || 'asc'
+            let order = q.order || 'desc'
+            let rating = q.rating || ''
             let search = []
             if (q.name) {
                 // await Models.Searches.create({ input: q.name, userId: 1 })
@@ -166,7 +166,7 @@ class ProductService {
                 gender: q.gender || '',
                 subcategoryId: q.subcategoryId || 0,
                 sellerId: q.sellerId || 0,
-                brandId: q.brandId || 0,
+                brandId: q.brandId || 0
             }
             for (const key in query) {
                 if (query[key]) {
@@ -174,10 +174,11 @@ class ProductService {
                 }
             }
             obj.isActive = true
+            if (q.isActive == 'all') { delete obj.isActive }
             obj.sale_price = { [Op.between]: [start_price, end_price] }
             search.push(obj)
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'org_price', 'sale_price'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'org_price', 'sale_price'],
                 where: { [Op.or]: search },
                 include: [
                     {
@@ -233,17 +234,17 @@ class ProductService {
                     {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                        where: { isActive: true },
+                        where: { isActive: true }, required: false,
                         include: {
                             model: Models.Categories,
                             attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                            where: { isActive: true }
+                            where: { isActive: true }, required: false,
                         }
                     },
                     {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
-                        where: { isActive: true }
+                        where: { isActive: true }, required: false,
                     },
                     {
                         model: Models.Sellers,

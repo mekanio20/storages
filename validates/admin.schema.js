@@ -89,6 +89,11 @@ const adminSchema = {
     updateSeller: Joi.object({
         id: Joi.number().positive().required(),
         isVerified: Joi.boolean().required()
+    }),
+
+    updateProduct: Joi.object({
+        id: Joi.number().positive().required(),
+        isActive: Joi.boolean().required()
     })
     
 }

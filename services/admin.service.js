@@ -394,6 +394,22 @@ class AdminService {
         }
     }
 
+    async updateProductService(body) {
+        try {
+            const obj = {}
+            for (const item in body) {
+                if (item && item !== 'id') {
+                    obj[item] = body[item]
+                }
+            }
+            await Models.Products.update(obj, { where: { id: Number(body.id) } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteGroupService(id) {
         try {
@@ -703,6 +719,8 @@ class AdminService {
                 { url: '/api/admin/update/subcategory', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/update/user', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/seller', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/product', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/product', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },

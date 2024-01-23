@@ -44,7 +44,8 @@ const productSchema = {
         end_price: Joi.number().positive().optional(),
         sort: Joi.string().valid('id', 'org_price').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
-        rating: Joi.string().valid('asc', 'desc').optional()
+        rating: Joi.string().valid('asc', 'desc').optional(),
+        isActive: Joi.string().valid('all').optional()
     }),
 
     addCoupon: Joi.object({
