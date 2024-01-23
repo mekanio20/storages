@@ -8,13 +8,14 @@ const uuid = require('uuid')
 class AdminService {
 
     // POST
-    async addGroupService(name) {
+    async addGroupService(body) {
         try {
-            name = name.trim().toUpperCase()
+            let name = body.name.trim().toUpperCase()
             const [group, created] = await Models.Groups.findOrCreate({
                 where: { name: name },
                 defaults: {
-                    name: name
+                    name: body.name,
+                    isActive: body.isActive
                 }
             })
             if (!created) { return Response.BadRequest('Maglumat eyyam döredilen!', group) }
@@ -181,11 +182,9 @@ class AdminService {
     // GET
     async allGroupsService(q) {
         try {
-            const groups = await Models.Groups.findAll({
-                where: { isActive: true },
-                attributes: ['id', 'name'],
-                order: [['id', 'ASC']]
-            })
+            const obj = { isActive: true }
+            if (q.isActive == 'all') { delete obj.isActive }
+            const groups = await Models.Groups.findAll({ where: obj, order: [['id', 'ASC']] })
             if (groups.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', groups)
         } catch (error) {
@@ -252,6 +251,20 @@ class AdminService {
     }
 
     // UPDATE
+    async updateGroupService(body) {
+        try {
+            console.log(body);
+            const group = await Models.Groups.update(
+                { name: body.name, isActive: body.isActive },
+                { where: { id: body.id } }
+            )
+            if (!group) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async updatePermissionService(body) {
         try {
             const permission = await Models.GroupPermissions.update(
@@ -710,6 +723,7 @@ class AdminService {
                 { url: '/api/admin/add/brand', method: 'POST', groupId: 3 },
                 { url: '/api/admin/add/staff', method: 'POST', groupId: 1 },
                 { url: '/api/admin/add/subscription', method: 'POST', groupId: 1 },
+                { url: '/api/admin/update/group', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/permission', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/subscription', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/brand', method: 'PUT', groupId: 1 },

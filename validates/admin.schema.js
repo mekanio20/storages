@@ -8,7 +8,9 @@ const adminSchema = {
 
     // ADD
     addGroup: Joi.object({
-        name: Joi.string().uppercase().min(3).max(20).regex(/^[a-zA-Z]/).required()
+        id: Joi.number().positive().optional(),
+        name: Joi.string().uppercase().min(3).max(20).regex(/^[a-zA-Z]/).required(),
+        isActive: Joi.boolean().optional()
     }),
 
     addRole: Joi.object({
@@ -94,6 +96,11 @@ const adminSchema = {
     updateProduct: Joi.object({
         id: Joi.number().positive().required(),
         isActive: Joi.boolean().required()
+    }),
+
+    // GET
+    allGroups: Joi.object({
+        isActive: Joi.string().valid('all')
     })
     
 }

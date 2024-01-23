@@ -63,6 +63,7 @@ router.post('/add/subscription',
 // GET
 router.get('/all/groups',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.allGroups, 'query'),
     adminController.allGroups)
 
 router.get('/all/permissions',
@@ -78,6 +79,11 @@ router.get('/all/contacts',
     adminController.allContacts)
 
 // PUT
+router.put('/update/group',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.addGroup, 'body'),
+    adminController.udpateGroup)
+
 router.put('/update/permission',
     authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addPermission, 'body'),
