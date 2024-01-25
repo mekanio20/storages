@@ -19,14 +19,16 @@ module.exports = (params) => {
                 attributes: ['url', 'method']
             })
             console.log('PERMISSION --> ', JSON.stringify(permission, null, 2))
-            if (permission) { return next() }
-            return res.status(403).json({
-                status: 403,
-                type: 'error',
-                msg: 'Rugsat edilmedi!',
-                msg_key: 'forbidden',
-                detail: []
-            })
+            if (!permission) {
+                return res.status(403).json({
+                    status: 403,
+                    type: 'error',
+                    msg: 'Rugsat edilmedi!',
+                    msg_key: 'forbidden',
+                    detail: []
+                })
+            }
+            return next() 
         } catch (error) {
             return res.status(500).json({
                 status: 500,

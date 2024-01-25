@@ -423,6 +423,22 @@ class AdminService {
         }
     }
 
+    async updateCommentService(body) {
+        try {
+            const obj = {}
+            for (const item in body) {
+                if (item && item !== 'id') {
+                    obj[item] = body[item]
+                }
+            }
+            await Models.Comments.update(obj, { where: { id: Number(body.id) } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteGroupService(id) {
         try {
@@ -528,27 +544,6 @@ class AdminService {
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteFeatureService(id) {
-        try {
-            await Models.Features.update({ isActive: false }, { where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteContactService(id) {
-        try {
-            await Models.Contacts.update({ isActive: false }, { where: { id: id } })
-                .then(() => { return Response.Success('Üstünlikli!', []) })
-                .catch((err) => { console.log(err) })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -735,6 +730,8 @@ class AdminService {
                 { url: '/api/admin/update/seller', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/product', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/product', method: 'PUT', groupId: 2 },
+                { url: '/api/admin/update/comment', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/comment', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },
@@ -744,9 +741,6 @@ class AdminService {
                 { url: '/api/admin/delete/user', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/customer', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/seller', method: 'DELETE', groupId: 1 },
-                { url: '/api/admin/delete/feature', method: 'PUT', groupId: 1 },
-                { url: '/api/admin/delete/contact', method: 'PUT', groupId: 1 },
-                { url: '/api/admin/delete/contact', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/all/groups', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/subscriptions', method: 'GET', groupId: 1 },
@@ -796,6 +790,8 @@ class AdminService {
                 { url: '/api/banner/add', method: 'POST', groupId: 3 },
                 // COMMENT ROUTERS
                 { url: '/api/comment/add', method: 'POST', groupId: 4 },
+                { url: '/api/comment', method: 'DELETE', groupId: 1 },
+                { url: '/api/comment', method: 'DELETE', groupId: 4 },
                 // NOTIFICATIONS
                 { url: '/api/notification/add', method: 'POST', groupId: 1 },
                 { url: '/api/notification/add', method: 'POST', groupId: 2 },

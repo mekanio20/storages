@@ -1,19 +1,22 @@
 const Joi = require('joi')
 
 const commentSchema = {
+    idControl: Joi.object({
+        id: Joi.number().positive().required()
+    }),
+    
     addComment: Joi.object({
         productId: Joi.number().positive().required(),
         comment: Joi.string().min(2).required()
     }),
 
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
-
     allComment: Joi.object({
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
-        productId: Joi.number().positive().required()
+        sort: Joi.string().valid('id', 'comment').optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        productId: Joi.number().positive().optional(),
+        isActive: Joi.boolean().optional()
     })
 }
 

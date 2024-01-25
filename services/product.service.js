@@ -294,6 +294,15 @@ class ProductService {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
+
+    // DELETE
+    async fetchReviewService(id) {
+        try {
+            
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
 }
 
 module.exports = new ProductService()

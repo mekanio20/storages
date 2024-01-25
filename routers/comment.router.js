@@ -20,4 +20,10 @@ router.get('/all',
     valdidationMiddleware(commentSchema.allComment, 'query'),
     commentController.allComment)
 
+// DELETE
+router.delete('/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(commentSchema.idControl, 'params'),
+    commentController.deleteComment)
+
 module.exports = router

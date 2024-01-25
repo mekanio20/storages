@@ -36,4 +36,10 @@ router.get('/reviews/:id',
 
 router.get('/:slug', productController.fetchProduct)
 
+// DELETE
+router.delete('/:id',
+    authMiddleware, accessMiddleware(true),
+    validationMiddleware(productSchema.idControl, 'params'),
+    productController.deleteProduct)
+
 module.exports = router
