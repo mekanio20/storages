@@ -699,6 +699,11 @@ class AdminService {
                 { tm_name: 'al', ru_name: 'босс', en_name: 'al', tm_desc: 'desc al', ru_name: 'босс', en_name: 'desc al', img: 'test2.jpg', conditions: 'on-follow', limit: 10, start_date: '2023-12-21', end_date: '2023-12-30', isPublic: false }
             ]).then(() => { console.log('Coupons created') }).catch((err) => { console.log(err) })
 
+            await Models.Banners.bulkCreate([
+                { tm_img: 'test1.jpg', url: 'http://1.1.1.1', type: 'home', sort_order: 1, start_date: new Date(), end_date: new Date(), userId: 1 },
+                { tm_img: 'test2.jpg', url: 'http://1.1.1.2', type: 'home', sort_order: 2, start_date: new Date(), end_date: new Date(), userId: 1 },
+            ]).then(() => { console.log('Banner created') }).catch((err) => { console.log(err) })
+
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
                 { url: '/api/admin/add/group', method: 'POST', groupId: 1 },
@@ -788,6 +793,8 @@ class AdminService {
                 { url: '/api/banner/add', method: 'POST', groupId: 1 },
                 { url: '/api/banner/add', method: 'POST', groupId: 2 },
                 { url: '/api/banner/add', method: 'POST', groupId: 3 },
+                { url: '/api/banner/all', method: 'GET', groupId: 1 },
+                { url: '/api/banner', method: 'DELETE', groupId: 1 },
                 // COMMENT ROUTERS
                 { url: '/api/comment/add', method: 'POST', groupId: 4 },
                 { url: '/api/comment', method: 'DELETE', groupId: 1 },
@@ -802,6 +809,8 @@ class AdminService {
                 { url: '/api/product/add/review', method: 'POST', groupId: 4 },
                 { url: '/api/product/add/coupon', method: 'POST', groupId: 1 },
                 { url: '/api/product/add/coupon', method: 'POST', groupId: 3 },
+                { url: '/api/product', method: 'DELETE', groupId: 1 },
+                { url: '/api/product', method: 'DELETE', groupId: 3 },
                 // ADDRESS ROUTER
                 { url: '/api/address/add', method: 'POST', groupId: 4 },
                 { url: '/api/address/all', method: 'GET', groupId: 4 },

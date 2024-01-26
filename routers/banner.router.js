@@ -3,7 +3,7 @@ const bannerController = require('../controllers/banner.controller')
 const accessMiddleware = require('../middlewares/access.middleware')
 const authMiddleware = require('../middlewares/auth.middleware')
 const imagesMiddleware = require('../middlewares/images.middleware')
-const valdidationMiddleware = require('../middlewares/validation.middleware')
+const validationMiddleware = require('../middlewares/validation.middleware')
 const bannerSchema = require('../validates/banner.schema')
 
 // POST
@@ -14,7 +14,19 @@ router.post('/add',
         { name: "ru_img", maxCount: 1 },
         { name: "en_img", maxCount: 1 }
     ]),
-    valdidationMiddleware(bannerSchema.addBanner, 'body'),
+    validationMiddleware(bannerSchema.addBanner, 'body'),
     bannerController.addBanner)
+
+// GET
+router.get('/all',
+    authMiddleware, accessMiddleware(false),
+    validationMiddleware(bannerSchema.allBanner, 'query'),
+    bannerController.allBanner)
+
+// DELETE
+router.delete('/:id',
+    authMiddleware, accessMiddleware(true),
+    validationMiddleware(bannerSchema.idControl, 'params'),
+    bannerController.deleteBanner)
 
 module.exports = router

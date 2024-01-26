@@ -147,8 +147,8 @@ class productController {
     async deleteProduct(req, res) {
         try {
             const { id } = req.params
-            const userId = req.user.id
-            const data = await productService.deleteProductService(id, userId)
+            const user = req.user
+            const data = await productService.deleteProductService(id, user)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

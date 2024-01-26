@@ -217,7 +217,7 @@ class ProductService {
                     rating: rating.detail.rating,
                     comment: comment.detail.count,
                 })
-            }))
+            })).catch((err) => { console.log(err) })
             if (rating === 'asc') { result.rows.sort((a, b) => b.rating - a.rating) }
             else if (rating === 'desc') { result.rows.sort((a, b) => a.rating - b.rating) }
             return Response.Success('Üstünlikli!', result)
@@ -296,9 +296,20 @@ class ProductService {
     }
 
     // DELETE
-    async fetchReviewService(id) {
+    async deleteProductService(id, user) {
         try {
-            
+            if (user.group == 1) {
+                await Models.Products.destroy({ where: { id: Number(id) } })
+                    .then(() => { console.log(true) })
+                return Response.Success('Üstünlikli!', [])
+            }
+            const sellerId = await Verification.isSeller(user.id)
+            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            const product = await Models.Products.findOne({ where: { sellerId: Number(sellerId) } })
+            if (!product) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            await Models.Products.destroy({ where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+            return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

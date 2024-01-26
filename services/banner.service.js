@@ -2,20 +2,21 @@ const Response = require('../helpers/response.service')
 const Models = require('../config/models')
 
 class BannerService {
+    // POST
     async addBannerService(body, user, filenames) {
         try {
             const group = await Models.Groups.findOne({ attributes: ['name'], where: { id: user.group } })
             if (group.name === 'SELLERS') {
-                const seller = await Models.Sellers.findOne({ 
+                const seller = await Models.Sellers.findOne({
                     attributes: ['subscriptionId'],
                     where: {
                         userId: user.id,
                         isVerified: true
                     }
                 })
-                const limit = await Models.Subscriptions.findOne({ 
-                    attributes: ['seller_banner_limit'], 
-                    where: { id: seller.subscriptionId } 
+                const limit = await Models.Subscriptions.findOne({
+                    attributes: ['seller_banner_limit'],
+                    where: { id: seller.subscriptionId }
                 })
                 const bannerCount = await Models.Banners.count({ where: { userId: user.id } })
                 console.log('seller banner limit -> ', limit.seller_banner_limit);
@@ -36,6 +37,37 @@ class BannerService {
                 userId: user.id
             })
             return Response.Created('Banner döredildi!', banner)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // GET
+    async allBannerService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let sort = q.sort || 'id'
+            let order = q.order || 'desc'
+            const banners = await Models.Banners.findAndCountAll({
+                attributes: ['id', 'sort_order', 'tm_img', 'type', 'start_date', 'end_date', 'userId'],
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [[sort, order]]
+            })
+            return Response.Success('Üstünlikli!', banners)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    // DELETE
+    async deleteBannerService(id) {
+        try {
+            await Models.Banners.destroy({ where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+            return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
