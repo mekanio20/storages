@@ -12,4 +12,10 @@ router.post('/add',
     valdidationMiddleware(notificationSchema.addNotification, 'body'),
     notificationController.addNotification)
 
+// GET
+router.get('/all',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(notificationSchema.allNotification, 'query'),
+    notificationController.allNotification)
+
 module.exports = router
