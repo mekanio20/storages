@@ -147,7 +147,7 @@ class ProductService {
             let end_price = Number(q.end_price) || 100000
             let sort = q.sort || 'id'
             let order = q.order || 'desc'
-            let rating = q.rating || ''
+            // let rating = q.rating || ''
             let search = []
             if (q.name) {
                 // await Models.Searches.create({ input: q.name, userId: 1 })
@@ -178,7 +178,7 @@ class ProductService {
             obj.sale_price = { [Op.between]: [start_price, end_price] }
             search.push(obj)
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'org_price', 'sale_price'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
                 where: { [Op.or]: search },
                 include: [
                     {
@@ -187,8 +187,7 @@ class ProductService {
                         where: { isActive: true }, required: false,
                         include: {
                             model: Models.Categories,
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                            where: { isActive: true }, require: false
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug']
                         }
                     },
                     {
@@ -199,27 +198,40 @@ class ProductService {
                     {
                         model: Models.Sellers,
                         attributes: ['id', 'name']
+                    },
+                    {
+                        model: Models.Offers,
+                        attributes: ['id', 'discount', 'currency', 'isActive'],
+                        where: { isActive: true }, required: false
                     }
                 ],
+                order: [[sort, order]],
                 limit: Number(limit),
-                offset: Number(offset),
-                order: [[sort, order]]
+                offset: Number(offset)
             })
             const result = { count: 0, rows: [] }
             result.count = products.count
             await Promise.all(products.rows.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id } })
-                const rating = await this.fetchReviewService(item.id)
                 const comment = await allCommentService({ productId: item.id })
+                const rating = await this.fetchReviewService(item.id)
                 result.rows.push({
                     ...item.dataValues,
                     images: images,
                     rating: rating.detail.rating,
-                    comment: comment.detail.count,
+                    comment: comment.detail.count
                 })
-            })).catch((err) => { console.log(err) })
-            if (rating === 'asc') { result.rows.sort((a, b) => b.rating - a.rating) }
-            else if (rating === 'desc') { result.rows.sort((a, b) => a.rating - b.rating) }
+            }))
+            if (order === 'asc') {
+                console.log('asc --> ', sort);
+                if (sort === 'discount') { result.rows.sort((a, b) => b.offers.sort - a.offers.sort) }
+                else { result.rows.sort((a, b) => b.sort - a.sort) }
+            }
+            else if (order === 'desc') {
+                console.log('desc --> ', sort);
+                if (sort === 'discount') { result.rows.sort((a, b) => a.offers.sort - b.offers.sort) }
+                else { result.rows.sort((a, b) => b.sort - a.sort) }
+            }
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

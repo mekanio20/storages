@@ -30,6 +30,10 @@ router.get('/all',
     validationMiddleware(productSchema.allProduct, 'query'),
     productController.allProduct)
 
+router.get('/offers',
+    validationMiddleware(productSchema.allOffers, 'query'),
+    productController.allOffers)
+
 router.get('/reviews/:id',
     validationMiddleware(productSchema.idControl, 'params'),
     productController.fetchReview)

@@ -32,10 +32,6 @@ router.post('/customer/register',
     valdidationMiddleware(userSchema.customerRegister, 'body'),
     userController.customerRegister)
 
-router.post('/add/contact',
-    valdidationMiddleware(userSchema.addContact, 'body'),
-    userController.addContact)
-
 router.post('/add/like',
     authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.likeControl, 'body'),

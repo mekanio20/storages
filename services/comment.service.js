@@ -60,13 +60,13 @@ class CommentService {
                     },
                     {
                         model: Models.Products,
-                        where: { isActive: true }, required: false,
-                        attributes: ['id', 'tm_name']
+                        attributes: ['id', 'tm_name'],
+                        // where: { isActive: true }, required: false
                     },
                     {
                         model: Models.ProductReviewImages,
+                        attributes: ['id', 'img'],
                         where: { isActive: true }, required: false,
-                        attributes: ['id', 'img']
                     }
                 ],
                 limit: Number(limit),

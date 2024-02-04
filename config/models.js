@@ -159,24 +159,24 @@ const ProductReviewImages = database.define('product_review_images', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
-const Contacts = database.define('contacts', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    phone: { type: DataTypes.STRING(12), allowNull: false },
-    email: { type: DataTypes.STRING(50), allowNull: false, validate: { isEmail: true } },
-    fullname: { type: DataTypes.STRING(40), allowNull: false },
-    message: { type: DataTypes.STRING, allowNull: false },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
-    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
-    updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+// const Contacts = database.define('contacts', {
+//     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
+//     phone: { type: DataTypes.STRING(12), allowNull: false },
+//     email: { type: DataTypes.STRING(50), allowNull: false, validate: { isEmail: true } },
+//     fullname: { type: DataTypes.STRING(40), allowNull: false },
+//     message: { type: DataTypes.STRING, allowNull: false },
+//     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+//     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+//     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
+// }, { paranoid: true })
 
 const Notifications = database.define('notifications', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     receivers: { type: DataTypes.ENUM({ values: ['all', 'my-customers'] }), allowNull: false },
     title: { type: DataTypes.STRING(100), allowNull: false },
     desc: { type: DataTypes.STRING, allowNull: false },
-    status: { type: DataTypes.ENUM({ values: ['new', 'on-wait', 'scheduled', 'sent'], allowNull: false }) },
-    send_date: { type: DataTypes.DATE, allowNull: false },
+    status: { type: DataTypes.ENUM({ values: ['on-wait', 'sent'], allowNull: false }) },
+    // send_date: { type: DataTypes.DATE, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
@@ -232,7 +232,7 @@ const Categories = database.define('categories', {
     en_name: { type: DataTypes.STRING(100), allowNull: true },
     logo: { type: DataTypes.STRING(100), allowNull: false },
     slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
@@ -599,7 +599,7 @@ module.exports = {
     Users, Customers, Addresses,
     Sellers, Orders, Subscriptions, Chats, Messages,
     Brands, Products, ProductImages, ProductReviews,
-    ProductReviewImages, Contacts, Notifications, Banners,
+    ProductReviewImages, Notifications, Banners,
     Coupons, CouponItem, Categories, Subcategories,
     Features, FeatureDescriptions, Groups, GroupPermissions,
     Likes, Comments, Baskets, Offers, SubcategoryFeatures,

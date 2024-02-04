@@ -12,20 +12,20 @@ const fs = require('fs')
 require('./ioredis')
 require('dotenv').config()
 const app = express()
-const port = process.env.PORT || 5001
+const port = process.env.PORT || 8081
 
 const server = http.createServer(app)
-const io = require('socket.io')(server)
+// const io = require('socket.io')(server)
 
 // Socket test...
 // app.get('/', (req, res) => {
 //     res.sendFile(__dirname + '/public/index.html')
 // })
 
-io.on('connection', (socket) => {
-  console.log(`new client connected with id ==> ${socket.id}`)
-  app.set('socketio', socket)
-})
+// io.on('connection', (socket) => {
+//   console.log(`new client connected with id ==> ${socket.id}`)
+//   app.set('socketio', socket)
+// })
 
 require('./config/models')
 const database = require('./config/database')

@@ -32,8 +32,8 @@ class UserService {
     async forgotPasswordService(phone, orgPass, verifPass) {
         try {
             let user = await Verification.isExists(phone)
-            if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
             if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
             user.orgPass = orgPass
             const response = await this.sendOtpService(user)
             return response
@@ -114,31 +114,6 @@ class UserService {
             if (created == false) { return Response.Forbidden('Müşteri hasaba alnan!', []) }
             await Models.Users.update({ isCustomer: true, isSeller: false, isStaff: false }, { where: { id: userId } })
             return Response.Created('Müşteri hasaba alyndy!', customer)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addContactService(body) {
-        try {
-            let day = new Date()
-            day.setHours(day.getHours() - 24)
-            const count = await Models.Contacts.count({
-                where: {
-                    phone: body.phone,
-                    createdAt: {
-                        [Op.gte]: day
-                    }
-                }
-            })
-            if (count >= 5) { return Response.Forbidden('Limidiňiz doldy!', []) }
-            const contact = await Models.Contacts.create({
-                phone: body.phone,
-                email: body.email,
-                fullname: body.fullname,
-                message: body.message
-            })
-            return Response.Created('Maglumat ugradyldy!', contact)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -422,8 +397,8 @@ class UserService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const offers = await Models.Offers.findAll({
-                attributes: ['id', 'promocode', 'discount'],
+            const offers = await Models.Offers.findAndCountAll({
+                attributes: ['id', 'discount'],
                 include: {
                     model: Models.Products,
                     attributes: { exclude: ['updatedAt', 'isActive'] }

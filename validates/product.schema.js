@@ -1,6 +1,11 @@
 const Joi = require('joi')
 
 const productSchema = {
+
+    idControl: Joi.object({
+        id: Joi.number().positive().required()
+    }),
+
     addProduct: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
@@ -28,10 +33,6 @@ const productSchema = {
         customerId: Joi.number().positive().required()
     }),
 
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
-
     allProduct: Joi.object({
         name: Joi.string().max(100).optional(),
         subcategoryId: Joi.number().positive().optional(),
@@ -42,7 +43,7 @@ const productSchema = {
         limit: Joi.number().positive().optional(),
         start_price: Joi.number().positive().optional(),
         end_price: Joi.number().positive().optional(),
-        sort: Joi.string().valid('id', 'org_price').optional(),
+        sort: Joi.string().valid('id', 'sale_price', 'rating', 'comment', 'discount').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         rating: Joi.string().valid('asc', 'desc').optional(),
         isActive: Joi.string().valid('all').optional()
@@ -63,6 +64,14 @@ const productSchema = {
         end_date: Joi.string().isoDate().required(),
         isPublic: Joi.boolean().required()
     }),
+
+    allOffers: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        sort: Joi.string().valid('id', 'discount').optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        currency: Joi.string().valid('manat', 'goterim').optional()
+    })
 }
 
 module.exports = productSchema

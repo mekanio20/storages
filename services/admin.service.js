@@ -585,10 +585,10 @@ class AdminService {
             ]).then(() => { console.log('Customers created') }).catch((err) => { console.log(err) })
 
             await Models.Brands.bulkCreate([
-                { name: 'miweler', slug: 'miweler', img: 'test1.jpg', desc: 'abcdefg', userId: 1 },
-                { name: 'addidas', slug: 'addidas', img: 'test2.jpg', desc: 'abcdefg', userId: 1 },
-                { name: 'pumma', slug: 'pumma', img: 'test3.jpg', desc: 'abcdefg', userId: 2 },
-                { name: 'galaxy', slug: 'galaxy', img: 'test4.jpg', desc: 'abcdefg', userId: 2 }
+                { name: 'miweler', slug: 'miweler', img: 'test1.jpg', desc: 'abcdefg', isActive: true, userId: 1 },
+                { name: 'addidas', slug: 'addidas', img: 'test2.jpg', desc: 'abcdefg', isActive: true, userId: 1 },
+                { name: 'pumma', slug: 'pumma', img: 'test3.jpg', desc: 'abcdefg', isActive: true, userId: 2 },
+                { name: 'galaxy', slug: 'galaxy', img: 'test4.jpg', desc: 'abcdefg', isActive: true, userId: 2 }
             ]).then(() => { console.log('Brands created') }).catch((err) => { console.log(err) })
 
             await Models.Categories.bulkCreate([
@@ -704,6 +704,12 @@ class AdminService {
                 { tm_img: 'test2.jpg', url: 'http://1.1.1.2', type: 'home', sort_order: 2, start_date: new Date(), end_date: new Date(), userId: 1 },
             ]).then(() => { console.log('Banner created') }).catch((err) => { console.log(err) })
 
+            await Models.Notifications.bulkCreate([
+                { receivers: 'all', title: 'test1', desc: 'test desc', status: 'on-wait', userId: 1 },
+                { receivers: 'all', title: 'test2', desc: 'test desc', status: 'on-wait', userId: 1 },
+                { receivers: 'all', title: 'test3', desc: 'test desc', status: 'on-wait', userId: 1 },
+            ]).then(() => { console.log('Notifications created') }).catch((err) => { console.log(err) })
+
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
                 { url: '/api/admin/add/group', method: 'POST', groupId: 1 },
@@ -803,6 +809,9 @@ class AdminService {
                 { url: '/api/notification/add', method: 'POST', groupId: 1 },
                 { url: '/api/notification/add', method: 'POST', groupId: 2 },
                 { url: '/api/notification/add', method: 'POST', groupId: 3 },
+                { url: '/api/notification/all', method: 'GET', groupId: 1 },
+                { url: '/api/notification/update', method: 'PUT', groupId: 1 },
+                { url: '/api/notification', method: 'DELETE', groupId: 1 },
                 // PRODUCT ROUTERS
                 { url: '/api/product/add', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/feature', method: 'POST', groupId: 3 },
