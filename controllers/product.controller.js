@@ -99,10 +99,32 @@ class productController {
         }
     }
 
-    async allOffers(req, res) {
+    async topSelling(req, res) {
         try {
             const query = req.query
-            const data = await productService.allOffersService(query)
+            const data = await productService.topSellingService(query)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async topLiked(req, res) {
+        try {
+            const query = req.query
+            const data = await productService.topLikedService(query)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -143,10 +165,98 @@ class productController {
         }
     }
 
+    async allCategory(req, res) {
+        try {
+            const q = req.query
+            const data = await productService.allCategoryService(q)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async allSubcategory(req, res) {
+        try {
+            const q = req.query
+            const data = await productService.allSubcategoryService(q)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     async fetchReview(req, res) {
         try {
             const { id } = req.params
             const data = await productService.fetchReviewService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async allFeature(req, res) {
+        try {
+            const q = req.query
+            const data = await productService.allFeatureService(q)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async allBrands(req, res) {
+        try {
+            const q = req.query
+            const data = await productService.allBrandsService(q)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

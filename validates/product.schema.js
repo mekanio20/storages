@@ -45,7 +45,6 @@ const productSchema = {
         end_price: Joi.number().positive().optional(),
         sort: Joi.string().valid('id', 'sale_price', 'rating', 'comment', 'discount').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
-        rating: Joi.string().valid('asc', 'desc').optional(),
         isActive: Joi.string().valid('all').optional()
     }),
 
@@ -58,19 +57,18 @@ const productSchema = {
         en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
         conditions: Joi.string().valid('on-register', 'on-follow', 'min-buy').required(),
         min_amount: Joi.number().positive().required(),
-        // amount: Joi.number().positive().required(),
         limit: Joi.number().positive().required(),
         star_date: Joi.string().isoDate().required(),
         end_date: Joi.string().isoDate().required(),
         isPublic: Joi.boolean().required()
     }),
 
-    allOffers: Joi.object({
+    queryParams: Joi.object({
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
         sort: Joi.string().valid('id', 'discount').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
-        currency: Joi.string().valid('manat', 'goterim').optional()
+        status: Joi.string().valid('all').optional()
     })
 }
 

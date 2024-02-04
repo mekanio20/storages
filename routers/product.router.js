@@ -30,13 +30,33 @@ router.get('/all',
     validationMiddleware(productSchema.allProduct, 'query'),
     productController.allProduct)
 
-router.get('/offers',
-    validationMiddleware(productSchema.allOffers, 'query'),
-    productController.allOffers)
+router.get('/top/selling',
+    validationMiddleware(productSchema.queryParams, 'query'),
+    productController.topSelling)
+
+router.get('/top/liked',
+    validationMiddleware(productSchema.queryParams, 'query'),
+    productController.topLiked)
 
 router.get('/reviews/:id',
     validationMiddleware(productSchema.idControl, 'params'),
     productController.fetchReview)
+
+router.get('/categories',
+    validationMiddleware(productSchema.queryParams, 'query'),
+    productController.allCategory)
+
+router.get('/subcategories',
+    validationMiddleware(productSchema.queryParams, 'query'),
+    productController.allSubcategory)
+
+router.get('/features',
+    validationMiddleware(productSchema.queryParams, 'query'),
+    productController.allFeature)
+
+router.get('/brands',
+    validationMiddleware(productSchema.queryParams, 'query'),
+    productController.allBrands)
 
 router.get('/:slug', productController.fetchProduct)
 

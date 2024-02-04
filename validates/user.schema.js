@@ -67,10 +67,6 @@ const userSchema = {
 
     favoriteProducts: Joi.object({
         user: Joi.number().positive().required()
-    }),
-
-    updateOrder: Joi.object({
-        
     })
 }
 
