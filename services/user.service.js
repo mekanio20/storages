@@ -8,7 +8,6 @@ const Axios = require('axios')
 const redis = require('../ioredis')
 const Models = require('../config/models')
 const { Op } = require('sequelize')
-const { Sequelize } = require('../config/database')
 const { fetchReviewService } = require('./product.service')
 const { allCommentService } = require('./comment.service')
 
@@ -63,13 +62,13 @@ class UserService {
         }
     }
 
-    async checkControlService(code, user) {
+    async checkControlService(code, userDto) {
         try {
-            const systemcode = await redis.get(user.phone)
-            const exist = await Verification.isExists(user.phone)
+            const systemcode = await redis.get(userDto.user.phone)
+            const exist = await Verification.isExists(userDto.user.phone)
             if (exist) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
-            if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
-            let _user = await Models.Users.create(user)
+            if (String(code) !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
+            let _user = await Models.Users.create(userDto.user)
             let token = await Functions.generateJwt(_user.id, _user.groupId)
             return Response.Created('Ulanyjy hasaba alyndy!', { token })
         } catch (error) {

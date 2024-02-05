@@ -1,9 +1,17 @@
 const Joi = require('joi')
 
 const userSchema = {
+    idControl: Joi.object({
+        id: Joi.number().positive().required()
+     }),
+
     login: Joi.object({
         phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
         password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
+    }),
+
+    check: Joi.object({
+        code: Joi.number().positive().max(9999).required()
     }),
 
     forgotPassword: Joi.object({
@@ -12,11 +20,6 @@ const userSchema = {
         verifPass: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required()
     }),
     
-    register: Joi.object({
-        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
-        password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required()
-    }),
-
     customerRegister: Joi.object({
         fullname: Joi.string().min(3).max(30).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).messages({'string.pattern.base': 'Invalid fullname'}).required(),
         gender: Joi.string().valid('male', 'fmale').required(),
@@ -29,10 +32,6 @@ const userSchema = {
         email: Joi.string().email().required(),
         fullname: Joi.string().min(3).max(30).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).messages({'string.pattern.base': 'Invalid fullname'}).required(),
         message: Joi.string().min(5).max(255).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý.!?-\s]+$/).required()
-    }),
-
-    idControl: Joi.object({
-       id: Joi.number().positive().required()
     }),
 
     likeControl: Joi.object({

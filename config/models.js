@@ -159,17 +159,6 @@ const ProductReviewImages = database.define('product_review_images', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
-// const Contacts = database.define('contacts', {
-//     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-//     phone: { type: DataTypes.STRING(12), allowNull: false },
-//     email: { type: DataTypes.STRING(50), allowNull: false, validate: { isEmail: true } },
-//     fullname: { type: DataTypes.STRING(40), allowNull: false },
-//     message: { type: DataTypes.STRING, allowNull: false },
-//     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
-//     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
-//     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-// }, { paranoid: true })
-
 const Notifications = database.define('notifications', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     receivers: { type: DataTypes.ENUM({ values: ['all', 'my-customers'] }), allowNull: false },
@@ -206,7 +195,6 @@ const Coupons = database.define('coupons', {
     img: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     conditions: { type: DataTypes.ENUM({ values: ['on-register', 'on-follow', 'min-buy'] }), allowNull: false },
     min_amount: { type: DataTypes.SMALLINT, allowNull: true },
-    // amount: { type: DataTypes.SMALLINT, allowNull: false }, ??
     limit: { type: DataTypes.SMALLINT, allowNull: false },
     start_date: { type: DataTypes.STRING, allowNull: false },
     end_date: { type: DataTypes.STRING, allowNull: false },

@@ -1,6 +1,5 @@
 const Response = require('../helpers/response.service')
 const userService = require('../services/user.service')
-const socketio = require('../socket')
 
 const userPermission = (reqId, userId) => {
     if (String(reqId) !== String(userId))
@@ -33,37 +32,21 @@ class UserController {
         }
     }
 
-    async forgotPassword(req, res) {
-        try {
-            const { phone, orgPass, verifPass } = req.body
-            const data = await userService.forgotPasswordService(phone, orgPass, verifPass)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
     async userRegister(req, res) {
         try {
             const body = req.body
             let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
             ip = ip.substr(7)
-            let userAgent = req.headers['user-agent']
-            console.log('User agent ==> ', userAgent)
-            let regex = /(\bAndroid\b|\biPhone\b|\biPad\b|\biPod\b)/
-            let device = userAgent.match(regex) ? userAgent.match(regex)[0] : 'Web'
+            let device = null
+            const info = req.get('User-Agent')
+            const devices = ['Android', 'iPhone', 'Mac OS', 'Windows']
+            for (let i = 0; i < devices.length; i++) {
+                if (info.includes(devices[i])) {
+                    device = devices[i]
+                    break
+                }
+            }
+            console.log('DEVICE --> ', device)
             const data = await userService.userRegisterService(body, ip, device)
             return res.status(data.status).json({
                 status: data.status,
@@ -95,6 +78,28 @@ class UserController {
                 msg_key: data.msg_key,
                 detail: data.detail
             }) 
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async forgotPassword(req, res) {
+        try {
+            const { phone, orgPass, verifPass } = req.body
+            const data = await userService.forgotPasswordService(phone, orgPass, verifPass)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
         } catch (error) {
             return res.status(500).json({
                 status: 500,
@@ -298,7 +303,7 @@ class UserController {
         try {
             const { id } = req.params
             const user = userPermission(req.user.id, id)
-            if (!user) { 
+            if (!user) {
                 let result = await Response.Forbidden('Rugsat edilmedi!', [])
                 return res.json(result)
             }

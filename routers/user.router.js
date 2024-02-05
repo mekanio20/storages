@@ -6,23 +6,27 @@ const valdidationMiddleware = require('../middlewares/validation.middleware')
 const userSchema = require('../validates/user.schema')
 const otpMiddleware = require('../middlewares/otp.middleware')
 const fileMiddleware = require('../middlewares/file.middleware')
+const limitterMiddleware = require('../middlewares/limitter.middleware')
 
 // POST
 router.post('/login',
+    limitterMiddleware(),
     valdidationMiddleware(userSchema.login, 'body'),
     userController.userLogin)
+
+router.post('/register',
+    valdidationMiddleware(userSchema.login, 'body'),
+    userController.userRegister)
+
+router.post('/check',
+    limitterMiddleware(),
+    otpMiddleware,
+    valdidationMiddleware(userSchema.check, 'body'),
+    userController.checkControl)
 
 router.post('/forgot',
     valdidationMiddleware(userSchema.forgotPassword, 'body'),
     userController.forgotPassword)
-
-router.post('/register',
-    valdidationMiddleware(userSchema.register, 'body'),
-    userController.userRegister)
-
-router.post('/check',
-    otpMiddleware,
-    userController.checkControl)
 
 router.post('/reset/password',
     otpMiddleware,
