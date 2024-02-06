@@ -780,6 +780,7 @@ class AdminService {
                 { url: '/api/user/followed', method: 'GET', groupId: 1 },
                 { url: '/api/user/followed', method: 'GET', groupId: 2 },
                 { url: '/api/user/followed', method: 'GET', groupId: 4 },
+                { url: '/api/user/logout', method: 'GET', groupId: 4 },
                 // SELLER ROUTERS
                 { url: '/api/seller/register', method: 'POST', groupId: 4 },
                 { url: '/api/seller/add/offer', method: 'POST', groupId: 3 },
@@ -826,6 +827,7 @@ class AdminService {
                 { url: '/api/address', method: 'PUT', groupId: 4 },
                 { url: '/api/address', method: 'DELETE', groupId: 4 },
                 // CUSTOMER ROUTER
+                { url: '/api/customer/register', method: 'POST', groupId: 4 },
                 { url: '/api/customer/all', method: 'GET', groupId: 1 },
                 { url: '/api/customer/all', method: 'GET', groupId: 2 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })

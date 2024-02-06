@@ -19,22 +19,11 @@ class UserService {
             if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const hash = await bcrypt.compare(password, user.password)
             if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
+            user.isActive = true
+            await user.save()
             const token = await Functions.generateJwt(user.id, user.groupId)
             let response = await Response.Success('Üstünlikli!', user)
             response.token = token
-            return response
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async forgotPasswordService(phone, orgPass, verifPass) {
-        try {
-            let user = await Verification.isExists(phone)
-            if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
-            if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
-            user.orgPass = orgPass
-            const response = await this.sendOtpService(user)
             return response
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -65,8 +54,6 @@ class UserService {
     async checkControlService(code, userDto) {
         try {
             const systemcode = await redis.get(userDto.user.phone)
-            const exist = await Verification.isExists(userDto.user.phone)
-            if (exist) { return Response.BadRequest('Ulanyjy eýýäm hasaba alynan!', []) }
             if (String(code) !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
             let _user = await Models.Users.create(userDto.user)
             let token = await Functions.generateJwt(_user.id, _user.groupId)
@@ -76,52 +63,51 @@ class UserService {
         }
     }
 
-    async resetPasswordService(code, user) {
+    async forgotPasswordService(phone, orgPass, verifPass) {
         try {
-            const systemcode = await redis.get(user.data.phone)
-            let exist = await Verification.isExists(user.data.phone)
-            if (exist.length == 0) { return Response.BadRequest('Ulanyjy hasaba alynmady!', []) }
-            if (code !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
-            let hash = await bcrypt.hash(user.data.orgPass, 5)
-            await Models.Users.update({ password: hash }, { where: { id: user.data.id } })
+            let user = await Verification.isExists(phone)
+            if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
+            if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
+            user.dataValues.orgPass = orgPass
+            console.log('FORGOT --> ', JSON.stringify(user, 2, null));
+            const response = await this.sendOtpService(user)
+            return response
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async resetPasswordService(code, userDto) {
+        try {
+            const systemcode = await redis.get(userDto.user.phone)
+            if (String(code) !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
+            let hash = await bcrypt.hash(userDto.user.orgPass, 5)
+            await Models.Users.update({ password: hash, isActive: true }, { where: { id: userDto.user.id } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
-            let token = await Functions.generateJwt(user.data.id, user.data.groupId)
+            let token = await Functions.generateJwt(userDto.user.id, userDto.user.groupId)
             return Response.Created('Ulanyjy paroly tazelendi!', { token })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
-    async customerRegisterService(body) {
+    async addLikeService(body, userId) {
         try {
-            const { fullname, gender, email, userId } = body
-            const [customer, created] = await Models.Customers.findOrCreate({
+            const customerId = await Verification.isCustomer(userId)
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const [like, created] = await Models.Likes.findOrCreate({
                 where: {
-                    [Op.or]: {
-                        email: email,
-                        userId: userId
-                    }
+                    customerId: customerId,
+                    productId: body.productId
                 },
                 defaults: {
-                    fullname: fullname,
-                    gender: gender,
-                    email: email,
-                    userId: userId
+                    customerId: customerId,
+                    productId: body.productId
                 }
-            })
-            if (created == false) { return Response.Forbidden('Müşteri hasaba alnan!', []) }
-            await Models.Users.update({ isCustomer: true, isSeller: false, isStaff: false }, { where: { id: userId } })
-            return Response.Created('Müşteri hasaba alyndy!', customer)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addLikeService(body) {
-        try {
-            const likes = await Models.Likes.create({ customerId: body.customerId, productId: body.productId })
-            return Response.Created('Like goyuldy!', likes)
+            }).catch(((err) => { console.log(err) }))
+            if (created == false) { return Response.Forbidden('Like goýulan!', []) }
+            return Response.Created('Like goyuldy!', like)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -161,14 +147,30 @@ class UserService {
         }
     }
 
-    async addBasketService(body) {
+    async addBasketService(body, userId) {
         try {
-            const basket = await Models.Baskets.create({
-                quantity: body.quantity,
-                productId: body.productId,
-                customerId: body.customerId
-            })
-            return Response.Created('Harydynyz sebede goshuldy!', basket)
+            const customerId = await Verification.isCustomer(userId)
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const product = await Models.Products.findOne({ where: { id: body.productId, isActive: true } })
+            if (!product) { return Response.BadRequest('Haryt tapylmady!', []) }
+            const [basket, created] = await Models.Baskets.findOrCreate({
+                where: {
+                    productId: body.productId,
+                    customerId: customerId
+                },
+                defaults: {
+                    quantity: body.quantity,
+                    productId: body.productId,
+                    customerId: customerId
+                }
+            }).catch(((err) => { console.log(err) }))
+            if (created == false) {
+                const quantity = Number(body.quantity) + Number(basket.quantity)
+                await Models.Baskets.update({ quantity: quantity },
+                    { where: { customerId: basket.customerId, productId: basket.productId } })
+                    .catch((err) => { console.log(err) })
+            }
+            return Response.Created('Harydyňyz sebede goşuldy!', basket)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -178,8 +180,20 @@ class UserService {
         try {
             const customerId = await Verification.isCustomer(userId)
             if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const follower = await Models.Followers.create({ sellerId: sellerId, customerId: customerId })
-            return Response.Created('Follow doredildi!', follower)
+            const seller = await Models.Sellers.findOne({ where: { id: sellerId } })
+            if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
+            const [follow, created] = await Models.Followers.findOrCreate({
+                where: {
+                    sellerId: seller.id,
+                    customerId: customerId
+                },
+                defaults: {
+                    sellerId: seller.id,
+                    customerId: customerId
+                }
+            }).catch(((err) => { console.log(err) }))
+            if (created == false) { return Response.Forbidden('Öň hem yzarlanýar!', []) }
+            return Response.Created('Satyjy yzarlanýar!', follow)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -200,15 +214,15 @@ class UserService {
                     sellerId: sellerId
                 }
             })
-            await Models.Messages.create({
+            const message = await Models.Messages.create({
                 content: body.content,
                 attachment: file,
                 time: new Date(),
                 chatId: chat.id,
-                userId: Number(userId) // Iberen...
-            }).then(() => { console.log(true) })
-                .catch((err) => { console.log('ERROR ----> ', err) })
-            return Response.Created('Message ugradyldy!', [])
+                sender: Number(userId), // Ugradan...
+                accepted: Number(body.userId) // Kabul eden...
+            }).catch((err) => { console.log(err) })
+            return Response.Created('Message ugradyldy!', message)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -345,7 +359,7 @@ class UserService {
             const result = { count: 0, rows: [] }
             result.count = products.count
             await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id }})
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
                 const rating = await fetchReviewService(item.product.id)
                 const comment = await allCommentService({ productId: item.product.id })
                 result.rows.push({
@@ -413,10 +427,24 @@ class UserService {
         }
     }
 
+    async userLogoutService(userDto) {
+        try {
+            await Models.Users.update({ isActive: false },
+                { where: { id: userDto.id, groupId: userDto.group } })
+                .catch((err) => { console.log(err) })
+            console.log(userDto.id);
+            await Models.Customers.destroy({ where: { userId: userDto.id } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // PUT
     async updateOrderService(id, userId) {
         try {
-            
+
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

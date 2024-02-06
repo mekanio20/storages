@@ -19,13 +19,6 @@ const userSchema = {
         orgPass: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
         verifPass: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required()
     }),
-    
-    customerRegister: Joi.object({
-        fullname: Joi.string().min(3).max(30).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).messages({'string.pattern.base': 'Invalid fullname'}).required(),
-        gender: Joi.string().valid('male', 'fmale').required(),
-        email: Joi.string().email().required(),
-        userId: Joi.number().positive().required()
-    }),
 
     addContact: Joi.object({
         phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
@@ -35,24 +28,22 @@ const userSchema = {
     }),
 
     likeControl: Joi.object({
-        productId: Joi.number().positive().required(),
-        userId: Joi.number().positive().required()
+        productId: Joi.number().positive().required()
     }),
 
     addOrder: Joi.object({
-        fullname: Joi.string().min(3).max(100).regex(/^[A-Za-z]+ [A-Za-z]+$/).required(),
+        fullname: Joi.string().min(3).max(100).required(),
         phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
         address: Joi.string().min(4).required(),
         payment: Joi.string().valid('online', 'cash', 'terminal').required(),
         amount: Joi.number().positive().required(),
-        note: Joi.string().min(10).allow(null, ''),
+        note: Joi.string().min(10).optional(),
         productId: Joi.number().positive().required()
     }),
 
     addBasket: Joi.object({
         quantity: Joi.number().positive().required(),
-        productId: Joi.number().positive().required(),
-        customerId: Joi.number().positive().required()
+        productId: Joi.number().positive().required()
     }),
 
     addAddress: Joi.object({
@@ -60,7 +51,7 @@ const userSchema = {
     }),
 
     addMessage: Joi.object({
-        content: Joi.string().min(1).required(),
+        content: Joi.string().required(),
         userId: Joi.number().positive().required()
     }),
 

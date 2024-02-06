@@ -10,11 +10,13 @@ class VerificationService {
         }
     }
 
-    async isExists(phone) {
+    async isExists(phone, status) {
         try {
+            let whereState = { phone: phone }
+            if (status) { whereState = { phone: phone, isActive: true } }
             return Models.Users.findOne({
                 attributes: ['id', 'password', 'phone', 'groupId'],
-                where: { phone: phone },
+                where: whereState,
             })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

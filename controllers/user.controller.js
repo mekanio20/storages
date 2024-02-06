@@ -133,33 +133,12 @@ class UserController {
             })
         }
     }
-
-    async customerRegister(req, res) {
-        try {
-            const body = req.body
-            const data = await userService.customerRegisterService(body)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
     
     async addLike(req, res) {
         try {
             const body = req.body
-            const data = await userService.addLikeService(body)
+            const userId = req.user.id
+            const data = await userService.addLikeService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -204,7 +183,8 @@ class UserController {
     async addBasket(req, res) {
         try {
             const body = req.body
-            const data = await userService.addBasketService(body)
+            const userId = req.user.id
+            const data = await userService.addBasketService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -250,12 +230,11 @@ class UserController {
         try {
             const body = req.body
             const userId = req.user.id
-            const file = req.file || null
+            const file = req.file?.filename || null
             const data = await userService.addMessageService(body, userId, file)
-            console.log('DATA --> ', JSON.stringify(data, 2, null))
             if (data.type === 'success') {
                 const socket = req.app.get("socketio")
-                socket.emit("msg", body.content)
+                socket.emit("msg", data.detail)
             }
             return res.status(data.status).json({
                 status: data.status,
@@ -423,6 +402,28 @@ class UserController {
         try {
             const id = req.user.id
             const data = await userService.fetchFollowedService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async userLogout(req, res) {
+        try {
+            const userDto = req.user
+            const data = await userService.userLogoutService(userDto)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

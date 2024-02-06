@@ -1,6 +1,12 @@
 const Joi = require('joi')
 
 const customerSchema = {
+    customerRegister: Joi.object({
+        fullname: Joi.string().min(3).max(30).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).messages({'string.pattern.base': 'Invalid fullname'}).required(),
+        gender: Joi.string().valid('male', 'fmale').required(),
+        email: Joi.string().email().required()
+    }),
+
     allCustomer: Joi.object({
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),

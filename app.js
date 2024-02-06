@@ -18,9 +18,9 @@ const server = http.createServer(app)
 const io = require('socket.io')(server)
 
 // Socket test...
-// app.get('/', (req, res) => {
-//     res.sendFile(__dirname + '/public/index.html')
-// })
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html')
+})
 
 io.on('connection', (socket) => {
   console.log(`new client connected with id ==> ${socket.id}`)

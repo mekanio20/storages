@@ -29,12 +29,10 @@ router.post('/forgot',
     userController.forgotPassword)
 
 router.post('/reset/password',
+    limitterMiddleware(),
     otpMiddleware,
+    valdidationMiddleware(userSchema.check, 'body'),
     userController.resetPassword)
-
-router.post('/customer/register',
-    valdidationMiddleware(userSchema.customerRegister, 'body'),
-    userController.customerRegister)
 
 router.post('/add/like',
     authMiddleware, accessMiddleware(false),
@@ -42,6 +40,7 @@ router.post('/add/like',
     userController.addLike)
 
 router.post('/add/order',
+    limitterMiddleware(null, 5),
     authMiddleware, accessMiddleware(false),
     valdidationMiddleware(userSchema.addOrder, 'body'),
     userController.addOrder)
@@ -94,6 +93,10 @@ router.get('/basket',
 router.get('/followed',
     authMiddleware, accessMiddleware(false),
     userController.fetchFollowed)
+
+router.get('/logout',
+    authMiddleware, accessMiddleware(false),
+    userController.userLogout)
 
 // PUT
 router.put('/update/order/:id',

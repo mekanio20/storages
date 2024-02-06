@@ -22,7 +22,7 @@ const Customers = database.define('customers', {
     img: { type: DataTypes.STRING, defaultValue: 'profile.jpg' },
     fullname: { type: DataTypes.STRING(40), allowNull: false },
     gender: { type: DataTypes.ENUM({ values: ['male', 'fmale'] }), allowNull: false },
-    email: { type: DataTypes.STRING(50), allowNull: false, unique: true, validate: { isEmail: true } },
+    email: { type: DataTypes.STRING(50), allowNull: false, validate: { isEmail: true } },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
@@ -99,6 +99,8 @@ const Messages = database.define('messages', {
     content: { type: DataTypes.STRING, allowNull: false },
     attachment: { type: DataTypes.STRING(100), allowNull: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    sender: { type: DataTypes.INTEGER, allowNull: false },
+    accepted: { type: DataTypes.INTEGER, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 }, { paranoid: true })
@@ -414,11 +416,6 @@ Customers.belongsToMany(Sellers, { through: Chats })
 
 Chats.hasMany(Messages)
 Messages.belongsTo(Chats)
-
-// Messages -> UserId
-
-Users.hasMany(Messages)
-Messages.belongsTo(Users)
 
 // Folowers -> SellerId, CustomerId
 
