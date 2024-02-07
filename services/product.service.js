@@ -505,6 +505,28 @@ class ProductService {
         }
     }
 
+    async productLikesService(id) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const likes = await Models.Likes.findAndCountAll({
+                where: { productId: id },
+                include: {
+                    model: Models.Customers,
+                    attributes: ['id', 'fullname', 'img']
+                },
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'DESC']]
+            })
+            if (likes.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', likes)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteProductService(id, user) {
         try {

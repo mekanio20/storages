@@ -19,18 +19,7 @@ const userSchema = {
         orgPass: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
         verifPass: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required()
     }),
-
-    addContact: Joi.object({
-        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
-        email: Joi.string().email().required(),
-        fullname: Joi.string().min(3).max(30).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).messages({'string.pattern.base': 'Invalid fullname'}).required(),
-        message: Joi.string().min(5).max(255).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý.!?-\s]+$/).required()
-    }),
-
-    likeControl: Joi.object({
-        productId: Joi.number().positive().required()
-    }),
-
+    
     addOrder: Joi.object({
         fullname: Joi.string().min(3).max(100).required(),
         phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
@@ -51,12 +40,15 @@ const userSchema = {
     }),
 
     addMessage: Joi.object({
-        content: Joi.string().required(),
+        content: Joi.string().max(750).required(),
         userId: Joi.number().positive().required()
     }),
 
-    favoriteProducts: Joi.object({
-        user: Joi.number().positive().required()
+    queryParams: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        status: Joi.string().valid('all').optional()
     })
 }
 

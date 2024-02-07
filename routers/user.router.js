@@ -36,7 +36,7 @@ router.post('/reset/password',
 
 router.post('/add/like',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.likeControl, 'body'),
+    valdidationMiddleware(userSchema.idControl, 'body'),
     userController.addLike)
 
 router.post('/add/order',
@@ -64,51 +64,16 @@ router.post('/add/message',
 // GET
 router.get('/all',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(userSchema.queryParams, 'query'),
     userController.allUsers)
-
-router.get('/profile/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.idControl, 'params'),
-    userController.userProfile)
 
 router.get('/messages/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(userSchema.idControl, 'params'),
     userController.allMessages)
 
-router.get('/likes/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.idControl),
-    userController.fetchLikes)
-
-router.get('/favorite',
-    authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.favoriteProducts, 'query'),
-    userController.favoriteProducts)
-
-router.get('/basket',
-    authMiddleware, accessMiddleware(false),
-    userController.fetchOneBasket)
-
-router.get('/followed',
-    authMiddleware, accessMiddleware(false),
-    userController.fetchFollowed)
-
 router.get('/logout',
     authMiddleware, accessMiddleware(false),
     userController.userLogout)
-
-// PUT
-router.put('/update/order/:id',
-    authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.idControl, 'params'),
-    valdidationMiddleware(userSchema.updateOrder, 'body'),
-    userController.updateOrder)
-
-// DELETE
-router.delete('/delete/product/:productId/user/:userId',
-    authMiddleware,
-    valdidationMiddleware(userSchema.likeControl, 'params'),
-    userController.deleteLike)
 
 module.exports = router

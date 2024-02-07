@@ -180,10 +180,10 @@ class SellerController {
         }
     }
 
-    async fetchFollowers(req, res) {
+    async sellerFollowers(req, res) {
         try {
-            const { id } = req.params
-            const data = await sellerService.fetchFollowersService(id)
+            const userId = req.user.id
+            const data = await sellerService.sellerFollowersService(userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

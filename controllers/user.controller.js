@@ -1,11 +1,6 @@
 const Response = require('../helpers/response.service')
 const userService = require('../services/user.service')
-
-const userPermission = (reqId, userId) => {
-    if (String(reqId) !== String(userId))
-        return false
-    return true
-}
+const Functions = require('../helpers/functions.service')
 
 class UserController {
     // POST
@@ -278,33 +273,6 @@ class UserController {
         }
     }
 
-    async userProfile(req, res) {
-        try {
-            const { id } = req.params
-            const user = userPermission(req.user.id, id)
-            if (!user) {
-                let result = await Response.Forbidden('Rugsat edilmedi!', [])
-                return res.json(result)
-            }
-            const data = await userService.userProfileService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
     async allUsers(req, res) {
         try {
             const q = req.query
@@ -327,155 +295,10 @@ class UserController {
         }
     }
 
-    async fetchLikes(req, res) {
-        try {
-            const { id } = req.params
-            const data = await userService.fetchLikesService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
-    async favoriteProducts(req, res) {
-        try {
-            const q = req.query
-            const user = userPermission(req.user.id, q.user)
-            if (!user) { 
-                let result = await Response.Forbidden('Rugsat edilmedi!', [])
-                return res.json(result)
-            }
-            const data = await userService.favoriteProductsService(q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
-    async fetchOneBasket(req, res) {
-        try {
-            const id = req.user.id
-            const data = await userService.fetchOneBasketService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
-    async fetchFollowed(req, res) {
-        try {
-            const id = req.user.id
-            const data = await userService.fetchFollowedService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
     async userLogout(req, res) {
         try {
             const userDto = req.user
             const data = await userService.userLogoutService(userDto)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
-    // PUT
-    async updateOrder(req, res) {
-        try {
-            const userId = req.user.id
-            const id = req.params.id
-            const data = await userService.updateOrderService(id, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
-    // DELETE
-    async deleteLike(req, res) {
-        try {
-            const { userId, productId } = req.params
-            const user = userPermission(req.user.id, userId)
-            if (!user) { 
-                let result = await Response.Forbidden('Rugsat edilmedi!', [])
-                return res.json(result)
-            }
-            const data = await userService.deleteLikeService(userId, productId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

@@ -39,9 +39,10 @@ router.get('/order/detail/:id',
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.orderDetail)
 
-router.get('/followers/:id',
-    valdidationMiddleware(sellerSchema.idControl, 'params'),
-    sellerController.fetchFollowers)
+router.get('/followers',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(sellerSchema.queryParams, 'query'),
+    sellerController.sellerFollowers)
 
 router.get('/profile/:id',
     authMiddleware,

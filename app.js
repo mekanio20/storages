@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', (socket) => {
-  console.log(`new client connected with id ==> ${socket.id}`)
+  console.log(`new client socket id ==> ${socket.id}`)
   app.set('socketio', socket)
 })
 

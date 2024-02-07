@@ -234,18 +234,24 @@ class SellerService {
         }
     }
 
-    async fetchFollowersService(id) {
+    async sellerFollowersService(id) {
         try {
-            const followers = await Models.Followers.findAll({
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const followers = await Models.Followers.findAndCountAll({
                 where: { sellerId: Number(id) },
                 include: {
                     model: Models.Customers,
-                    attributes: ['id', 'fullnamme'],
+                    attributes: ['id', 'img', 'fullnamme'],
                     order: [['id', 'DESC']]
-                }
+                },
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'desc']]
             })
-            if (followers.length == 0) { return Response.NotFound('Follower yok!', []) }
-            return Response.Success('Follwerler!', followers)
+            if (followers.count === 0) { return Response.NotFound('Yzarlaýan yok!', []) }
+            return Response.Success('Yzarlaýanlar!', followers)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

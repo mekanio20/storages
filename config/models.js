@@ -25,7 +25,7 @@ const Customers = database.define('customers', {
     email: { type: DataTypes.STRING(50), allowNull: false, validate: { isEmail: true } },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const Addresses = database.define('addresses', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -96,7 +96,7 @@ const Chats = database.define('chats', {
 
 const Messages = database.define('messages', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    content: { type: DataTypes.STRING, allowNull: false },
+    content: { type: DataTypes.TEXT, allowNull: false },
     attachment: { type: DataTypes.STRING(100), allowNull: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     sender: { type: DataTypes.INTEGER, allowNull: false },
@@ -374,7 +374,7 @@ Users.belongsTo(Groups)
 
 // Customers -> UserId
 
-Users.hasMany(Customers)
+Users.hasOne(Customers)
 Customers.belongsTo(Users)
 
 // Addresses -> CustomerId

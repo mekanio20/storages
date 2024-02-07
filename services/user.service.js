@@ -99,11 +99,11 @@ class UserService {
             const [like, created] = await Models.Likes.findOrCreate({
                 where: {
                     customerId: customerId,
-                    productId: body.productId
+                    productId: body.id
                 },
                 defaults: {
                     customerId: customerId,
-                    productId: body.productId
+                    productId: body.id
                 }
             }).catch(((err) => { console.log(err) }))
             if (created == false) { return Response.Forbidden('Like goýulan!', []) }
@@ -243,37 +243,17 @@ class UserService {
                         { sellerId: sellerId }
                     ]
                 }
-            })
-            console.log('CHAT ===>', JSON.stringify(chat, 2, null))
+            }).catch((err) => { console.log(err) })
             if (!chat) { return Response.Forbidden('Rugsat edilmedi!', []) }
             const messages = await Models.Messages.findAll({
-                attributes: ['id', 'content', 'time', 'attachment', 'userId'],
+                attributes: ['id', 'content', 'attachment', 'sender', 'accepted', 'createdAt'],
                 where: {
-                    [Op.and]: [
-                        { isActive: true },
-                        { chatId: id }
-                    ]
+                    isActive: true,
+                    chatId: id
                 },
-                order: [['id', 'DESC']]
-            })
+                order: [['id', 'asc']]
+            }).catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', messages)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async userProfileService(id) {
-        try {
-            const user = await Models.Users.findOne({
-                where: { id: id },
-                attributes: ['id', 'phone'],
-                include: {
-                    model: Models.Customers,
-                    attributes: ['id', 'fullname', 'email']
-                }
-            })
-            if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', user)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -319,114 +299,6 @@ class UserService {
         }
     }
 
-    async fetchLikesService(productId) {
-        try {
-            const likes = await Models.Likes.findAll({
-                where: { productId: productId },
-                include: {
-                    model: Models.Customers,
-                    attributes: ['fullname', 'img']
-                },
-                order: [['id', 'DESC']]
-            })
-            if (likes.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', likes)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async favoriteProductsService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let customerId = await Verification.isCustomer(q.user)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const products = await Models.Likes.findAndCountAll({
-                attributes: ['id', 'customerId'],
-                where: { customerId: customerId },
-                include: {
-                    model: Models.Products,
-                    where: { isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'org_price', 'sale_price']
-                },
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['id', 'DESC']]
-            })
-            if (products.count === 0) { return Response.NotFound('Halanyan haryt yok!', []) }
-            const result = { count: 0, rows: [] }
-            result.count = products.count
-            await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
-                const rating = await fetchReviewService(item.product.id)
-                const comment = await allCommentService({ productId: item.product.id })
-                result.rows.push({
-                    ...item.dataValues,
-                    images: images,
-                    rating: rating.detail.rating,
-                    comment: comment.detail.count
-                })
-            }))
-            return Response.Success('Halayan harytlarymm...', result)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async fetchOneBasketService(id) {
-        try {
-            const customerId = await Verification.isCustomer(id)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const basket = await Models.Baskets.findOne({
-                where: {
-                    isActive: true,
-                    customerId: Number(id)
-                },
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
-                include: {
-                    model: Models.Products,
-                    where: { isActive: true },
-                    attributes: [
-                        'id', 'tm_name', 'ru_name', 'en_name',
-                        'tm_desc', 'ru_desc', 'en_desc',
-                        'quantity', 'sale_price'
-                    ],
-                    include: {
-                        model: Models.ProductImages,
-                        where: { isActive: true },
-                        attributes: ['id', 'img', 'order']
-                    }
-                }
-            })
-            if (!basket) { return Response.NotFound('Haryt yok!', []) }
-            return Response.Success('Sebedim', basket)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async fetchFollowedService(id) {
-        try {
-            const customerId = await Verification.isCustomer(id)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const followed = await Models.Followers.findAndCountAll({
-                where: { customerId: customerId },
-                attributes: ['id'],
-                include: {
-                    model: Models.Sellers,
-                    attributes: ['id', 'name', 'logo']
-                },
-                order: [['id', 'desc']]
-            })
-            if (followed.count === 0) { return Response.NotFound('Yzarlanyan satyjy yok!', []) }
-            return Response.Success('Yzarlanyanlar', followed)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async userLogoutService(userDto) {
         try {
             await Models.Users.update({ isActive: false },
@@ -436,26 +308,6 @@ class UserService {
             await Models.Customers.destroy({ where: { userId: userDto.id } })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    // PUT
-    async updateOrderService(id, userId) {
-        try {
-
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    // DELETE
-    async deleteLikeService(userId, productId) {
-        try {
-            await Models.Likes.destroy({ where: { userId: userId, productId: productId } })
-                .then(() => { return Response.Success('Like pozuldy!', []) })
-                .catch((err) => { console.log(err) })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

@@ -58,6 +58,12 @@ router.get('/brands',
     validationMiddleware(productSchema.queryParams, 'query'),
     productController.allBrands)
 
+router.get('/likes/:id',
+    authMiddleware, accessMiddleware(true),
+    validationMiddleware(productSchema.idControl, 'params'),
+    validationMiddleware(productSchema.queryParams, 'query'),
+    productController.productLikes)
+
 router.get('/:slug', productController.fetchProduct)
 
 // DELETE

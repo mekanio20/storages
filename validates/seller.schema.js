@@ -37,7 +37,6 @@ const sellerSchema = {
     }),
 
     addOffer: Joi.object({
-        // promocde: Joi.string().max(50).allow(null, ''),
         currency: Joi.string().valid('manat', 'goterim').required(),
         discount: Joi.number().positive().required(),
         productId: Joi.number().positive().required()
@@ -58,6 +57,13 @@ const sellerSchema = {
         order: Joi.string().valid('asc', 'desc').optional(),
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional()
+    }),
+
+    queryParams: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        status: Joi.string().valid('all').optional()
     })
 }
 
