@@ -21,23 +21,26 @@ router.get('/all',
 
 router.get('/favorite',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(customerSchema.queryParams, 'query'),
     customerController.customerfavorite)
 
 router.get('/basket',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(customerSchema.queryParams, 'query'),
     customerController.customerBasket)
 
 router.get('/followed',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(customerSchema.queryParams, 'query'),
     customerController.customerFollowed)
 
 router.get('/orders',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(customerSchema.queryParams, 'query'),
     customerController.customerOrders)
 
-router.get('/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(customerSchema.idControl, 'params'),
+router.get('/profile',
+    authMiddleware, accessMiddleware(false),
     customerController.customerProfile)
 
 module.exports = router

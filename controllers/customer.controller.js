@@ -51,8 +51,9 @@ class CustomerController {
 
     async customerfavorite(req, res) {
         try {
-            const userId = req.user.id
-            const data = await customerService.customerFavoriteService(userId)
+            const q = req.query
+            const id = req.user.id
+            const data = await customerService.customerFavoriteService(id, q)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -73,8 +74,9 @@ class CustomerController {
 
     async customerBasket(req, res) {
         try {
+            const q = req.query
             const id = req.user.id
-            const data = await customerService.customerBasketService(id)
+            const data = await customerService.customerBasketService(id, q)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -95,8 +97,9 @@ class CustomerController {
 
     async customerFollowed(req, res) {
         try {
+            const q = req.query
             const id = req.user.id
-            const data = await customerService.customerFollowedService(id)
+            const data = await customerService.customerFollowedService(id, q)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -117,8 +120,9 @@ class CustomerController {
 
     async customerOrders(req, res) {
         try {
+            const q = req.query
             const id = req.user.id
-            const data = await customerService.customerOrdersService(id)
+            const data = await customerService.customerOrdersService(id, q)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

@@ -17,6 +17,13 @@ const customerSchema = {
         gender: Joi.string().valid('male', 'fmale').optional(),
         sort: Joi.string().valid('id', 'fullname').optional(),
         order: Joi.string().valid('asc', 'desc').optional()
+    }),
+
+    queryParams: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        status: Joi.string().valid('all').optional()
     })
 }
 

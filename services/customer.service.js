@@ -1,7 +1,7 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-const { Op } = require('sequelize')
+const { Op, NUMBER } = require('sequelize')
 const { fetchReviewService } = require('../services/product.service')
 const { allCommentService } = require('../services/comment.service')
 
@@ -57,20 +57,24 @@ class CustomerService {
         }
     }
 
-    async customerFavoriteService(userId) {
+    async customerFavoriteService(userId, q) {
         try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
             const customerId = await Verification.isCustomer(userId)
             if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const products = await Models.Likes.findAndCountAll({
-                attributes: ['id', 'customerId'],
+                attributes: ['id'],
                 where: { customerId: customerId },
                 include: {
                     model: Models.Products,
                     where: { isActive: true },
                     attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price']
                 },
-                order: [['id', 'DESC']]
-            })
+                limit: Number(limit),
+                offset: Number(offset)
+            }).catch((err) => { console.log(err) })
             if (products.count === 0) { return Response.NotFound('Halanýan haryt ýok!', []) }
             const result = { count: 0, rows: [] }
             result.count = products.count
@@ -91,70 +95,24 @@ class CustomerService {
         }
     }
 
-    async customerBasketService(id) {
+    async customerBasketService(id, q) {
         try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
             const customerId = await Verification.isCustomer(id)
             if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const basket = await Models.Baskets.findOne({
+            const basket = await Models.Baskets.findAndCountAll({
                 where: {
                     isActive: true,
-                    customerId: Number(id)
+                    customerId: customerId
                 },
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
-                include: {
-                    model: Models.Products,
-                    where: { isActive: true },
-                    attributes: [
-                        'id', 'tm_name', 'ru_name', 'en_name',
-                        'tm_desc', 'ru_desc', 'en_desc',
-                        'quantity', 'sale_price'
-                    ],
-                    include: {
-                        model: Models.ProductImages,
-                        where: { isActive: true },
-                        attributes: ['id', 'img', 'order']
-                    }
-                }
-            })
-            if (!basket) { return Response.NotFound('Haryt ýok!', []) }
-            return Response.Success('Sebedim', basket)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async customerFollowedService(id) {
-        try {
-            const customerId = await Verification.isCustomer(id)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const followed = await Models.Followers.findAndCountAll({
-                where: { customerId: customerId },
-                attributes: ['id'],
-                include: {
-                    model: Models.Sellers,
-                    attributes: ['id', 'name', 'logo']
-                },
-                order: [['id', 'desc']]
-            })
-            if (followed.count === 0) { return Response.NotFound('Yzarlanýan satyjy ýok!', []) }
-            return Response.Success('Yzarlanýanlar', followed)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async customerOrdersService(id) {
-        try {
-            const customerId = await Verification.isCustomer(id)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const orders = await Models.Orders.findAndCountAll({
-                attributes: ['id', 'customerId', 'order_id', 'status', 'time'],
-                where: { customerId: customerId },
+                attributes: { exclude: ['customerId', 'productId', 'createdAt', 'updatedAt'] },
                 include: [
                     {
                         model: Models.Products,
                         where: { isActive: true },
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price', 'sellerId'],
                         include: [
                             {
                                 model: Models.ProductImages,
@@ -163,7 +121,7 @@ class CustomerService {
                             },
                             {
                                 model: Models.Sellers,
-                                attributes: [],
+                                attributes: ['id', 'logo', 'name'],
                             },
                             {
                                 model: Models.Offers,
@@ -173,6 +131,77 @@ class CustomerService {
                         ]
                     }
                 ],
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'desc']]
+            }).catch((err) => { console.log(err) })
+            if (basket.count === 0) { return Response.NotFound('Haryt ýok!', []) }
+            return Response.Success('Sebedim', basket)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async customerFollowedService(id, q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const customerId = await Verification.isCustomer(id)
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const followed = await Models.Followers.findAndCountAll({
+                where: { customerId: customerId },
+                attributes: ['id'],
+                include: {
+                    model: Models.Sellers,
+                    attributes: ['id', 'name', 'logo']
+                },
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'desc']]
+            })
+            if (followed.count === 0) { return Response.NotFound('Yzarlanýan satyjy ýok!', []) }
+            return Response.Success('Yzarlanýanlar', followed)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async customerOrdersService(id, q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            const customerId = await Verification.isCustomer(id)
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const orders = await Models.Orders.findAndCountAll({
+                attributes: ['id', 'order_id', 'status', 'time'],
+                where: { customerId: customerId },
+                include: [
+                    {
+                        model: Models.Products,
+                        where: { isActive: true },
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price', 'sellerId'],
+                        include: [
+                            {
+                                model: Models.ProductImages,
+                                where: { isActive: true }, required: false,
+                                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
+                            },
+                            {
+                                model: Models.Sellers,
+                                attributes: ['id', 'logo', 'name'],
+                            },
+                            {
+                                model: Models.Offers,
+                                where: { isActive: true }, required: false,
+                                attributes: ['id', 'discount']
+                            }
+                        ]
+                    }
+                ],
+                limit: Number(limit),
+                offset: Number(offset),
                 order: [['id', 'desc']]
             }).catch((err) => { console.log(err) })
             if (orders.count === 0) { return Response.NotFound('Sargyt ýok!', []) }

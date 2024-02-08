@@ -577,7 +577,7 @@ Baskets.belongsTo(Customers)
 
 // Offers -> ProductId
 
-Products.hasMany(Offers, { onDelete: "cascade" })
+Products.hasOne(Offers, { onDelete: "cascade" })
 Offers.belongsTo(Products)
 
 module.exports = {

@@ -180,7 +180,7 @@ class UserService {
         try {
             const customerId = await Verification.isCustomer(userId)
             if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const seller = await Models.Sellers.findOne({ where: { id: sellerId } })
+            const seller = await Models.Sellers.findOne({ where: { id: Number(sellerId) } })
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
             const [follow, created] = await Models.Followers.findOrCreate({
                 where: {
