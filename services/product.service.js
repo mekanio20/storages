@@ -136,6 +136,22 @@ class ProductService {
         }
     }
 
+    async addOfferService(body) {
+        try {
+            const _offer = await Models.Offers.findOne({ where: { productId: body.productId } })
+            console.log(JSON.stringify(_offer))
+            if (_offer) { return Response.BadRequest('Arzanladyş goýulan!', []) }
+            const offer = await Models.Offers.create({
+                currency: body.currency,
+                discount: body.discount,
+                productId: body.productId
+            }).catch((err) => { console.log(err) })
+            return Response.Success('Arzanladyş goşuldy!', offer)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // GET
     async allProductService(q) {
         try {

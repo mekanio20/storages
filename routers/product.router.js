@@ -25,6 +25,11 @@ router.post('/add/coupon',
     validationMiddleware(productSchema.addCoupon, 'body'),
     productController.addCoupon)
 
+router.post('/add/offer',
+    authMiddleware, accessMiddleware(false),
+    validationMiddleware(productSchema.addOffer, 'body'),
+    productController.addOffer)
+
 // GET
 router.get('/all',
     validationMiddleware(productSchema.allProduct, 'query'),

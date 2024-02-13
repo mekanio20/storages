@@ -16,13 +16,10 @@ router.post('/register',
     valdidationMiddleware(sellerSchema.sellerRegister, 'body'),
     sellerController.sellerRegister)
 
-router.post('/add/offer',
-    authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(sellerSchema.addOffer, 'body'),
-    sellerController.addOffer)
-
 // GET
-router.get('/top', sellerController.topSellers)
+router.get('/top',
+    valdidationMiddleware(sellerSchema.queryParams, 'query'),
+    sellerController.topSellers)
 
 router.get('/all',
     authMiddleware, accessMiddleware(false),
@@ -39,9 +36,8 @@ router.get('/order/detail/:id',
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.orderDetail)
 
-router.get('/followers',
-    authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(sellerSchema.queryParams, 'query'),
+router.get('/followers/:id',
+    valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.sellerFollowers)
 
 router.get('/profile/:id',
@@ -49,26 +45,19 @@ router.get('/profile/:id',
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.profileSeller)
 
-router.get('/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.idControl, 'params'),
-    sellerController.fetchOneSeller)
-
 // PUT
 router.put('/update',
     authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.SELLERS_PATH).fields([
+        { name: "logo", maxCount: 1 },
+        { name: "bg_img", maxCount: 1 }
+    ]),
     valdidationMiddleware(sellerSchema.updateSellerProfile, 'body'),
     sellerController.updateSellerProfile)
 
 // DELETE
-router.delete('/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.idControl, 'params'),
+router.delete('/delete',
+    authMiddleware, accessMiddleware(false),
     sellerController.deleteSeller)
-
-router.delete('/delete/product/:id',
-    authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.idControl, 'params'),
-    sellerController.deleteProduct)
 
 module.exports = router

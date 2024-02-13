@@ -710,6 +710,13 @@ class AdminService {
                 { receivers: 'all', title: 'test3', desc: 'test desc', status: 'on-wait', userId: 1 },
             ]).then(() => { console.log('Notifications created') }).catch((err) => { console.log(err) })
 
+            await Models.Followers.bulkCreate([
+                { customerId: 1, sellerId: 1 },
+                { customerId: 2, sellerId: 1 },
+                { customerId: 1, sellerId: 2 },
+                { customerId: 2, sellerId: 2 }
+            ]).then(() => { console.log('Followers created') }).catch((err) => { console.log(err) })
+
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
                 { url: '/api/admin/add/group', method: 'POST', groupId: 1 },
@@ -773,22 +780,13 @@ class AdminService {
                 { url: '/api/user/logout', method: 'GET', groupId: 4 },
                 // SELLER ROUTERS
                 { url: '/api/seller/register', method: 'POST', groupId: 4 },
-                { url: '/api/seller/add/offer', method: 'POST', groupId: 3 },
-                { url: '/api/seller/add/product/feature', method: 'POST', groupId: 3 },
-                { url: '/api/seller', method: 'GET', groupId: 3 },
                 { url: '/api/seller/all', method: 'GET', groupId: 1 },
                 { url: '/api/seller/all', method: 'GET', groupId: 2 },
                 { url: '/api/seller/orders', method: 'GET', groupId: 1 },
                 { url: '/api/seller/orders', method: 'GET', groupId: 2 },
                 { url: '/api/seller/orders', method: 'GET', groupId: 3 },
-                { url: '/api/seller/order/detail', method: 'GET', groupId: 3 },
-                { url: '/api/seller/followers', method: 'GET', groupId: 1 },
-                { url: '/api/seller/followers', method: 'GET', groupId: 2 },
-                { url: '/api/seller/followers', method: 'GET', groupId: 3 },
                 { url: '/api/seller/update', method: 'PUT', groupId: 3 },
-                { url: '/api/seller', method: 'DELETE', groupId: 3 },
-                { url: '/api/seller/delete/product', method: 'DELETE', groupId: 3 },
-                { url: '/api/seller/delete/product', method: 'DELETE', groupId: 1 },
+                { url: '/api/seller/delete', method: 'DELETE', groupId: 3 },
                 // BANNER ROUTERS
                 { url: '/api/banner/add', method: 'POST', groupId: 1 },
                 { url: '/api/banner/add', method: 'POST', groupId: 2 },
@@ -812,6 +810,7 @@ class AdminService {
                 { url: '/api/product/add/review', method: 'POST', groupId: 4 },
                 { url: '/api/product/add/coupon', method: 'POST', groupId: 1 },
                 { url: '/api/product/add/coupon', method: 'POST', groupId: 3 },
+                { url: '/api/product/add/offer', method: 'POST', groupId: 3 },
                 { url: '/api/product/likes', method: 'GET', groupId: 1 },
                 { url: '/api/product/likes', method: 'GET', groupId: 2 },
                 { url: '/api/product/likes', method: 'GET', groupId: 3 },

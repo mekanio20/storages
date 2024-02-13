@@ -8,11 +8,9 @@ const Axios = require('axios')
 const redis = require('../ioredis')
 const Models = require('../config/models')
 const { Op } = require('sequelize')
-const { fetchReviewService } = require('./product.service')
-const { allCommentService } = require('./comment.service')
 
 class UserService {
-
+    // POST
     async userLoginService(phone, password) {
         try {
             let user = await Verification.isExists(phone)

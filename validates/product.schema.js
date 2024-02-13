@@ -63,6 +63,12 @@ const productSchema = {
         isPublic: Joi.boolean().required()
     }),
 
+    addOffer: Joi.object({
+        currency: Joi.string().valid('manat', 'goterim').required(),
+        discount: Joi.number().positive().required(),
+        productId: Joi.number().positive().required()
+    }),
+
     queryParams: Joi.object({
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
