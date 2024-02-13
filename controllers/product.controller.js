@@ -1,4 +1,5 @@
 const productService = require('../services/product.service')
+const Response = require('../helpers/response.service')
 
 class productController {
     // POST
@@ -29,7 +30,8 @@ class productController {
     async addProductReview(req, res) {
         try {
             const body = req.body
-            const data = await productService.addProductReviewService(body)
+            const userId = req.user.id
+            const data = await productService.addProductReviewService(body, userId)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,
@@ -52,9 +54,9 @@ class productController {
         try {
             const body = req.body
             const userId = req.user.id
-            const { img } = req.files
+            const img = req.file
             if (!img) {
-                let result = await Response.BadRequest('surat gerek!', [])
+                let result = await Response.BadRequest('Surat gerek!', [])
                 return res.json(result)
             }
             const data = await productService.addCouponService(body, img, userId)

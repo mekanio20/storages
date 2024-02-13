@@ -22,6 +22,7 @@ router.post('/add/review',
 
 router.post('/add/coupon',
     authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.PRODUCTS_PATH).single('img'),
     validationMiddleware(productSchema.addCoupon, 'body'),
     productController.addCoupon)
 

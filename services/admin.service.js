@@ -6,7 +6,6 @@ const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 
 class AdminService {
-
     // POST
     async addGroupService(body) {
         try {
@@ -808,7 +807,6 @@ class AdminService {
                 { url: '/api/product/add', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/feature', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/review', method: 'POST', groupId: 4 },
-                { url: '/api/product/add/coupon', method: 'POST', groupId: 1 },
                 { url: '/api/product/add/coupon', method: 'POST', groupId: 3 },
                 { url: '/api/product/add/offer', method: 'POST', groupId: 3 },
                 { url: '/api/product/likes', method: 'GET', groupId: 1 },

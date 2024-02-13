@@ -1,33 +1,40 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-const { Op, NUMBER } = require('sequelize')
+const { Op } = require('sequelize')
 const { Sequelize } = require('../config/database')
 const { allCommentService } = require('./comment.service')
 
 class ProductService {
-
     // POST
     async addProductService(body, filenames, userId) {
         try {
             const sellerId = await Verification.isSeller(userId)
             if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
-            let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _product = await Verification.isFound(Models.Products, slug)
-            if (_product.length > 0) { return Response.Forbidden('Maglumat eyyam döredilen!', []) }
+            const slug = body.tm_name.split(" ").join('-').toLowerCase()
+            const _product = await Models.Products.findOne({
+                where: {
+                    [Op.or]: [
+                        { slug: slug },
+                        { barcode: body.barcode },
+                        { stock_code: body.stock_code }
+                    ]
+                }
+            }).catch((err) => { console.log(err) })
+            if (_product) { return Response.Forbidden('Maglumat eýýäm döredilen!', []) }
             const subscription = await Models.Sellers.findOne({
                 attributes: ['subscriptionId'],
                 where: {
                     id: sellerId
                 }
-            })
+            }).catch((err) => { console.log(err) })
             console.log('SUBSCTIPTIONS --> ', JSON.stringify(subscription, 2, null))
             const limits = await Models.Subscriptions.findOne({
                 attributes: ['p_limit', 'p_img_limit'],
                 where: {
                     id: subscription.subscriptionId
                 }
-            })
+            }).catch((err) => { console.log(err) })
             console.log('LIMITS --> ', JSON.stringify(limits, 2, null))
             await Models.Products.findAll({
                 attributes: ['slug'],
@@ -58,10 +65,10 @@ class ProductService {
                 org_price: body.org_price,
                 sale_price: body.sale_price,
                 gender: body.gender,
-                subscriptionId: body.subscriptionId,
+                subcategoryId: body.subcategoryId,
                 brandId: body.brandId,
                 sellerId: sellerId
-            })
+            }).catch((err) => { console.log(err) })
             if (filenames.img) {
                 filenames.img.forEach(async (item, index) => {
                     await Models.ProductImages.create({
@@ -79,24 +86,35 @@ class ProductService {
         }
     }
 
-    async addProductReviewService(body) {
+    async addProductReviewService(body, userId) {
         try {
+            const customerId = await Verification.isCustomer(userId)
+            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             const order = await Models.Orders.findOne({
                 attributes: ['id'],
                 where: {
-                    customerId: body.customerId,
+                    customerId: customerId,
                     productId: body.productId,
                     status: 'completed'
                 }
             })
-            if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
-            // Eger on yyldyz goyan bolsa update etmeli...
-            const review = await Models.ProductReviews.create({
-                star: body.star,
-                productId: body.productId,
-                customerId: body.customerId
+            if (!order) { return Response.Forbidden('Harydy sargyt etmediňiz!', []) }
+            const [review, created] = await Models.ProductReviews.findOrCreate({
+                where: {
+                    productId: body.productId,
+                    customerId: customerId
+                },
+                defaults: {
+                    star: body.star,
+                    productId: body.productId,
+                    customerId: customerId
+                }
             })
-            return Response.Created('Maglumat ugradyldy!', review)
+            if (created == false) {
+                review.star = body.star
+                await review.save()
+            }
+            return Response.Created('Maglumat döredildi!', review)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -106,13 +124,17 @@ class ProductService {
         try {
             const sellerId = await Verification.isSeller(userId)
             if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
-            const limit = await Models.Subscriptions.findOne({
-                attributes: ['voucher_limit'],
-                where: { sellerId: sellerId }
-            })
-            const coupon_count = await Models.Coupons.count({ where: { sellerId: sellerId } })
-            if (limit.voucher_limit <= coupon_count) {
-                return Response.Forbidden('Limidiniz doldy!', [])
+            const limit = await Models.Sellers.findOne({
+                attributes: [],
+                where: { id: sellerId },
+                include: {
+                    model: Models.Subscriptions,
+                    attributes: ['voucher_limit']
+                }
+            }).catch((err) => { console.log(err) })
+            const coupon_count = await Models.Coupons.count({ where: { userId: userId } })
+            if (limit.subscription.voucher_limit <= coupon_count) {
+                return Response.Forbidden('Limidiňiz doldy!', [])
             }
             await Models.Coupons.create({
                 tm_name: body.tm_name,
@@ -121,16 +143,16 @@ class ProductService {
                 tm_desc: body.tm_desc,
                 ru_desc: body.ru_desc || null,
                 en_desc: body.en_desc || null,
-                img: img[0].filename,
+                img: img.filename,
                 conditions: body.conditions,
-                min_amount: body.min_amount,
+                min_amount: body.min_amount || null,
                 limit: body.limit,
-                star_date: body.star_date,
+                start_date: body.start_date,
                 end_date: body.end_date,
                 isPublic: body.isPublic,
                 sellerId: sellerId
             }).catch((err) => { console.log(err) })
-            return Response.Created('Kupon doredildi!', [])
+            return Response.Created('Kupon döredildi!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -138,14 +160,15 @@ class ProductService {
 
     async addOfferService(body) {
         try {
-            const _offer = await Models.Offers.findOne({ where: { productId: body.productId } })
-            console.log(JSON.stringify(_offer))
-            if (_offer) { return Response.BadRequest('Arzanladyş goýulan!', []) }
-            const offer = await Models.Offers.create({
-                currency: body.currency,
-                discount: body.discount,
-                productId: body.productId
-            }).catch((err) => { console.log(err) })
+            const [offer, created] = await Models.Offers.findOrCreate({
+                where: { productId: body.productId },
+                defaults: {
+                    currency: body.currency,
+                    discount: body.discount,
+                    productId: body.productId
+                }
+            })
+            if (created === false) { return Response.BadRequest('Arzanladyş goýulan!', []) }
             return Response.Success('Arzanladyş goşuldy!', offer)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -257,7 +280,7 @@ class ProductService {
             let order = q.order || 'desc'
             const selling_products = await Models.Orders.findAll({
                 attributes: [
-                    [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalSelling'] 
+                    [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalSelling']
                 ],
                 include: [
                     {
@@ -289,10 +312,10 @@ class ProductService {
                 offset: Number(offset)
             })
             await Promise.all(selling_products.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id }})
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
                 const rating = await this.fetchReviewService(item.product.id)
                 const comment = await allCommentService({ productId: item.product.id })
-                result.push({ 
+                result.push({
                     ...item.dataValues,
                     images: images,
                     rating: rating.detail.rating,
@@ -303,7 +326,7 @@ class ProductService {
             else result.sort((a, b) => Number(a.totalSelling) - Number(b.totalSelling))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] } 
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
 
@@ -316,7 +339,7 @@ class ProductService {
             let order = q.order || 'desc'
             const top_liked = await Models.Likes.findAll({
                 attributes: [
-                    [Sequelize.fn('COUNT', Sequelize.col('productId')), 'totalLiked'] 
+                    [Sequelize.fn('COUNT', Sequelize.col('productId')), 'totalLiked']
                 ],
                 include: [
                     {
@@ -341,17 +364,17 @@ class ProductService {
                     }
                 ],
                 group: [
-                    'product.id', 'product.subcategory.id', 
+                    'product.id', 'product.subcategory.id',
                     'product.brand.id', 'product.seller.id'
                 ],
                 limit: Number(limit),
                 offset: Number(offset)
             })
             await Promise.all(top_liked.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id }})
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
                 const rating = await this.fetchReviewService(item.product.id)
                 const comment = await allCommentService({ productId: item.product.id })
-                result.push({ 
+                result.push({
                     ...item.dataValues,
                     images: images,
                     rating: rating.detail.rating,

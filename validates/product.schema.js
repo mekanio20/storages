@@ -29,8 +29,7 @@ const productSchema = {
 
     addProductReview: Joi.object({
         star: Joi.number().positive().min(1).max(5).required(),
-        productId: Joi.number().positive().required(),
-        customerId: Joi.number().positive().required()
+        productId: Joi.number().positive().required()
     }),
 
     allProduct: Joi.object({
@@ -49,17 +48,17 @@ const productSchema = {
     }),
 
     addCoupon: Joi.object({
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
+        tm_name: Joi.string().min(3).max(100).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
         en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
-        tm_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
+        tm_desc: Joi.string().min(3).max(100).required(),
         ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
         en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
         conditions: Joi.string().valid('on-register', 'on-follow', 'min-buy').required(),
-        min_amount: Joi.number().positive().required(),
+        min_amount: Joi.number().positive().optional(),
         limit: Joi.number().positive().required(),
-        star_date: Joi.string().isoDate().required(),
-        end_date: Joi.string().isoDate().required(),
+        start_date: Joi.string().required(),
+        end_date: Joi.string().required(),
         isPublic: Joi.boolean().required()
     }),
 
