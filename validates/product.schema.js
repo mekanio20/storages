@@ -33,7 +33,6 @@ const productSchema = {
     }),
 
     allProduct: Joi.object({
-        name: Joi.string().max(100).optional(),
         subcategoryId: Joi.number().positive().optional(),
         brandId: Joi.number().positive().optional(),
         sellerId: Joi.number().positive().optional(),
@@ -74,6 +73,13 @@ const productSchema = {
         sort: Joi.string().valid('id', 'discount').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         status: Joi.string().valid('all').optional()
+    }),
+
+    searchProduct: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        name: Joi.string().max(100).required(),
+        userId: Joi.number().positive().optional()
     })
 }
 

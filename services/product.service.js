@@ -186,20 +186,6 @@ class ProductService {
             let end_price = Number(q.end_price) || 100000
             let sort = q.sort || 'id'
             let order = q.order || 'desc'
-            let search = []
-            if (q.name) {
-                // await Models.Searches.create({ input: q.name, userId: 1 })
-                //     .then(() => { console.log('search created...') })
-                //     .catch((err) => { console.log(err) })
-                search = [
-                    { tm_name: { [Op.iLike]: `%${q.name}%` } },
-                    { ru_name: { [Op.iLike]: `%${q.name}%` } },
-                    { en_name: { [Op.iLike]: `%${q.name}%` } },
-                    { tm_desc: { [Op.iLike]: `%${q.name}%` } },
-                    { ru_desc: { [Op.iLike]: `%${q.name}%` } },
-                    { en_desc: { [Op.iLike]: `%${q.name}%` } }
-                ]
-            }
             let query = {
                 gender: q.gender || '',
                 subcategoryId: q.subcategoryId || 0,
@@ -214,10 +200,8 @@ class ProductService {
             obj.isActive = true
             if (q.isActive == 'all') { delete obj.isActive }
             obj.sale_price = { [Op.between]: [start_price, end_price] }
-            search.push(obj)
             const products = await Models.Products.findAndCountAll({
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
-                where: { [Op.or]: search },
                 include: [
                     {
                         model: Models.Subcategories,
@@ -231,7 +215,7 @@ class ProductService {
                     },
                     {
                         model: Models.Sellers,
-                        attributes: ['id', 'name']
+                        attributes: ['id', 'logo', 'name']
                     },
                     {
                         model: Models.Offers,
@@ -241,7 +225,7 @@ class ProductService {
                 ],
                 limit: Number(limit),
                 offset: Number(offset)
-            })
+            }).catch((err) => { console.log(err) })
             const result = { count: 0, rows: [] }
             result.count = products.count
             await Promise.all(products.rows.map(async (item) => {
@@ -266,6 +250,70 @@ class ProductService {
                 else { result.rows.sort((a, b) => Number(b.sort) - Number(a.sort)) }
             }
             return Response.Success('Üstünlikli!', result)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async searchProductService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let search = []
+            if (q.name) {
+                await Models.Searches.create({ input: q.name, userId: q.userId })
+                    .then(() => { console.log('search created...') })
+                search = [
+                    { tm_name: { [Op.iLike]: `%${q.name}%` } },
+                    { ru_name: { [Op.iLike]: `%${q.name}%` } },
+                    { en_name: { [Op.iLike]: `%${q.name}%` } },
+                    { tm_desc: { [Op.iLike]: `%${q.name}%` } },
+                    { ru_desc: { [Op.iLike]: `%${q.name}%` } },
+                    { en_desc: { [Op.iLike]: `%${q.name}%` } }
+                ]
+            }
+            const products = await Models.Products.findAndCountAll({
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                where: { [Op.or]: search },
+                include: [
+                    {
+                        model: Models.Subcategories,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                        where: { isActive: true }, required: false
+                    },
+                    {
+                        model: Models.Brands,
+                        attributes: ['id', 'name', 'img', 'slug'],
+                        where: { isActive: true }, required: false
+                    },
+                    {
+                        model: Models.Sellers,
+                        attributes: ['id', 'logo', 'name']
+                    },
+                    {
+                        model: Models.Offers,
+                        attributes: ['id', 'discount', 'currency', 'isActive'],
+                        where: { isActive: true }, required: false
+                    }
+                ],
+                limit: Number(limit),
+                offset: Number(offset)
+            })
+            const result = { count: 0, rows: [] }
+            result.count = products.count
+            await Promise.all(products.rows.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id } })
+                const comment = await allCommentService({ productId: item.id })
+                const rating = await this.fetchReviewService(item.id)
+                result.rows.push({
+                    ...item.dataValues,
+                    images: images,
+                    rating: rating.detail.rating,
+                    comment: comment.detail.count
+                })
+            }))
+            return Response.Success('Gözleg netijesi', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -397,12 +445,7 @@ class ProductService {
                     {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                        where: { isActive: true }, required: false,
-                        include: {
-                            model: Models.Categories,
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                            where: { isActive: true }, required: false,
-                        }
+                        where: { isActive: true }, required: false
                     },
                     {
                         model: Models.Brands,
@@ -544,12 +587,13 @@ class ProductService {
         }
     }
 
-    async productLikesService(id) {
+    async productLikesService(q, id) {
         try {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
             const likes = await Models.Likes.findAndCountAll({
+                attributes: ['id'],
                 where: { productId: id },
                 include: {
                     model: Models.Customers,

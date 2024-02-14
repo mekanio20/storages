@@ -123,6 +123,28 @@ class productController {
         }
     }
 
+    async searchProduct(req, res) {
+        try {
+            const query = req.query
+            const data = await productService.searchProductService(query)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     async topSelling(req, res) {
         try {
             const query = req.query
@@ -302,7 +324,8 @@ class productController {
     async productLikes(req, res) {
         try {
             const { id } = req.params
-            const data = await productService.productLikesService(id)
+            const q = req.query
+            const data = await productService.productLikesService(q, id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

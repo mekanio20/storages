@@ -36,6 +36,10 @@ router.get('/all',
     validationMiddleware(productSchema.allProduct, 'query'),
     productController.allProduct)
 
+router.get('/search',
+    validationMiddleware(productSchema.searchProduct, 'query'),
+    productController.searchProduct)
+
 router.get('/top/selling',
     validationMiddleware(productSchema.queryParams, 'query'),
     productController.topSelling)
