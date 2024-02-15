@@ -13,7 +13,7 @@ class AddressService {
                 .then(() => { console.log('Default false...') })
                 .catch((err) => { console.log(err) })
             const address = Models.Addresses.create({ address: body.address, isDefault: true, customerId: customerId })
-            return Response.Created('Address doredildi!', address)
+            return Response.Created('Address döredildi!', address)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -51,7 +51,7 @@ class AddressService {
                 { address: body.address, isDefault: isDefault }, 
                 { where: { id: addressId, customerId: customerId } 
             })
-            return Response.Success('Salgy uytgedildi!', [])
+            return Response.Success('Salgy üytgedildi!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
