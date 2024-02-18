@@ -2,9 +2,9 @@ const Verification = require('../helpers/verification.service')
 const Functions = require('../helpers/functions.service')
 const Response = require('../helpers/response.service')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const Axios = require('axios')
+const bcrypt = require('bcrypt')
 const redis = require('../ioredis')
 const Models = require('../config/models')
 const { Op } = require('sequelize')
@@ -19,10 +19,26 @@ class UserService {
             if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
             user.isActive = true
             await user.save()
-            const token = await Functions.generateJwt(user.id, user.groupId)
-            let response = await Response.Success('Üstünlikli!', user)
-            response.token = token
+            const _user = {
+                id: user.dataValues.id,
+                phone: user.dataValues.phone,
+                groupId: user.dataValues.groupId
+            }
+            const response = await this.sendOtpService(_user)
             return response
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async userVerificationService(code, userDto) {
+        try {
+            const systemcode = await redis.get(userDto.user.phone)
+            if (String(code) !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
+            const user = await Models.Users.findOne({ where: { id: userDto.user.id } })
+            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const token = await Functions.generateJwt(user.id, user.groupId)
+            return Response.Success('Ulanyjy hasaba alyndy!', { token })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -67,7 +83,6 @@ class UserService {
             if (!user) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             if (orgPass !== verifPass) { return Response.BadRequest('Nädogry parol!', []) }
             user.dataValues.orgPass = orgPass
-            console.log('FORGOT --> ', JSON.stringify(user, 2, null));
             const response = await this.sendOtpService(user)
             return response
         } catch (error) {
@@ -85,6 +100,22 @@ class UserService {
                 .catch((err) => { console.log(err) })
             let token = await Functions.generateJwt(userDto.user.id, userDto.user.groupId)
             return Response.Created('Ulanyjy paroly tazelendi!', { token })
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async resetSubscriptionService(code, userDto) {
+        try {
+            console.log('USER DTO --->', userDto)
+            const systemcode = await redis.get(userDto.user.phone)
+            if (String(code) !== systemcode) { return Response.BadRequest('Tassyklama kody nädogry', []) }
+            const sellerId = await Verification.isSeller(userDto.user.id)
+            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            await Models.Sellers.update({ isVerified: false }, { where: { id: sellerId } })
+                .catch((err) => { console.log(err) })
+            let token = await Functions.generateJwt(userDto.user.id, userDto.user.groupId)
+            return Response.Success('Satyjy hasaba alyndy!', { token })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

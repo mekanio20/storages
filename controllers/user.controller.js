@@ -1,6 +1,4 @@
-const Response = require('../helpers/response.service')
 const userService = require('../services/user.service')
-const Functions = require('../helpers/functions.service')
 
 class UserController {
     // POST
@@ -21,6 +19,29 @@ class UserController {
                 status: 500,
                 type: 'error',
                 msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async userVerification(req, res) {
+        try {
+            const { code } = req.body
+            const { userDto } = req
+            const data = await userService.userVerificationService(code, userDto)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            }) 
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error,
                 msg_key: error.name,
                 detail: []
             })
@@ -111,6 +132,29 @@ class UserController {
             const { code } = req.body
             const { userDto } = req
             const data = await userService.resetPasswordService(code, userDto)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            }) 
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async resetSubscription(req, res) {
+        try {
+            const { code } = req.body
+            const { userDto } = req
+            const data = await userService.resetSubscriptionService(code, userDto)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

@@ -2,15 +2,21 @@ const router = require('express').Router()
 const videoController = require('../controllers/video.controller')
 const accessMiddleware = require('../middlewares/access.middleware')
 const authMiddleware = require('../middlewares/auth.middleware')
-const fileMiddleware = require('../middlewares/file.middleware')
+const videoMiddleware = require('../middlewares/video.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const videoSchema = require('../validates/video.schema')
 
 // POST
 router.post('/add',
     authMiddleware, accessMiddleware(false),
+    videoMiddleware(process.env.VIDEO_PATH).single('video'),
     valdidationMiddleware(videoSchema.addVideo, 'body'),
-    fileMiddleware(process.env.VIDEO_PATH).single('video'),
     videoController.addVideo)
+
+// GET
+router.get('/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(videoSchema.idControl, 'params'),
+    videoController.getVideo)
 
 module.exports = router

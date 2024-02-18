@@ -14,25 +14,41 @@ router.post('/login',
     valdidationMiddleware(userSchema.login, 'body'),
     userController.userLogin)
 
+router.post('/verification', // customer login ucin
+    limitterMiddleware(),
+    otpMiddleware,
+    valdidationMiddleware(userSchema.check, 'body'),
+    userController.userVerification)
+
 router.post('/register',
+    limitterMiddleware(),
     valdidationMiddleware(userSchema.login, 'body'),
     userController.userRegister)
 
-router.post('/check',
+router.post('/check', // user register ucin
     limitterMiddleware(),
     otpMiddleware,
     valdidationMiddleware(userSchema.check, 'body'),
     userController.checkControl)
 
-router.post('/forgot',
+router.post('/forgot', // paroly tazelemek ucin
+    limitterMiddleware(),
     valdidationMiddleware(userSchema.forgotPassword, 'body'),
     userController.forgotPassword)
 
-router.post('/reset/password',
+router.post('/reset/password', // paroly tazelemek ucin
     limitterMiddleware(),
     otpMiddleware,
     valdidationMiddleware(userSchema.check, 'body'),
     userController.resetPassword)
+
+router.post('/reset/subscription', // seller login ucin
+    limitterMiddleware(),
+    otpMiddleware,
+    valdidationMiddleware(userSchema.check, 'body'),
+    userController.resetSubscription)
+
+// ---------
 
 router.post('/add/like',
     authMiddleware, accessMiddleware(false),

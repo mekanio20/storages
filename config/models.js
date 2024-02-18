@@ -320,15 +320,6 @@ const ProductFeatures = database.define('product_features', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
-// const Measurements = database.define('measurements', {
-//     id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true, unique: true },
-//     razmer: { type: DataTypes.STRING, allowNull: false },
-//     org_price: { type: DataTypes.FLOAT(2), allowNull: false },
-//     sale_price: { type: DataTypes.FLOAT(2), allowNull: false },
-//     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
-//     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-// })
-
 const Followers = database.define('followers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
@@ -351,11 +342,6 @@ const Videos = database.define('videos', {
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
-
-// Products -> MeasurementId
-
-// Measurements.hasMany(Products)
-// Products.belongsTo(Measurements)
 
 // Videos -> SellerId
 
@@ -588,5 +574,5 @@ module.exports = {
     Coupons, CouponItem, Categories, Subcategories,
     Features, FeatureDescriptions, Groups, GroupPermissions,
     Likes, Comments, Baskets, Offers, SubcategoryFeatures,
-    ProductFeatures, Followers, Searches, Videos, //Measurements
+    ProductFeatures, Followers, Searches, Videos
 }

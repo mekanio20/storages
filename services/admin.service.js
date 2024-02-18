@@ -834,6 +834,8 @@ class AdminService {
                 { url: '/api/customer/orders', method: 'GET', groupId: 2 },
                 { url: '/api/customer/orders', method: 'GET', groupId: 4 },
                 { url: '/api/customer/profile', method: 'GET', groupId: 4 },
+                // VIDEO ROUTER
+                { url: '/api/video/add', method: 'POST', groupId: 3 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])

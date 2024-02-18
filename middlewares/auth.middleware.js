@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
             return res.json({ 
                 status: 401,
                 type: 'error',
-                msg: 'Token nadogry!',
+                msg: 'Token nädogry!',
                 msg_key: 'unauthorized',
                 detail: []
             })

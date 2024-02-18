@@ -1,7 +1,7 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-const { Sequelize, afterValidate } = require('../config/database')
+const { Sequelize } = require('../config/database')
 const { fetchReviewService } = require('./product.service')
 const { generateJwt } = require('../helpers/functions.service')
 
@@ -55,7 +55,7 @@ class SellerService {
             const seller = await Models.Sellers.findOne({
                 attributes: { exclude: ['seller_type', 'userId', 'categoryId', 'subscriptionId', 'createdAt', 'updatedAt', 'deletedAt'] },
                 where: { id: Number(id) }
-            })
+            }).catch((err) => { console.log(err) })
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
             seller.dataValues.followers = await Models.Followers.count({ where: { sellerId: id } })
             seller.dataValues.products = await Models.Products.count({ where: { sellerId: id } })

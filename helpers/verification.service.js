@@ -42,7 +42,8 @@ class VerificationService {
             const seller = await Models.Sellers.findOne({
                 attributes: ['id'],
                 where: {
-                    userId: Number(userId)
+                    userId: Number(userId),
+                    isVerified: true
                 }
             })
             return seller ? seller.id : null
