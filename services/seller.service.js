@@ -1,10 +1,10 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
+const { Op } = require('sequelize')
 const { Sequelize } = require('../config/database')
 const { fetchReviewService } = require('./product.service')
 const { generateJwt } = require('../helpers/functions.service')
-const { Op } = require('sequelize')
 
 class SellerService {
     // POST
@@ -320,12 +320,15 @@ class SellerService {
                 ],
                 limit: Number(limit),
                 offset: Number(offset),
-                order: [[sort, order]]
+
             }).catch((err) => { console.log(err) })
             const result = { count: 0, rows: [] }
             result.count = await products.count
             await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id }, attributes: ['img', 'order'] })
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'order', 'img']
+                })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await fetchReviewService(item.id)
                 result.rows.push({
@@ -335,6 +338,13 @@ class SellerService {
                     rating: rating.detail.rating,
                 })
             })).catch((err) => { console.log(err) })
+            if (order === 'desc') {
+                if (sort === 'sale_price') result.rows.sort((a, b) => Number(b.sale_price) - Number(a.sale_price))
+                else result.rows.sort((a, b) => Number(b.id) - Number(a.id))
+            } else {
+                if (sort === 'sale_price') result.rows.sort((a, b) => Number(a.sale_price) - Number(b.sale_price))
+                else result.rows.sort((a, b) => Number(a.id) - Number(b.id))
+            }
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }

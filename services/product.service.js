@@ -195,11 +195,7 @@ class ProductService {
                 subcategoryId: q.subcategoryId || 0,
                 brandId: q.brandId || 0
             }
-            for (const key in query) {
-                if (query[key]) {
-                    obj[key] = await query[key]
-                }
-            }
+            for (const key in query) { if (query[key]) { obj[key] = await query[key] } }
             obj.isActive = true
             if (q.isActive == 'all') { delete obj.isActive }
             obj.sale_price = { [Op.between]: [start_price, end_price] }
@@ -233,7 +229,10 @@ class ProductService {
             const result = { count: 0, rows: [] }
             result.count = await products.count
             await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id } })
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'order', 'img']
+                })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 result.rows.push({
@@ -304,7 +303,10 @@ class ProductService {
             const result = { count: 0, rows: [] }
             result.count = products.count
             await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id } })
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'order', 'img']
+                })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 result.rows.push({
@@ -315,6 +317,24 @@ class ProductService {
                 })
             }))
             return Response.Success('Gözleg netijesi', result)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async searchHistoryService(q, userId) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 5
+            let offset = page * limit - limit
+            const searches = await Models.Searches.findAndCountAll({
+                where: { userId: Number(userId) },
+                attributes: ['id', 'input'],
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'desc']]
+            }).catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', searches)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -356,7 +376,10 @@ class ProductService {
             const result = { count: 0, rows: [] }
             result.count = await products.count
             await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.id } })
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'order', 'img']
+                })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 result.rows.push({
@@ -415,7 +438,10 @@ class ProductService {
                 offset: Number(offset)
             })
             await Promise.all(selling_products.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'order', 'img']
+                })
                 const comment = await Models.Comments.count({ where: { productId: item.product.id } })
                 const rating = await this.fetchReviewService(item.product.id)
                 result.push({
@@ -474,7 +500,10 @@ class ProductService {
                 offset: Number(offset)
             })
             await Promise.all(top_liked.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'order', 'img']
+                })
                 const comment = await Models.Comments.count({ where: { productId: item.product.id } })
                 const rating = await this.fetchReviewService(item.product.id)
                 result.push({
@@ -514,7 +543,10 @@ class ProductService {
                 ],
                 attributes: { exclude: ['slug', 'subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] }
             })
-            const images = await Models.ProductImages.findAndCountAll({ where: { productId: product.id } })
+            const images = await Models.ProductImages.findAndCountAll({
+                where: { productId: product.id, isActive: true },
+                attributes: ['id', 'order', 'img']
+            })
             const rating = await this.fetchReviewService(product.id)
             const comment = await allCommentService({ productId: product.id })
             const response = {

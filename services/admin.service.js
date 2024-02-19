@@ -812,6 +812,7 @@ class AdminService {
                 { url: '/api/product/likes', method: 'GET', groupId: 1 },
                 { url: '/api/product/likes', method: 'GET', groupId: 2 },
                 { url: '/api/product/likes', method: 'GET', groupId: 3 },
+                { url: '/api/product/search/history', method: 'GET', groupId: 4 },
                 { url: '/api/product', method: 'DELETE', groupId: 1 },
                 { url: '/api/product', method: 'DELETE', groupId: 3 },
                 // ADDRESS ROUTER
