@@ -35,13 +35,12 @@ const productSchema = {
     allProduct: Joi.object({
         subcategoryId: Joi.number().positive().optional(),
         brandId: Joi.number().positive().optional(),
-        sellerId: Joi.number().positive().optional(),
         gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').optional(),
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
         start_price: Joi.number().positive().optional(),
         end_price: Joi.number().positive().optional(),
-        sort: Joi.string().valid('id', 'sale_price', 'rating', 'comment', 'discount').optional(),
+        sort: Joi.string().valid('id', 'sale_price').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         isActive: Joi.string().valid('all').optional()
     }),

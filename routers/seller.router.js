@@ -45,6 +45,10 @@ router.get('/profile/:id',
     valdidationMiddleware(sellerSchema.idControl, 'params'),
     sellerController.profileSeller)
 
+router.get('/products',
+    valdidationMiddleware(sellerSchema.sellerProucts, 'query'),
+    sellerController.sellerProducts)
+
 // PUT
 router.put('/update',
     authMiddleware, accessMiddleware(false),

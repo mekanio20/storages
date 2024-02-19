@@ -31,29 +31,6 @@ class SellerController {
     }
 
     // GET
-    async profileSeller(req, res) {
-        try {
-            const { id } = req.params
-            const userId = req.user.id
-            const data = await sellerService.profileSellerService(id, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
-        }
-    }
-
     async allSeller(req, res) {
         try {
             const q = req.query
@@ -159,6 +136,51 @@ class SellerController {
                 status: 500,
                 type: 'error',
                 msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async profileSeller(req, res) {
+        try {
+            const { id } = req.params
+            const userId = req.user.id
+            const data = await sellerService.profileSellerService(id, userId)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async sellerProducts(req, res) {
+        try {
+            const q = req.query
+            const data = await sellerService.sellerProductsService(q)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error,
                 msg_key: error.name,
                 detail: []
             })

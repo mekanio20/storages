@@ -57,6 +57,20 @@ const sellerSchema = {
         limit: Joi.number().positive().optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         status: Joi.string().valid('all').optional()
+    }),
+
+    sellerProucts: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        sort: Joi.string().valid('id', 'sale_price'),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        sellerId: Joi.number().positive().required(),
+        start_price: Joi.number().positive().optional(),
+        end_price: Joi.number().positive().optional(),
+        subcategoryId: Joi.number().positive().optional(),
+        brandId: Joi.number().positive().optional(),
+        gender: Joi.string().valid('male', 'fmale').optional(),
+        isActive: Joi.string().valid('all').optional()
     })
 }
 
