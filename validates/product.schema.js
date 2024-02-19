@@ -32,19 +32,6 @@ const productSchema = {
         productId: Joi.number().positive().required()
     }),
 
-    allProduct: Joi.object({
-        subcategoryId: Joi.number().positive().optional(),
-        brandId: Joi.number().positive().optional(),
-        gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').optional(),
-        page: Joi.number().positive().optional(),
-        limit: Joi.number().positive().optional(),
-        start_price: Joi.number().positive().optional(),
-        end_price: Joi.number().positive().optional(),
-        sort: Joi.string().valid('id', 'sale_price').optional(),
-        order: Joi.string().valid('asc', 'desc').optional(),
-        isActive: Joi.string().valid('all').optional()
-    }),
-
     addCoupon: Joi.object({
         tm_name: Joi.string().min(3).max(100).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
@@ -64,6 +51,19 @@ const productSchema = {
         currency: Joi.string().valid('manat', 'goterim').required(),
         discount: Joi.number().positive().required(),
         productId: Joi.number().positive().required()
+    }),
+
+    allProduct: Joi.object({
+        subcategoryId: Joi.number().positive().optional(),
+        brandId: Joi.number().positive().optional(),
+        gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').optional(),
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        start_price: Joi.number().positive().optional(),
+        end_price: Joi.number().positive().optional(),
+        sort: Joi.string().valid('id', 'sale_price').optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        isActive: Joi.string().valid('all').optional()
     }),
 
     queryParams: Joi.object({

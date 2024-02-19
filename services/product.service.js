@@ -197,7 +197,7 @@ class ProductService {
             }
             for (const key in query) {
                 if (query[key]) {
-                    obj[key] = query[key]
+                    obj[key] = await query[key]
                 }
             }
             obj.isActive = true
@@ -229,7 +229,6 @@ class ProductService {
                 ],
                 limit: Number(limit),
                 offset: Number(offset),
-                order: [[sort, order]]
             }).catch((err) => { console.log(err) })
             const result = { count: 0, rows: [] }
             result.count = await products.count
@@ -244,6 +243,13 @@ class ProductService {
                     rating: rating.detail.rating,
                 })
             }))
+            if (order === 'desc') {
+                if (sort === 'sale_price') result.rows.sort((a, b) => Number(b.sale_price) - Number(a.sale_price))
+                else result.rows.sort((a, b) => Number(b.id) - Number(a.id))
+            } else {
+                if (sort === 'sale_price') result.rows.sort((a, b) => Number(a.sale_price) - Number(b.sale_price))
+                else result.rows.sort((a, b) => Number(a.id) - Number(b.id))
+            }
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -319,7 +325,6 @@ class ProductService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            let sort = q.sort || 'discount'
             let order = q.order || 'asc'
             const products = await Models.Products.findAndCountAll({
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
@@ -347,7 +352,6 @@ class ProductService {
                 ],
                 limit: Number(limit),
                 offset: Number(offset),
-                order: [[Models.Offers, sort, order]]
             }).catch((err) => { console.log(err) })
             const result = { count: 0, rows: [] }
             result.count = await products.count
@@ -362,6 +366,8 @@ class ProductService {
                     rating: rating.detail.rating
                 })
             })).catch((err) => { console.log(err) })
+            if (order === 'desc') result.rows.sort((a, b) => Number(b.offer.discount) - Number(a.offer.discount))
+            else result.rows.sort((a, b) => Number(a.offer.discount) - Number(b.offer.discount))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -410,13 +416,13 @@ class ProductService {
             })
             await Promise.all(selling_products.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
+                const comment = await Models.Comments.count({ where: { productId: item.product.id } })
                 const rating = await this.fetchReviewService(item.product.id)
-                const comment = await allCommentService({ productId: item.product.id })
                 result.push({
                     ...item.dataValues,
                     images: images,
-                    rating: rating.detail.rating,
-                    comment: comment.detail.count,
+                    comment: comment,
+                    rating: rating.detail.rating
                 })
             }))
             if (order === 'desc') result.sort((a, b) => Number(b.totalSelling) - Number(a.totalSelling))
@@ -469,13 +475,13 @@ class ProductService {
             })
             await Promise.all(top_liked.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
+                const comment = await Models.Comments.count({ where: { productId: item.product.id } })
                 const rating = await this.fetchReviewService(item.product.id)
-                const comment = await allCommentService({ productId: item.product.id })
                 result.push({
                     ...item.dataValues,
                     images: images,
-                    rating: rating.detail.rating,
-                    comment: comment.detail.count,
+                    comment: comment,
+                    rating: rating.detail.rating
                 })
             }))
             if (order === 'desc') result.sort((a, b) => Number(b.totalLiked) - Number(a.totalLiked))
