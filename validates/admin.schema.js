@@ -1,12 +1,16 @@
 const Joi = require('joi')
 
 const adminSchema = {
-
     idControl: Joi.object({
         id: Joi.number().positive().required()
     }),
 
     // ADD
+    login: Joi.object({
+        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
+        password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
+    }),
+
     addGroup: Joi.object({
         id: Joi.number().positive().optional(),
         name: Joi.string().uppercase().min(3).max(20).regex(/^[a-zA-Z]/).required(),
@@ -42,19 +46,23 @@ const adminSchema = {
     }),
 
     addFeature: Joi.object({
+        id: Joi.number().positive().optional(),
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9-]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9-]/).allow('', null)
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9-]/).allow('', null),
+        isActive: Joi.boolean().optional()
     }),
 
     addFeatureDescription: Joi.object({
         desc: Joi.string().max(50).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/),
-        featureId: Joi.number().positive().required()
+        featureId: Joi.number().positive().required(),
+        isActive: Joi.boolean().optional()
     }),
 
     addSubcategoryFeature: Joi.object({
         subcategoryId: Joi.number().positive().required(),
-        featureId: Joi.number().positive().required()
+        featureId: Joi.number().positive().required(),
+        isActive: Joi.boolean().optional()
     }),
 
     addBrand: Joi.object({
@@ -98,9 +106,22 @@ const adminSchema = {
         isActive: Joi.boolean().required()
     }),
 
+    updateFetureDescription: Joi.object({
+        id: Joi.number().positive().required(),
+        desc: Joi.string().required(),
+        isActive: Joi.boolean().optional()
+    }),
+
     // GET
     allGroups: Joi.object({
         isActive: Joi.string().valid('all')
+    }),
+
+    queryParams: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        status: Joi.string().valid('all').optional()
     })
     
 }

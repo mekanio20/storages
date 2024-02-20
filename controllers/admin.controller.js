@@ -3,6 +3,28 @@ const adminService = require('../services/admin.service')
 class AdminController {
 
     // POST
+    async adminLogin(req, res) {
+        try {
+            const body = req.body
+            const data = await adminService.adminLoginService(body)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     async addGroup(req, res) {
         try {
             const body = req.body
@@ -345,6 +367,50 @@ class AdminController {
         }
     }
 
+    async allFeatures(req, res) {
+        try {
+            const q = req.query
+            const data = await adminService.allFeaturesService(q)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async allFeatureDescriptions(req, res) {
+        try {
+            const q = req.query
+            const data = await adminService.allFeatureDescriptionService(q)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     // UPDATE
     async udpateGroup(req, res) {
         try {
@@ -569,6 +635,50 @@ class AdminController {
         }
     }
 
+    async updateFeature(req, res) {
+        try {
+            const body = req.body
+            const data = await adminService.updateFeatureService(body)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async updateFeatureDescription(req, res) {
+        try {
+            const body = req.body
+            const data = await adminService.updateFeatureDescriptionService(body)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     // DELETE
     async deleteGroup(req, res) {
         try {
@@ -750,6 +860,50 @@ class AdminController {
         try {
             const { id } = req.params
             const data = await adminService.deleteSellerService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async deleteFeature(req, res) {
+        try {
+            const { id } = req.params
+            const data = await adminService.deleteFeatureService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async deleteFeatureDesc(req, res) {
+        try {
+            const { id } = req.params
+            const data = await adminService.deleteFeatureDescService(id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

@@ -7,6 +7,20 @@ const uuid = require('uuid')
 
 class AdminService {
     // POST
+    async adminLoginService(body) {
+        try {
+            const user = await Verification.isExists(body.phone)
+            if (!user) { return Response.Unauthorized('Admin tapylmady!', []) }
+            const hash = await bcrypt.compare(body.password, user.password)
+            if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
+            const token = await Functions.generateJwt(user.id, user.groupId)
+            user.dataValues.token = token
+            return Response.Success('Admin hasaba alyndy!', user)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     async addGroupService(body) {
         try {
             let name = body.name.trim().toUpperCase()
@@ -80,8 +94,8 @@ class AdminService {
 
     async addFeatureService(body, userId) {
         try {
-            const _features = await Models.Features.findAll({ where: { tm_name: body.tm_name } })
-            if (_features.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
+            const _features = await Models.Features.count({ where: { tm_name: body.tm_name } })
+            if (_features.count > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
             const feature = await Models.Features.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -96,10 +110,16 @@ class AdminService {
 
     async addFeatureDescriptionService(body, userId) {
         try {
-            const { desc, featureId } = body
+            const { desc, featureId, isActive } = body
+            console.log(body);
             const _featureDesc = await Models.FeatureDescriptions.findAll({ where: { desc: desc, featureId: featureId } })
             if (_featureDesc.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            const featureDesc = await Models.FeatureDescriptions.create({ desc: desc, featureId: featureId, userId: userId })
+            const featureDesc = await Models.FeatureDescriptions.create({
+                desc: desc,
+                featureId: featureId,
+                isActive: isActive,
+                userId: userId 
+            }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', featureDesc)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -244,6 +264,48 @@ class AdminService {
             })
             if (subscriptions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', subscriptions)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async allFeaturesService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let status = q.status || true
+            let whereState = { isActive: status }
+            if (status === 'all') { delete whereState.isActive }
+            const features = await Models.Features.findAndCountAll({
+                where: whereState,
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'asc']]
+            }).catch((err) => { console.log(err) })
+            if (features.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', features)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async allFeatureDescriptionService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let status = q.status || true
+            let whereState = { isActive: status }
+            if (status === 'all') { delete whereState.isActive }
+            const features = await Models.FeatureDescriptions.findAndCountAll({
+                where: whereState,
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', 'asc']]
+            }).catch((err) => { console.log(err) })
+            if (features.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', features)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -437,6 +499,38 @@ class AdminService {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
+    
+    async updateFeatureService(body) {
+        try {
+            const obj = {}
+            for (const item in body) {
+                if (item && item !== 'id') {
+                    obj[item] = body[item]
+                }
+            }
+            await Models.Features.update(obj, { where: { id: Number(body.id) } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async updateFeatureDescriptionService(body) {
+        try {
+            const obj = {}
+            for (const item in body) {
+                if (item && item !== 'id') {
+                    obj[item] = body[item]
+                }
+            }
+            await Models.FeatureDescriptions.update(obj, { where: { id: Number(body.id) } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
 
     // DELETE
     async deleteGroupService(id) {
@@ -508,6 +602,17 @@ class AdminService {
             const superadmin = await Models.Users.findOne({ where: { id: id, isSuperAdmin: true } })
             if (superadmin) { return Response.Forbidden('Rugsat edilmedi!', []) }
             await Models.Users.destroy({ where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteFeatureDescService(id) {
+        try {
+            await Models.FeatureDescriptions.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -749,6 +854,10 @@ class AdminService {
                 { url: '/api/admin/update/product', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/update/comment', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/comment', method: 'PUT', groupId: 2 },
+                { url: '/api/admin/update/feature', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/feature', method: 'PUT', groupId: 2 },
+                { url: '/api/admin/update/feature/descriptions', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/feature/descriptions', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },
@@ -758,12 +867,20 @@ class AdminService {
                 { url: '/api/admin/delete/user', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/customer', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/seller', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/feature', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/feature/desc', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/all/groups', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/subscriptions', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/subscriptions', method: 'GET', groupId: 2 },
                 { url: '/api/admin/all/contacts', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/contacts', method: 'GET', groupId: 2 },
+                { url: '/api/admin/all/features', method: 'GET', groupId: 1 },
+                { url: '/api/admin/all/features', method: 'GET', groupId: 2 },
+                { url: '/api/admin/all/features', method: 'GET', groupId: 3 },
+                { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 1 },
+                { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 2 },
+                { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 3 },
                 // USER ROUTERS
                 { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/like', method: 'POST', groupId: 4 },

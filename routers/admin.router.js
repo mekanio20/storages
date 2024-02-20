@@ -3,10 +3,16 @@ const adminController = require('../controllers/admin.controller')
 const accessMiddleware = require('../middlewares/access.middleware')
 const authMiddleware = require('../middlewares/auth.middleware')
 const imagesMiddleware = require('../middlewares/images.middleware')
+const limitterMiddleware = require('../middlewares/limitter.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const adminSchema = require('../validates/admin.schema')
 
 // POST
+router.post('/login-page',
+    limitterMiddleware(),
+    valdidationMiddleware(adminSchema.login, 'body'),
+    adminController.adminLogin)
+
 router.post('/add/group',
     authMiddleware, accessMiddleware(false),
     valdidationMiddleware(adminSchema.addGroup, 'body'),
@@ -68,15 +74,28 @@ router.get('/all/groups',
 
 router.get('/all/permissions',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.queryParams, 'query'),
     adminController.allPermissions)
 
 router.get('/all/subscriptions',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.queryParams, 'query'),
     adminController.allSubscriptions)
 
 router.get('/all/contacts',
     authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.queryParams, 'query'),
     adminController.allContacts)
+
+router.get('/all/features',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.queryParams, 'query'),
+    adminController.allFeatures)
+
+router.get('/all/feature/descriptions',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.queryParams, 'query'),
+    adminController.allFeatureDescriptions)
 
 // PUT
 router.put('/update/group',
@@ -132,6 +151,16 @@ router.put('/update/comment',
     valdidationMiddleware(adminSchema.updateStatus, 'body'),
     adminController.updateComment)
 
+router.put('/update/feature',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.addFeature, 'body'),
+    adminController.updateFeature)
+
+router.put('/update/feature/descriptions',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(adminSchema.updateFetureDescription, 'body'),
+    adminController.updateFeatureDescription)
+
 // DELETE
 router.delete('/delete/group/:id',
     authMiddleware, accessMiddleware(true),
@@ -177,6 +206,16 @@ router.delete('/delete/seller/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(adminSchema.idControl, 'params'),
     adminController.deleteSeller)
+
+router.delete('/delete/feature/desc/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteFeatureDesc)
+
+router.delete('/delete/feature/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(adminSchema.idControl, 'params'),
+    adminController.deleteFeature)
 
 // DEFAULT
 router.get('/default', adminController.defaultCreate)
