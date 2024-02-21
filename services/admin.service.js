@@ -311,6 +311,40 @@ class AdminService {
         }
     }
 
+    async allSubcategoryFeaturesService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let order = q.order || 'desc'
+            let whereState = { isActive: true }
+            if (q.status === 'all') { whereState = {} }
+            const subcategory_features = await Models.SubcategoryFeatures.findAndCountAll({
+                attributes: ['id', 'isActive', 'createdAt', 'updatedAt'],
+                where: whereState,
+                include: [
+                    {
+                        model: Models.Features,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive'],
+                        where: { isActive: true }
+                    },
+                    {
+                        model: Models.Subcategories,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive'],
+                        where: { isActive: true }
+                    }
+                ],
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [['id', order]]
+            }).catch((err) => { console.log(err) })
+            if (subcategory_features.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', subcategory_features)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // UPDATE
     async updateGroupService(body) {
         try {
@@ -532,6 +566,22 @@ class AdminService {
         }
     }
 
+    async updateSubcategoryFeatureService(body) {
+        try {
+            const obj = {}
+            for (const item in body) {
+                if (item && item !== 'id') {
+                    obj[item] = body[item]
+                }
+            }
+            await Models.SubcategoryFeatures.update(obj, { where: { id: Number(body.id) } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteGroupService(id) {
         try {
@@ -613,6 +663,17 @@ class AdminService {
     async deleteFeatureDescService(id) {
         try {
             await Models.FeatureDescriptions.destroy({ where: { id: Number(id) } })
+                .then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async deleteSubcategoryFeatureService(id) {
+        try {
+            await Models.SubcategoryFeatures.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -858,6 +919,8 @@ class AdminService {
                 { url: '/api/admin/update/feature', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/update/feature/descriptions', method: 'PUT', groupId: 1 },
                 { url: '/api/admin/update/feature/descriptions', method: 'PUT', groupId: 2 },
+                { url: '/api/admin/update/subcategory/feature', method: 'PUT', groupId: 1 },
+                { url: '/api/admin/update/subcategory/feature', method: 'PUT', groupId: 2 },
                 { url: '/api/admin/delete/group', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/permission', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/subscription', method: 'DELETE', groupId: 1 },
@@ -869,6 +932,7 @@ class AdminService {
                 { url: '/api/admin/delete/seller', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/feature', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/delete/feature/desc', method: 'DELETE', groupId: 1 },
+                { url: '/api/admin/delete/subcategory/feature', method: 'DELETE', groupId: 1 },
                 { url: '/api/admin/all/groups', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/permissions', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/subscriptions', method: 'GET', groupId: 1 },

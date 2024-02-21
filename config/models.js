@@ -506,10 +506,13 @@ Subcategories.belongsTo(Categories)
 Users.hasMany(SubcategoryFeatures)
 SubcategoryFeatures.belongsTo(Users)
 
-// SubcategoryFeatures -> SubcategoryId, FeatureId 
+// SubcategoryFeatures -> SubcategoryId, FeatureId
 
-Subcategories.belongsToMany(Features, { through: SubcategoryFeatures })
-Features.belongsToMany(Subcategories, { through: SubcategoryFeatures })
+Subcategories.hasMany(SubcategoryFeatures)
+SubcategoryFeatures.belongsTo(Subcategories)
+// -----
+Features.hasMany(SubcategoryFeatures)
+SubcategoryFeatures.belongsTo(Features)
 
 // ProductFeatures -> ProductId, FeatureDescriptionId 
 

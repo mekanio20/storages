@@ -112,6 +112,13 @@ const adminSchema = {
         isActive: Joi.boolean().optional()
     }),
 
+    updateSubcategoryFeature: Joi.object({
+        id: Joi.number().positive().required(),
+        featureId: Joi.number().positive().optional(),
+        subcategoryId: Joi.number().positive().optional(),
+        isActive: Joi.boolean().optional()
+    }),
+
     // GET
     allGroups: Joi.object({
         isActive: Joi.string().valid('all')

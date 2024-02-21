@@ -411,6 +411,28 @@ class AdminController {
         }
     }
 
+    async allSubcategoryFeatures(req, res) {
+        try {
+            const q = req.query
+            const data = await adminService.allSubcategoryFeaturesService(q)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     // UPDATE
     async udpateGroup(req, res) {
         try {
@@ -679,6 +701,28 @@ class AdminController {
         }
     }
 
+    async updateSubcategoryFeature(req, res) {
+        try {
+            const body = req.body
+            const data = await adminService.updateSubcategoryFeatureService(body)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
     // DELETE
     async deleteGroup(req, res) {
         try {
@@ -904,6 +948,28 @@ class AdminController {
         try {
             const { id } = req.params
             const data = await adminService.deleteFeatureDescService(id)
+            return res.status(data.status).json({
+                status: data.status,
+                type: data.type,
+                msg: data.msg,
+                msg_key: data.msg_key,
+                detail: data.detail,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                type: 'error',
+                msg: error.message,
+                msg_key: error.name,
+                detail: []
+            })
+        }
+    }
+
+    async deleteSubcategoryFeature(req, res) {
+        try {
+            const { id } = req.params
+            const data = await adminService.deleteSubcategoryFeatureService(id)
             return res.status(data.status).json({
                 status: data.status,
                 type: data.type,

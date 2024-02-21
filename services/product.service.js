@@ -1,7 +1,7 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-const { Op } = require('sequelize')
+const { Op, or } = require('sequelize')
 const { Sequelize } = require('../config/database')
 const { allCommentService } = require('./comment.service')
 
@@ -629,25 +629,6 @@ class ProductService {
             })
             const sum = sum2 / sum1
             return Response.Success('Üstünlikli!', { reviews: reviews, rating: sum })
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async allFeatureService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            const features = await Models.Features.findAll({
-                where: { isActive: true },
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['id', 'DESC']]
-            })
-            if (features.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', features)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
