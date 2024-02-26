@@ -351,6 +351,63 @@ class SellerService {
         }
     }
 
+    async sellerStatisticService(userId) {
+        try {
+            const sellerId = await Verification.isSeller(userId)
+            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            let year = new Date().getFullYear()
+            let month = new Date().getMonth() - 1
+            if (month === 0) {
+                month = 12
+                year -= 1
+            }
+            let oldMonth_ = new Date(`2024-02-01`)
+            let _oldMonth = new Date(`2024-02-31`)
+            const oldStatistic = await Models.Orders.findAndCountAll({
+                attributes: ['amount', 'time', 'createdAt'],
+                where: {
+                    createdAt: {
+                        [Op.between]: [oldMonth_, _oldMonth]
+                    }
+                },
+                include: {
+                    model: Models.Products,
+                    attributes: ['sale_price'],
+                    where: { sellerId: sellerId },
+                }
+            }).catch((err) => { console.log(err) })
+            let oldTotalMoney = 0
+            oldStatistic.rows.forEach((item) => {
+                oldTotalMoney += Number(item.amount) * Number(item.product.sale_price)
+            })
+            const statistic = await Models.Orders.findAndCountAll({
+                attributes: ['amount', 'time'],
+                where: { status: 'completed' },
+                include: {
+                    model: Models.Products,
+                    attributes: ['sale_price'],
+                    where: { sellerId: sellerId },
+                }
+            }).catch((err) => { console.log(err) })
+            let totalMoney = 0
+            statistic.rows.forEach((item) => {
+                totalMoney += Number(item.amount) * Number(item.product.sale_price)
+            })
+            let prosent = Number(totalMoney) - Number(oldTotalMoney)
+            prosent = prosent / Number(oldTotalMoney)
+            prosent = prosent * 100
+            const _statistic = {
+                oldTotalMoney: oldTotalMoney,
+                totalMoney: totalMoney,
+                prosent: prosent.toFixed(1),
+                orders: statistic.count
+            }
+            return Response.Success('Üstünlikli!', _statistic)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // PUT
     async updateSellerProfileService(body, userId, files) {
         try {

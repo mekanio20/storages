@@ -49,6 +49,10 @@ router.get('/products',
     valdidationMiddleware(sellerSchema.sellerProucts, 'query'),
     sellerController.sellerProducts)
 
+router.get('/statistic',
+    authMiddleware,// accessMiddleware(false),
+    sellerController.sellerStatistic)
+
 // PUT
 router.put('/update',
     authMiddleware, accessMiddleware(false),
