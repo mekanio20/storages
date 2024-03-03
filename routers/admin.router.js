@@ -21,7 +21,7 @@ router.post('/add/group',
 router.post('/add/permission',
     authMiddleware, accessMiddleware(false),
     validationMiddleware(adminSchema.addPermission, 'body'),
-    adminController.addAccessPath)
+    adminController.addPermission)
 
 router.post('/add/category',
     authMiddleware, accessMiddleware(false),
@@ -69,7 +69,7 @@ router.post('/add/subscription',
 // GET
 router.get('/all/groups',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(adminSchema.allGroups, 'query'),
+    validationMiddleware(adminSchema.queryParams, 'query'),
     adminController.allGroups)
 
 router.get('/all/permissions',
@@ -81,11 +81,6 @@ router.get('/all/subscriptions',
     authMiddleware, accessMiddleware(false),
     validationMiddleware(adminSchema.queryParams, 'query'),
     adminController.allSubscriptions)
-
-router.get('/all/contacts',
-    authMiddleware, accessMiddleware(false),
-    validationMiddleware(adminSchema.queryParams, 'query'),
-    adminController.allContacts)
 
 router.get('/all/features',
     authMiddleware, accessMiddleware(false),
@@ -101,6 +96,16 @@ router.get('/subcategory/features',
     authMiddleware,
     validationMiddleware(adminSchema.queryParams, 'query'),
     adminController.allSubcategoryFeatures)
+
+// -- statistic
+
+router.get('/all/systems',
+    authMiddleware, accessMiddleware(false),
+    adminController.allSystems)
+
+router.get('/register/statistic',
+    authMiddleware, accessMiddleware(false),
+    adminController.registerStatistic)
 
 // PUT
 router.put('/update/group',

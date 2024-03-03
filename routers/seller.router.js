@@ -50,7 +50,7 @@ router.get('/products',
     sellerController.sellerProducts)
 
 router.get('/statistic',
-    authMiddleware,// accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     sellerController.sellerStatistic)
 
 // PUT

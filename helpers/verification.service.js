@@ -1,10 +1,10 @@
 const Models = require('../config/models')
 
 class VerificationService {
-    
-    async isFound(Model, slug) {
+    async isFile(file) {
         try {
-            return Model.findAll({ where: { slug: slug } })
+            if (!file) return false
+            return file
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

@@ -85,7 +85,7 @@ const Subscriptions = database.define('subscriptions', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const Chats = database.define('chats', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -184,7 +184,7 @@ const Banners = database.define('banners', {
     end_date: { type: DataTypes.DATE, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const Coupons = database.define('coupons', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -225,7 +225,7 @@ const Categories = database.define('categories', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const Subcategories = database.define('subcategories', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -237,7 +237,7 @@ const Subcategories = database.define('subcategories', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const Features = database.define('features', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -247,7 +247,7 @@ const Features = database.define('features', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const FeatureDescriptions = database.define('feature_descriptions', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -255,7 +255,7 @@ const FeatureDescriptions = database.define('feature_descriptions', {
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const Groups = database.define('groups', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
@@ -324,14 +324,14 @@ const Followers = database.define('followers', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const Searches = database.define('searches', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     input: { type: DataTypes.STRING, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
-}, { paranoid: true })
+})
 
 const Videos = database.define('videos', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },

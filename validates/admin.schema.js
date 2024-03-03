@@ -120,15 +120,11 @@ const adminSchema = {
     }),
 
     // GET
-    allGroups: Joi.object({
-        isActive: Joi.string().valid('all')
-    }),
-
     queryParams: Joi.object({
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
-        status: Joi.string().valid('all').optional()
+        status: Joi.string().valid('all', true, false).optional()
     })
     
 }

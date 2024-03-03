@@ -9,6 +9,13 @@ class Functions {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
+    async generateSlug(name) {
+        try {
+            return name.split(" ").join('-').toLowerCase()
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
 }
 
 module.exports = new Functions()

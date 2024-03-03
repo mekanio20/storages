@@ -4,6 +4,7 @@ const Response = require('../helpers/response.service')
 const Models = require('../config/models')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
+const { Sequelize } = require('sequelize')
 
 class AdminService {
     // POST
@@ -21,40 +22,11 @@ class AdminService {
         }
     }
 
-    async addGroupService(body) {
-        try {
-            let name = body.name.trim().toUpperCase()
-            const [group, created] = await Models.Groups.findOrCreate({
-                where: { name: name },
-                defaults: {
-                    name: body.name,
-                    isActive: body.isActive
-                }
-            })
-            if (!created) { return Response.BadRequest('Maglumat eyyam döredilen!', group) }
-            return Response.Created('Grupba döredildi!', group)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addAccessPathService(url, method, groupId) {
-        try {
-            const isExist = await Models.GroupPermissions.findAll({ where: { url: url, method: method, groupId: groupId } })
-            if (isExist.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            const permission = await Models.GroupPermissions.create({ url: url, method: method, groupId: groupId })
-            return Response.Created('Maglumat döredildi!', permission)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async addCategoryService(body, userId, img) {
         try {
             if (!img.filename) { return Response.BadRequest('logo gerek!', []) }
-            let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _category = await Verification.isFound(Models.Categories, slug)
-            if (_category.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
+            const _category = await Verification.isFound(Models.Categories, body.tm_name)
+            if (_category.length > 0) { return Response.BadRequest('Maglumat eýýäm döredilen!', []) }
             const category = await Models.Categories.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -75,7 +47,7 @@ class AdminService {
             if (!img.filename) { return Response.BadRequest('logo gerek!', []) }
             let slug = body.tm_name.split(" ").join('-').toLowerCase()
             const _subcategory = await Verification.isFound(Models.Subcategories, slug)
-            if (_subcategory.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
+            if (_subcategory.length > 0) { return Response.BadRequest('Maglumat eýýäm döredilen!', []) }
             const subcategory = await Models.Subcategories.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -118,7 +90,7 @@ class AdminService {
                 desc: desc,
                 featureId: featureId,
                 isActive: isActive,
-                userId: userId 
+                userId: userId
             }).catch((err) => { console.log(err) })
             return Response.Created('Maglumat döredildi!', featureDesc)
         } catch (error) {
@@ -199,18 +171,6 @@ class AdminService {
     }
 
     // GET
-    async allGroupsService(q) {
-        try {
-            const obj = { isActive: true }
-            if (q.isActive == 'all') { delete obj.isActive }
-            const groups = await Models.Groups.findAll({ where: obj, order: [['id', 'ASC']] })
-            if (groups.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', groups)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async allPermissionsService(q) {
         try {
             let page = q.page || 1
@@ -228,84 +188,6 @@ class AdminService {
             })
             if (permissions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', permissions)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async allContactsService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            const contact = await Models.Contacts.findAll({
-                where: { isActive: true },
-                limit: Number(limit),
-                offset: Number(offset)
-            })
-            if (contact.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', contact)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async allSubscriptionsService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            const subscriptions = await Models.Subscriptions.findAndCountAll({
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
-                where: { isActive: true },
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['order', 'asc']]
-            })
-            if (subscriptions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', subscriptions)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async allFeaturesService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let status = q.status || true
-            let whereState = { isActive: status }
-            if (status === 'all') { delete whereState.isActive }
-            const features = await Models.Features.findAndCountAll({
-                where: whereState,
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['id', 'asc']]
-            }).catch((err) => { console.log(err) })
-            if (features.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', features)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async allFeatureDescriptionService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let status = q.status || true
-            let whereState = { isActive: status }
-            if (status === 'all') { delete whereState.isActive }
-            const features = await Models.FeatureDescriptions.findAndCountAll({
-                where: whereState,
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['id', 'asc']]
-            }).catch((err) => { console.log(err) })
-            if (features.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', features)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -345,69 +227,40 @@ class AdminService {
         }
     }
 
+    async allSystemsService() {
+        try {
+            const user_systems = await Models.Users.findAll({
+                attributes: ['device', [Sequelize.fn('COUNT', Sequelize.col('device')), 'count']],
+                group: ['device']
+            }).catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', user_systems)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
+    async registerStatisticService() {
+        try {
+            const users = await Models.Users.findAll({
+                attributes: [
+                  [Sequelize.fn('DATE', Sequelize.col('createdAt')), 'date'],
+                  [Sequelize.fn('COUNT', Sequelize.col('id')), 'userCount']
+                ],
+                group: [Sequelize.fn('DATE', Sequelize.col('createdAt'))]
+              }).catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', users)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+        }
+    }
+
     // UPDATE
-    async updateGroupService(body) {
-        try {
-            console.log(body);
-            const group = await Models.Groups.update(
-                { name: body.name, isActive: body.isActive },
-                { where: { id: body.id } }
-            )
-            if (!group) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async updatePermissionService(body) {
-        try {
-            const permission = await Models.GroupPermissions.update(
-                { url: body.url, method: body.method, groupId: body.groupId },
-                { where: { id: body.id } }
-            )
-            if (!permission) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async updateSubscriptionService(body) {
-        try {
-            const subscription = await Models.Subscriptions.update(
-                {
-                    name: body.name,
-                    order: body.order,
-                    price: body.price,
-                    p_limit: body.p_limit,
-                    p_img_limit: body.p_img_limit,
-                    seller_banner_limit: body.seller_banner_limit,
-                    main_banner_limit: body.main_banner_limit,
-                    ntf_limit: body.ntf_limit,
-                    voucher_limit: body.voucher_limit,
-                    smm_support: body.smm_support,
-                    tech_support: body.tech_support
-                },
-                { where: { id: body.id } }
-            ).catch((err) => { console.log(err) })
-            if (!subscription) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async updateBrandService(body, file) {
         try {
             const obj = {}
             for (const item in body) {
-                if (item.length > 0 && item !== 'id') {
-                    if (item == 'isActive') {
-                        obj[item] = body[item] == 'true' ? true : false
-                    } else {
-                        obj[item] = body[item]
-                    }
+                if (item && item !== 'id') {
+                    obj[item] = body[item]
                 }
             }
             if (file) { obj.img = file.filename }
@@ -426,12 +279,8 @@ class AdminService {
         try {
             const obj = {}
             for (const item in body) {
-                if (item.length > 0 && item !== 'id') {
-                    if (item == 'isActive') {
-                        obj[item] = body[item] == 'true' ? true : false
-                    } else {
-                        obj[item] = body[item]
-                    }
+                if (item && item !== 'id') {
+                    obj[item] = body[item]
                 }
             }
             if (file) { obj.logo = file.filename }
@@ -449,12 +298,8 @@ class AdminService {
         try {
             const obj = {}
             for (const item in body) {
-                if (item.length > 0 && item !== 'id') {
-                    if (item == 'isActive') {
-                        obj[item] = body[item] == 'true' ? true : false
-                    } else {
-                        obj[item] = body[item]
-                    }
+                if (item && item !== 'id') {
+                    obj[item] = body[item]
                 }
             }
             if (file) { obj.logo = file.filename }
@@ -486,194 +331,12 @@ class AdminService {
         }
     }
 
-    async updateSellerService(body) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            await Models.Sellers.update(obj, { where: { id: Number(body.id) } })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async updateProductService(body) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            await Models.Products.update(obj, { where: { id: Number(body.id) } })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async updateCommentService(body) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            await Models.Comments.update(obj, { where: { id: Number(body.id) } })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-    
-    async updateFeatureService(body) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            await Models.Features.update(obj, { where: { id: Number(body.id) } })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async updateFeatureDescriptionService(body) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            await Models.FeatureDescriptions.update(obj, { where: { id: Number(body.id) } })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async updateSubcategoryFeatureService(body) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            await Models.SubcategoryFeatures.update(obj, { where: { id: Number(body.id) } })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     // DELETE
-    async deleteGroupService(id) {
-        try {
-            await Models.Groups.destroy({ where: { id: Number(id) } })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteAccessPathService(id) {
-        try {
-            await Models.GroupPermissions.destroy({ where: { id: id } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteScubscriptionService(id) {
-        try {
-            await Models.Subscriptions.destroy({ where: { id: id } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteBrandService(id) {
-        try {
-            await Models.Brands.destroy({ where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteCategoryService(id) {
-        try {
-            await Models.Categories.destroy({ where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteSubCategoryService(id) {
-        try {
-            await Models.Subcategories.destroy({ where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async deleteUserService(id) {
         try {
             const superadmin = await Models.Users.findOne({ where: { id: id, isSuperAdmin: true } })
             if (superadmin) { return Response.Forbidden('Rugsat edilmedi!', []) }
             await Models.Users.destroy({ where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteFeatureDescService(id) {
-        try {
-            await Models.FeatureDescriptions.destroy({ where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async deleteSubcategoryFeatureService(id) {
-        try {
-            await Models.SubcategoryFeatures.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
@@ -731,17 +394,17 @@ class AdminService {
             }
 
             await Models.Users.bulkCreate([
-                { phone: '61111111', password: passwords[0], ip: '127.0.0.1', device: 'Android', uuid: uuid.v4(), groupId: 1, isSuperAdmin: true },
-                { phone: '61111112', password: passwords[1], ip: '127.0.0.2', device: 'Android', uuid: uuid.v4(), groupId: 2, isStaff: true },
-                { phone: '61111113', password: passwords[2], ip: '127.0.0.3', device: 'iPhone', uuid: uuid.v4(), groupId: 3, isSeller: true },
-                { phone: '61111114', password: passwords[3], ip: '127.0.0.4', device: 'Android', uuid: uuid.v4(), groupId: 4, isCustomer: true },
-                { phone: '61111115', password: passwords[4], ip: '127.0.0.5', device: 'Android', uuid: uuid.v4(), groupId: 2, isStaff: true },
-                { phone: '61111116', password: passwords[5], ip: '127.0.0.6', device: 'iPhone', uuid: uuid.v4(), groupId: 2, isStaff: true },
-                { phone: '61111117', password: passwords[6], ip: '127.0.0.7', device: 'Android', uuid: uuid.v4(), groupId: 2, isStaff: true },
-                { phone: '61111118', password: passwords[7], ip: '127.0.0.8', device: 'iPhone', uuid: uuid.v4(), groupId: 2, isStaff: true },
-                { phone: '61111119', password: passwords[8], ip: '127.0.0.9', device: 'Android', uuid: uuid.v4(), groupId: 4, isCustomer: true },
-                { phone: '61111121', password: passwords[9], ip: '127.0.0.10', device: 'Android', uuid: uuid.v4(), groupId: 3, isSeller: true },
-                { phone: '61111122', password: passwords[10], ip: '127.0.0.11', device: 'iPhone', uuid: uuid.v4(), groupId: 3, isSeller: true }
+                { phone: '61111111', password: passwords[0], ip: '127.0.0.1', device: 'Android', uuid: uuid.v4(), groupId: 1, isSuperAdmin: true, createdAt: new Date("2024-01-28") },
+                { phone: '61111112', password: passwords[1], ip: '127.0.0.2', device: 'Mac OS', uuid: uuid.v4(), groupId: 2, isStaff: true, createdAt: new Date("2024-01-28") },
+                { phone: '61111113', password: passwords[2], ip: '127.0.0.3', device: 'iPhone', uuid: uuid.v4(), groupId: 3, isSeller: true, createdAt: new Date("2024-01-28") },
+                { phone: '61111114', password: passwords[3], ip: '127.0.0.4', device: 'Android', uuid: uuid.v4(), groupId: 4, isCustomer: true, createdAt: new Date("2024-01-29") },
+                { phone: '61111115', password: passwords[4], ip: '127.0.0.5', device: 'Windows', uuid: uuid.v4(), groupId: 2, isStaff: true, createdAt: new Date("2024-01-29") },
+                { phone: '61111116', password: passwords[5], ip: '127.0.0.6', device: 'iPhone', uuid: uuid.v4(), groupId: 2, isStaff: true, createdAt: new Date("2024-01-29") },
+                { phone: '61111117', password: passwords[6], ip: '127.0.0.7', device: 'Android', uuid: uuid.v4(), groupId: 2, isStaff: true, createdAt: new Date("2024-01-29") },
+                { phone: '61111118', password: passwords[7], ip: '127.0.0.8', device: 'iPhone', uuid: uuid.v4(), groupId: 2, isStaff: true, createdAt: new Date("2024-01-30") },
+                { phone: '61111119', password: passwords[8], ip: '127.0.0.9', device: 'Windows', uuid: uuid.v4(), groupId: 4, isCustomer: true, createdAt: new Date("2024-01-30") },
+                { phone: '61111121', password: passwords[9], ip: '127.0.0.10', device: 'Android', uuid: uuid.v4(), groupId: 3, isSeller: true, createdAt: new Date("2024-01-30") },
+                { phone: '61111122', password: passwords[10], ip: '127.0.0.11', device: 'Mac OS', uuid: uuid.v4(), groupId: 3, isSeller: true, createdAt: new Date("2024-02-1") }
             ]).then(() => { console.log('Users created') }).catch((err) => { console.log(err) })
 
             await Models.Customers.bulkCreate([
@@ -816,6 +479,12 @@ class AdminService {
                 { tm_name: 'Galaxy-A12', ru_name: 'Галакси-А12', en_name: 'Galaxy-A12', tm_desc: 'Galaxy-A12 desc', ru_desc: 'Галакси-А12 1', en_desc: 'Galaxy-A12 desc', slug: 'galaxy-a12', barcode: 44444, stock_code: 'ddddd', quantity: 10, org_price: 2000, sale_price: 19000, subcategoryId: 6, brandId: 4, sellerId: 3 }
             ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
 
+            await Models.ProductImages.bulkCreate([
+                { img: "image.jpg", order: 1, productId: 1 },
+                { img: "image2.jpg", order: 2, productId: 1 },
+                { img: "image3.jpg", order: 3, productId: 1 },
+            ]).then(() => { console.log('Products images created') }).catch((err) => { console.log(err) })
+
             await Models.ProductFeatures.bulkCreate([
                 { productId: 4, fatureDescriptionId: 2 },
                 { productId: 4, fatureDescriptionId: 6 }
@@ -830,9 +499,9 @@ class AdminService {
             ]).then(() => { console.log('Product Reviews created') }).catch((err) => { console.log(err) })
 
             await Models.Orders.bulkCreate([
-                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023qwer7926', status: 'ondelivery', payment: 'cash', amount: 3, time: '30-12-2023 18:15', note: 'caltrak getirayin...', customerId: 1, productId: 1 },
-                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui7926', status: 'ondelivery', payment: 'cash', amount: 1, time: '30-12-2023 18:17', note: 'bolow...', customerId: 2, productId: 1 },
-                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui3219', status: 'ondelivery', payment: 'cash', amount: 3, time: '30-12-2023 18:17', note: 'bolow...', customerId: 2, productId: 2 },
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023qwer7926', status: 'completed', payment: 'cash', amount: 3, time: '30-12-2023 18:15', note: 'caltrak getirayin...', customerId: 1, productId: 1 },
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui7926', status: 'completed', payment: 'cash', amount: 1, time: '30-12-2023 18:17', note: 'bolow...', customerId: 2, productId: 1 },
+                { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023tyui3219', status: 'completed', payment: 'cash', amount: 3, time: '30-12-2023 18:17', note: 'bolow...', customerId: 2, productId: 2 },
             ]).then(() => { console.log('Orders created') }).catch((err) => { console.log(err) })
 
             await Models.Likes.bulkCreate([
@@ -945,6 +614,10 @@ class AdminService {
                 { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 2 },
                 { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 3 },
+                { url: '/api/admin/all/systems', method: 'GET', groupId: 1 },
+                { url: '/api/admin/all/systems', method: 'GET', groupId: 2 },
+                { url: '/api/admin/register/statistic', method: 'GET', groupId: 1 },
+                { url: '/api/admin/register/statistic', method: 'GET', groupId: 2 },
                 // USER ROUTERS
                 { url: '/api/user/add/product/review', method: 'POST', groupId: 4 },
                 { url: '/api/user/add/like', method: 'POST', groupId: 4 },
@@ -965,6 +638,7 @@ class AdminService {
                 { url: '/api/seller/orders', method: 'GET', groupId: 1 },
                 { url: '/api/seller/orders', method: 'GET', groupId: 2 },
                 { url: '/api/seller/orders', method: 'GET', groupId: 3 },
+                { url: '/api/seller/statistic', method: 'GET', groupId: 3 },
                 { url: '/api/seller/update', method: 'PUT', groupId: 3 },
                 { url: '/api/seller/delete', method: 'DELETE', groupId: 3 },
                 // BANNER ROUTERS
