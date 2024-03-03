@@ -4,6 +4,7 @@ const accessMiddleware = require('../middlewares/access.middleware')
 const authMiddleware = require('../middlewares/auth.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const notificationSchema = require('../validates/notification.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
@@ -26,7 +27,7 @@ router.put('/update',
 // DELETE
 router.delete('/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(notificationSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     notificationController.deleteNotification)
 
 module.exports = router

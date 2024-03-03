@@ -4,6 +4,7 @@ const accessMiddleware = require('../middlewares/access.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const addressController = require('../controllers/address.controller')
 const addressSchema = require('../validates/address.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
@@ -19,14 +20,14 @@ router.get('/all',
 // PUT
 router.put('/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(addressSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     valdidationMiddleware(addressSchema.addAddress, 'body'),
     addressController.updateAddress)
 
 // DELETE
 router.delete('/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(addressSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     addressController.deleteAddress)
 
 module.exports = router

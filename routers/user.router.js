@@ -7,11 +7,12 @@ const userSchema = require('../validates/user.schema')
 const otpMiddleware = require('../middlewares/otp.middleware')
 const fileMiddleware = require('../middlewares/file.middleware')
 const limitterMiddleware = require('../middlewares/limitter.middleware')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/login',
     limitterMiddleware(),
-    valdidationMiddleware(userSchema.login, 'body'),
+    valdidationMiddleware(baseSchema.loginControl, 'body'),
     userController.userLogin)
 
 router.post('/verification', // customer login ucin
@@ -22,7 +23,7 @@ router.post('/verification', // customer login ucin
 
 router.post('/register',
     limitterMiddleware(),
-    valdidationMiddleware(userSchema.login, 'body'),
+    valdidationMiddleware(baseSchema.loginControl, 'body'),
     userController.userRegister)
 
 router.post('/check', // user register ucin
@@ -52,7 +53,7 @@ router.post('/reset/subscription', // seller login ucin
 
 router.post('/add/like',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.idControl, 'body'),
+    valdidationMiddleware(baseSchema.idControl, 'body'),
     userController.addLike)
 
 router.post('/add/order',
@@ -68,7 +69,7 @@ router.post('/add/basket',
 
 router.post('/add/follower/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     userController.addFollower)
 
 router.post('/add/message',
@@ -80,12 +81,12 @@ router.post('/add/message',
 // GET
 router.get('/all',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(userSchema.queryParams, 'query'),
+    valdidationMiddleware(baseSchema.queryControl, 'query'),
     userController.allUsers)
 
 router.get('/messages/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(userSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     userController.allMessages)
 
 router.get('/logout',

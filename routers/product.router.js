@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 const imagesMiddleware = require('../middlewares/images.middleware')
 const validationMiddleware = require('../middlewares/validation.middleware')
 const productSchema = require('../validates/product.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
@@ -45,37 +46,37 @@ router.get('/search/history',
     productController.searchHistory)
 
 router.get('/offers',
-    validationMiddleware(productSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     productController.offerProduct)
 
 router.get('/top/selling',
-    validationMiddleware(productSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     productController.topSelling)
 
 router.get('/top/liked',
-    validationMiddleware(productSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     productController.topLiked)
 
 router.get('/reviews/:id',
-    validationMiddleware(productSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     productController.fetchReview)
 
 router.get('/categories',
-    validationMiddleware(productSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     productController.allCategory)
 
 router.get('/subcategories',
-    validationMiddleware(productSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     productController.allSubcategory)
 
 router.get('/brands',
-    validationMiddleware(productSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     productController.allBrands)
 
 router.get('/likes/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(productSchema.idControl, 'params'),
-    validationMiddleware(productSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     productController.productLikes)
 
 router.get('/:slug', productController.fetchProduct)
@@ -83,7 +84,7 @@ router.get('/:slug', productController.fetchProduct)
 // DELETE
 router.delete('/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(productSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     productController.deleteProduct)
 
 module.exports = router

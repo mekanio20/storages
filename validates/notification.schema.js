@@ -2,10 +2,6 @@ const Joi = require('joi')
 
 const notificationSchema = {
 
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
-
     addNotification: Joi.object({
         receivers: Joi.string().valid('all', 'my-customers').required(),
         title: Joi.string().min(5).max(100).regex(/^[a-zA-Z0-9!?ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),

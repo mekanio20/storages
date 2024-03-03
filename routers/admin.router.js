@@ -6,11 +6,12 @@ const imagesMiddleware = require('../middlewares/images.middleware')
 const limitterMiddleware = require('../middlewares/limitter.middleware')
 const validationMiddleware = require('../middlewares/validation.middleware')
 const adminSchema = require('../validates/admin.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/login-page',
     limitterMiddleware(),
-    validationMiddleware(adminSchema.login, 'body'),
+    validationMiddleware(baseSchema.loginControl, 'body'),
     adminController.adminLogin)
 
 router.post('/add/group',
@@ -58,7 +59,7 @@ router.post('/add/brand',
 
 router.post('/add/staff',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(adminSchema.idControl, 'body'),
+    validationMiddleware(baseSchema.idControl, 'body'),
     adminController.addStaff)
 
 router.post('/add/subscription',
@@ -69,32 +70,32 @@ router.post('/add/subscription',
 // GET
 router.get('/all/groups',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(adminSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     adminController.allGroups)
 
 router.get('/all/permissions',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(adminSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     adminController.allPermissions)
 
 router.get('/all/subscriptions',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(adminSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     adminController.allSubscriptions)
 
 router.get('/all/features',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(adminSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     adminController.allFeatures)
 
 router.get('/all/feature/descriptions',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(adminSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     adminController.allFeatureDescriptions)
 
 router.get('/subcategory/features',
     authMiddleware,
-    validationMiddleware(adminSchema.queryParams, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     adminController.allSubcategoryFeatures)
 
 // -- statistic
@@ -179,62 +180,62 @@ router.put('/update/subcategory/feature/',
 // DELETE
 router.delete('/delete/group/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteGroup)
 
 router.delete('/delete/permission/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deletePermission)
 
 router.delete('/delete/subscription/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteScubscription)
 
 router.delete('/delete/brand/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteBrand)
 
 router.delete('/delete/category/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteCategory)
 
 router.delete('/delete/subcategory/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteSubCategory)
 
 router.delete('/delete/user/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteUser)
 
 router.delete('/delete/customer/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteCustomer)
 
 router.delete('/delete/seller/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteSeller)
 
 router.delete('/delete/feature/desc/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteFeatureDesc)
 
 router.delete('/delete/feature/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteFeature)
 
 router.delete('/delete/subcategory/feature/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(adminSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     adminController.deleteSubcategoryFeature)
 
 // DEFAULT

@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 const imagesMiddleware = require('../middlewares/images.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const commentSchema = require('../validates/comment.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
@@ -23,7 +24,7 @@ router.get('/all',
 // DELETE
 router.delete('/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(commentSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     commentController.deleteComment)
 
 module.exports = router

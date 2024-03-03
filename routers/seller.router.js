@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 const imagesMiddleware = require('../middlewares/images.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const sellerSchema = require('../validates/seller.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/register',
@@ -18,7 +19,7 @@ router.post('/register',
 
 // GET
 router.get('/top',
-    valdidationMiddleware(sellerSchema.queryParams, 'query'),
+    valdidationMiddleware(baseSchema.queryControl, 'query'),
     sellerController.topSellers)
 
 router.get('/all',
@@ -33,16 +34,16 @@ router.get('/orders',
 
 router.get('/order/detail/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(sellerSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     sellerController.orderDetail)
 
 router.get('/followers/:id',
-    valdidationMiddleware(sellerSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     sellerController.sellerFollowers)
 
 router.get('/profile/:id',
     authMiddleware,
-    valdidationMiddleware(sellerSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     sellerController.profileSeller)
 
 router.get('/products',

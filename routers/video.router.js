@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 const videoMiddleware = require('../middlewares/video.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const videoSchema = require('../validates/video.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
@@ -16,7 +17,7 @@ router.post('/add',
 // GET
 router.get('/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(videoSchema.idControl, 'params'),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
     videoController.getVideo)
 
 module.exports = router

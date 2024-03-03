@@ -1,10 +1,7 @@
 const Joi = require('joi')
 
 const sellerSchema = {
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
-
+    
     sellerRegister: Joi.object({
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/),
         store_number: Joi.number().positive().required(),
@@ -50,13 +47,6 @@ const sellerSchema = {
         order: Joi.string().valid('asc', 'desc').optional(),
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional()
-    }),
-
-    queryParams: Joi.object({
-        page: Joi.number().positive().optional(),
-        limit: Joi.number().positive().optional(),
-        order: Joi.string().valid('asc', 'desc').optional(),
-        status: Joi.string().valid('all').optional()
     }),
 
     sellerProucts: Joi.object({

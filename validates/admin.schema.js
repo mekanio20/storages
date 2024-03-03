@@ -1,16 +1,7 @@
 const Joi = require('joi')
 
 const adminSchema = {
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
-
     // ADD
-    login: Joi.object({
-        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
-        password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
-    }),
-
     addGroup: Joi.object({
         id: Joi.number().positive().optional(),
         name: Joi.string().uppercase().min(3).max(20).regex(/^[a-zA-Z]/).required(),
@@ -31,16 +22,16 @@ const adminSchema = {
     addCategory: Joi.object({
         id: Joi.number().positive().optional(),
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).optional(), // .regex(/^[\u0400-\u04FF]+$/),
-        en_name: Joi.string().min(3).max(100).optional(), //regex(/^[a-zA-Z-]/),
+        ru_name: Joi.string().min(3).max(100).optional(),
+        en_name: Joi.ref('ru_name'),
         isActive: Joi.boolean().optional()
     }),
 
     addSubcategory: Joi.object({
         id: Joi.number().positive().optional(),
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).optional(), // .regex(/^[\u0400-\u04FF]+$/),
-        en_name: Joi.string().min(3).max(100).optional(), //regex(/^[a-zA-Z-]/),
+        ru_name: Joi.string().min(3).max(100).optional(),
+        en_name: Joi.ref('ru_name'),
         categoryId: Joi.number().positive().required(),
         isActive: Joi.boolean().optional()
     }),
@@ -48,8 +39,8 @@ const adminSchema = {
     addFeature: Joi.object({
         id: Joi.number().positive().optional(),
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9-]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9-]/).allow('', null),
+        ru_name: Joi.string().min(3).max(100).optional(),
+        en_name: Joi.ref('ru_name'),
         isActive: Joi.boolean().optional()
     }),
 
@@ -61,7 +52,7 @@ const adminSchema = {
 
     addSubcategoryFeature: Joi.object({
         subcategoryId: Joi.number().positive().required(),
-        featureId: Joi.number().positive().required(),
+        featureId: Joi.ref('subcategoryId'),
         isActive: Joi.boolean().optional()
     }),
 
@@ -77,23 +68,23 @@ const adminSchema = {
         name: Joi.string().max(50).required(),
         price: Joi.number().integer().max(10000).positive().required(),
         order: Joi.number().integer().max(10).positive().required(),
-        p_limit: Joi.number().integer().max(10000).positive().required(),
-        p_img_limit: Joi.number().integer().max(10000).positive().required(),
-        seller_banner_limit: Joi.number().integer().max(10000).positive().required(),
-        main_banner_limit: Joi.number().integer().max(10000).positive().required(),
-        ntf_limit: Joi.number().integer().max(10000).positive().required(),
-        voucher_limit: Joi.number().integer().max(10000).positive().required(),
+        p_limit: Joi.ref('price'),
+        p_img_limit: Joi.ref('price'),
+        seller_banner_limit: Joi.ref('price'),
+        main_banner_limit: Joi.ref('price'),
+        ntf_limit: Joi.ref('price'),
+        voucher_limit: Joi.ref('price'),
         smm_support: Joi.boolean().required(),
-        tech_support: Joi.boolean().required(),
+        tech_support: Joi.ref('smm_support'),
     }),
 
     // UPDATE
     updateUser: Joi.object({
         id: Joi.number().positive().required(),
         isActive: Joi.boolean().optional(),
-        isCustomer: Joi.boolean().optional(),
-        isSeller: Joi.boolean().optional(),
-        isStaff: Joi.boolean().optional()
+        isCustomer: Joi.ref('isActive'),
+        isSeller: Joi.ref('isActive'),
+        isStaff: Joi.ref('isActive')
     }),
 
     updateSeller: Joi.object({
@@ -115,18 +106,9 @@ const adminSchema = {
     updateSubcategoryFeature: Joi.object({
         id: Joi.number().positive().required(),
         featureId: Joi.number().positive().optional(),
-        subcategoryId: Joi.number().positive().optional(),
+        subcategoryId: Joi.ref('featureId'),
         isActive: Joi.boolean().optional()
-    }),
-
-    // GET
-    queryParams: Joi.object({
-        page: Joi.number().positive().optional(),
-        limit: Joi.number().positive().optional(),
-        order: Joi.string().valid('asc', 'desc').optional(),
-        status: Joi.string().valid('all', true, false).optional()
     })
-    
 }
 
 module.exports = adminSchema

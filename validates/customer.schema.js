@@ -1,10 +1,7 @@
 const Joi = require('joi')
 
 const customerSchema = {
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
-
+ 
     customerRegister: Joi.object({
         fullname: Joi.string().min(3).max(30).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).messages({'string.pattern.base': 'Invalid fullname'}).required(),
         gender: Joi.string().valid('male', 'fmale').required(),
@@ -17,13 +14,6 @@ const customerSchema = {
         gender: Joi.string().valid('male', 'fmale').optional(),
         sort: Joi.string().valid('id', 'fullname').optional(),
         order: Joi.string().valid('asc', 'desc').optional()
-    }),
-
-    queryParams: Joi.object({
-        page: Joi.number().positive().optional(),
-        limit: Joi.number().positive().optional(),
-        order: Joi.string().valid('asc', 'desc').optional(),
-        status: Joi.string().valid('all').optional()
     })
 }
 

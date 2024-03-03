@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 const imagesMiddleware = require('../middlewares/images.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const customerSchema = require('../validates/customer.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/register',
@@ -21,22 +22,22 @@ router.get('/all',
 
 router.get('/favorite',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(customerSchema.queryParams, 'query'),
+    valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.customerfavorite)
 
 router.get('/basket',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(customerSchema.queryParams, 'query'),
+    valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.customerBasket)
 
 router.get('/followed',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(customerSchema.queryParams, 'query'),
+    valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.customerFollowed)
 
 router.get('/orders',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(customerSchema.queryParams, 'query'),
+    valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.customerOrders)
 
 router.get('/profile',

@@ -1,10 +1,6 @@
 const Joi = require('joi')
 
 const bannerSchema = {
-    
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
 
     addBanner: Joi.object({
         url: Joi.string().uri({ scheme: ['http', 'https'] }).required(),

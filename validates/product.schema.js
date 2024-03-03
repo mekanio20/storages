@@ -2,10 +2,6 @@ const Joi = require('joi')
 
 const productSchema = {
 
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
-
     addProduct: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
@@ -64,14 +60,6 @@ const productSchema = {
         sort: Joi.string().valid('id', 'sale_price').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         isActive: Joi.string().valid('all').optional()
-    }),
-
-    queryParams: Joi.object({
-        page: Joi.number().positive().optional(),
-        limit: Joi.number().positive().optional(),
-        sort: Joi.string().valid('id', 'discount').optional(),
-        order: Joi.string().valid('asc', 'desc').optional(),
-        status: Joi.string().valid('all').optional()
     }),
 
     searchProduct: Joi.object({

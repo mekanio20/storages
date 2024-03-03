@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 const imagesMiddleware = require('../middlewares/images.middleware')
 const validationMiddleware = require('../middlewares/validation.middleware')
 const bannerSchema = require('../validates/banner.schema')
+const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
@@ -26,7 +27,7 @@ router.get('/all',
 // DELETE
 router.delete('/:id',
     authMiddleware, accessMiddleware(true),
-    validationMiddleware(bannerSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     bannerController.deleteBanner)
 
 module.exports = router

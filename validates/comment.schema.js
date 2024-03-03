@@ -1,9 +1,6 @@
 const Joi = require('joi')
 
 const commentSchema = {
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-    }),
     
     addComment: Joi.object({
         productId: Joi.number().positive().required(),

@@ -1,15 +1,6 @@
 const Joi = require('joi')
 
 const userSchema = {
-    idControl: Joi.object({
-        id: Joi.number().positive().required()
-     }),
-
-    login: Joi.object({
-        phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
-        password: Joi.string().min(4).max(25).regex(/^[a-zA-Z0-9!?^.,_@#$%&*:;=+]{4,25}$/).required(),
-    }),
-
     check: Joi.object({
         code: Joi.number().positive().max(9999).required()
     }),
@@ -42,13 +33,6 @@ const userSchema = {
     addMessage: Joi.object({
         content: Joi.string().max(750).required(),
         userId: Joi.number().positive().required()
-    }),
-
-    queryParams: Joi.object({
-        page: Joi.number().positive().optional(),
-        limit: Joi.number().positive().optional(),
-        order: Joi.string().valid('asc', 'desc').optional(),
-        status: Joi.string().valid('all').optional()
     })
 }
 
