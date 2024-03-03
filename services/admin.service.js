@@ -22,149 +22,17 @@ class AdminService {
         }
     }
 
-    async addCategoryService(body, userId, img) {
-        try {
-            if (!img.filename) { return Response.BadRequest('logo gerek!', []) }
-            const _category = await Verification.isFound(Models.Categories, body.tm_name)
-            if (_category.length > 0) { return Response.BadRequest('Maglumat eýýäm döredilen!', []) }
-            const category = await Models.Categories.create({
-                tm_name: body.tm_name,
-                ru_name: body.ru_name || null,
-                en_name: body.en_name || null,
-                slug: slug,
-                userId: userId,
-                logo: img.filename,
-                isActive: body.isActive || true,
-            }).catch((err) => { console.log(err) })
-            return Response.Created('Maglumat döredildi!', category)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addSubcategoryService(body, userId, img) {
-        try {
-            if (!img.filename) { return Response.BadRequest('logo gerek!', []) }
-            let slug = body.tm_name.split(" ").join('-').toLowerCase()
-            const _subcategory = await Verification.isFound(Models.Subcategories, slug)
-            if (_subcategory.length > 0) { return Response.BadRequest('Maglumat eýýäm döredilen!', []) }
-            const subcategory = await Models.Subcategories.create({
-                tm_name: body.tm_name,
-                ru_name: body.ru_name || null,
-                en_name: body.en_name || null,
-                slug: slug,
-                userId: userId,
-                logo: img.filename,
-                categoryId: body.categoryId,
-                isActive: body.isActive || true,
-            }).catch((err) => { console.log(err) })
-            return Response.Created('Maglumat döredildi!', subcategory)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addFeatureService(body, userId) {
-        try {
-            const _features = await Models.Features.count({ where: { tm_name: body.tm_name } })
-            if (_features.count > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            const feature = await Models.Features.create({
-                tm_name: body.tm_name,
-                ru_name: body.ru_name || null,
-                en_name: body.en_name || null,
-                userId: userId
-            })
-            return Response.Created('Maglumat döredildi!', feature)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addFeatureDescriptionService(body, userId) {
-        try {
-            const { desc, featureId, isActive } = body
-            console.log(body);
-            const _featureDesc = await Models.FeatureDescriptions.findAll({ where: { desc: desc, featureId: featureId } })
-            if (_featureDesc.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            const featureDesc = await Models.FeatureDescriptions.create({
-                desc: desc,
-                featureId: featureId,
-                isActive: isActive,
-                userId: userId
-            }).catch((err) => { console.log(err) })
-            return Response.Created('Maglumat döredildi!', featureDesc)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addSubcategoryFeatureService(body, userId) {
-        try {
-            const { subcategoryId, featureId } = body
-            const _subcategory_features = await Models.SubcategoryFeatures.findAll({ where: { subcategoryId: subcategoryId, featureId: featureId } })
-            if (_subcategory_features.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            const subcategory_features = await Models.SubcategoryFeatures.create({ subcategoryId: subcategoryId, featureId: featureId, userId: userId })
-            return Response.Created('Maglumat döredildi!', subcategory_features)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addBrandService(body, brand_img, userId) {
-        try {
-            if (!brand_img) { return Response.BadRequest('logo gerek!', []) }
-            let slug = body.name.split(" ").join('-').toLowerCase()
-            const brand = await Verification.isFound(Models.Brands, slug)
-            if (brand.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
-            const brands = await Models.Brands.create({
-                name: body.name,
-                slug: slug,
-                img: brand_img.filename,
-                isActive: body.isActive || true,
-                desc: body.desc || null,
-                userId: userId
-            })
-            return Response.Created('Maglumat döredildi!', brands)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async addStaffService(userId) {
         try {
             const groupId = await Models.Groups.findOne({ where: { name: 'STAFF' }, attributes: ['id'] })
-            if (!groupId) { return Response.NotFound('Beyle grupba yok!', []) }
+            if (!groupId) { return Response.NotFound('Beýle grupba yok!', []) }
             const staff = await Models.Users.findOne({ where: { id: Number(userId), isStaff: true } })
-            if (staff.length > 0) { return Response.BadRequest('Admin doredilen!', []) }
+            if (staff.length > 0) { return Response.BadRequest('Admin döredilen!', []) }
             await Models.Users.update({ isStaff: true, isCustomer: false, isSeller: false, groupId: groupId.id }, { where: { id: Number(userId) } })
             const token = await Functions.generateJwt(userId, groupId.id)
             let response = await Response.Created('Admin hasaba alyndy!', [])
             response.token = token
             return response
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addSubscriptionService(body) {
-        try {
-            const _subscription = await Models.Subscriptions.findAll({ where: { name: body.name } })
-            if (_subscription.length > 0) { return Response.BadRequest('Maglumat eyyam döredilen!', []) }
-            const subscription = await Models.Subscriptions.create({
-                name: body.name,
-                price: body.price,
-                order: body.order,
-                p_limit: body.p_limit,
-                p_img_limit: body.p_img_limit,
-                seller_banner_limit: body.seller_banner_limit,
-                main_banner_limit: body.main_banner_limit,
-                ntf_limit: body.ntf_limit,
-                voucher_limit: body.voucher_limit,
-                smm_support: body.smm_support,
-                tech_support: body.tech_support
-            })
-            return Response.Created('Subscription döredildi!', subscription)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -255,64 +123,6 @@ class AdminService {
     }
 
     // UPDATE
-    async updateBrandService(body, file) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            if (file) { obj.img = file.filename }
-            obj.slug = obj.name.split(" ").join('-').toLowerCase()
-            obj.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
-            await Models.Brands.update(obj, { where: { id: Number(body.id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async updateCategoryService(body, file) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            if (file) { obj.logo = file.filename }
-            obj.slug = obj.tm_name.split(" ").join('-').toLowerCase()
-            await Models.Categories.update(obj, { where: { id: Number(body.id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async updateSubCategoryService(body, file) {
-        try {
-            const obj = {}
-            for (const item in body) {
-                if (item && item !== 'id') {
-                    obj[item] = body[item]
-                }
-            }
-            if (file) { obj.logo = file.filename }
-            obj.slug = obj.tm_name.split(" ").join('-').toLowerCase()
-            await Models.Subcategories.update(obj, { where: { id: Number(body.id) } })
-                .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            return Response.Success('Üstünlikli', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async updateUserService(body) {
         try {
             const obj = {}

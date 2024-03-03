@@ -59,10 +59,18 @@ class AdminController {
 
     async addSubcategory(req, res) {
         try {
-            const img = req.file
+            const file = await Verification.isFile(req?.file?.filename)
+            if (!file) {
+                const response = await Response.BadRequest('logo gerek!', [])
+                return res.status(response.status).json(response)
+            }
+            const slug = await Functions.generateSlug(req.body.tm_name)
+            const isExist = { slug: slug }
             const body = req.body
-            const userId = req.user.id
-            const data = await adminService.addSubcategoryService(body, userId, img)
+            body.logo = file
+            body.slug = slug
+            body.userId = req.user.id
+            const data = await new baseService(Models.Subcategories).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -72,8 +80,9 @@ class AdminController {
     async addFeature(req, res) {
         try {
             const body = req.body
-            const userId = req.user.id
-            const data = await adminService.addFeatureService(body, userId)
+            body.userId = req.user.id
+            const isExist = { tm_name: body.tm_name }
+            const data = await new baseService(Models.Features).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -83,8 +92,9 @@ class AdminController {
     async addFeatureDescription(req, res) {
         try {
             const body = req.body
-            const userId = req.user.id
-            const data = await adminService.addFeatureDescriptionService(body, userId)
+            body.userId = req.user.id
+            const isExist = { desc: body.desc, featureId: body.featureId }
+            const data = await new baseService(Models.FeatureDescriptions).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -94,8 +104,9 @@ class AdminController {
     async addSubcategoryFeature(req, res) {
         try {
             const body = req.body
-            const userId = req.user.id
-            const data = await adminService.addSubcategoryFeatureService(body, userId)
+            body.userId = req.user.id
+            const isExist = { subcategoryId: body.subcategoryId, featureId: body.featureId }
+            const data = await new baseService(Models.SubcategoryFeatures).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -105,9 +116,18 @@ class AdminController {
     async addBrand(req, res) {
         try {
             const body = req.body
-            const brand_img = req.file
-            const userId = req.user.id
-            const data = await adminService.addBrandService(body, brand_img, userId)
+            const file = await Verification.isFile(req?.file?.filename)
+            if (!file) {
+                const response = await Response.BadRequest('logo gerek!', [])
+                return res.status(response.status).json(response)
+            }
+            const slug = await Functions.generateSlug(req.body.name)
+            const isExist = { slug: slug }
+            body.img = file
+            body.slug = slug
+            body.userId = req.user.id
+            body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
+            const data = await new baseService(Models.Brands).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -125,7 +145,8 @@ class AdminController {
 
     async addSubscription(req, res) {
         try {
-            const data = await adminService.addSubscriptionService(req.body)
+            const isExist = { name: req.body.name }
+            const data = await new baseService(Models.Subscriptions).addService(isExist, req.body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -235,7 +256,13 @@ class AdminController {
 
     async updateBrand(req, res) {
         try {
-            const data = await adminService.updateBrandService(req.body, req.file)
+            const body = req.body
+            const file = await Verification.isFile(req?.file?.filename)
+            const slug = await Functions.generateSlug(req.body.name)
+            if (file) { body.img = file }
+            body.slug = slug
+            body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
+            const data = await new baseService(Models.Brands).updateService(body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -244,7 +271,12 @@ class AdminController {
 
     async updateCategory(req, res) {
         try {
-            const data = await adminService.updateCategoryService(req.body, req.file)
+            const body = req.body
+            const file = await Verification.isFile(req?.file?.filename)
+            const slug = await Functions.generateSlug(req.body.tm_name)
+            if (file) { body.logo = file }
+            body.slug = slug
+            const data = await new baseService(Models.Categories).updateService(body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -253,7 +285,12 @@ class AdminController {
 
     async updateSubCategory(req, res) {
         try {
-            const data = await adminService.updateSubCategoryService(req.body, req.file)
+            const body = req.body
+            const file = await Verification.isFile(req?.file?.filename)
+            const slug = await Functions.generateSlug(req.body.tm_name)
+            if (file) { body.logo = file }
+            body.slug = slug
+            const data = await new baseService(Models.Subcategories).updateService(body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error })
@@ -333,7 +370,7 @@ class AdminController {
         }
     }
 
-    async deleteAccessPath(req, res) {
+    async deletePermission(req, res) {
         try {
             const data = await new baseService(Models.GroupPermissions).deleteService(req.params.id)
             return res.status(data.status).json(data)

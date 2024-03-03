@@ -185,7 +185,7 @@ router.delete('/delete/group/:id',
 router.delete('/delete/permission/:id',
     authMiddleware, accessMiddleware(true),
     validationMiddleware(adminSchema.idControl, 'params'),
-    adminController.deleteAccessPath)
+    adminController.deletePermission)
 
 router.delete('/delete/subscription/:id',
     authMiddleware, accessMiddleware(true),
