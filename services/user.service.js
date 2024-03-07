@@ -123,19 +123,19 @@ class UserService {
 
     async addBasketService(body, userId) {
         try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return customerId }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const product = await Models.Products.findOne({ where: { id: body.productId, isActive: true } })
             if (!product) { return Response.BadRequest('Haryt tapylmady!', []) }
             const [basket, created] = await Models.Baskets.findOrCreate({
                 where: {
                     productId: body.productId,
-                    customerId: customerId
+                    customerId: customer
                 },
                 defaults: {
                     quantity: body.quantity,
                     productId: body.productId,
-                    customerId: customerId
+                    customerId: customer
                 }
             }).catch(((err) => { console.log(err) }))
             if (created == false) {
@@ -154,7 +154,7 @@ class UserService {
         try {
             const customerId = await Verification.isCustomer(userId) || await Verification.isCustomer(body.userId)
             const sellerId = await Verification.isSeller(body.userId) || await Verification.isSeller(userId)
-            if (!customerId || !sellerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            if (isNaN(customerId) || isNaN(sellerId)) { return customerId }
             const [chat, created] = await Models.Chats.findOrCreate({
                 where: {
                     customerId: customerId,

@@ -1,19 +1,18 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-const fs = require('fs')
 
 class VideoService {
     // POST
     async addVideoService(body, video, userId) {
         try {
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
             await Models.Videos.create({
                 desc: body.desc,
                 hesdek: body.hesdek,
                 video: video.filename,
-                sellerId: sellerId
+                sellerId: seller
             }).catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
@@ -23,10 +22,9 @@ class VideoService {
     // GET
     async getVideoService(id) {
         try {
-            const video = await Models.Videos.findOne({ where: { id: Number(id) } })
-            const videoPath = '/Users/mekan/Desktop/optovoy/storages/public/videos' + video.video
-            const _video = fs.createReadStream(videoPath);
-            
+            const video = await Models.Videos.findOne({ where: { id: Number(id), isActive: true } })
+            if (!video) { return Response.BadRequest('Wideo tapylmady!', []) }
+            return Response.Success('Üstünlikli!', video)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

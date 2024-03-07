@@ -277,9 +277,9 @@ class AdminService {
             ]).then(() => { console.log('Subscriptions created') }).catch((err) => { console.log(err) })
 
             await Models.Sellers.bulkCreate([
-                { name: 'Mekan dukan1', store_number: 1, store_floor: 1, about: 'hosh geldiniz!', logo: 'test1.jpg', bg_img: 'bg.jpg', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755727', second_number: '63755728', userId: 3, categoryId: 1, subscriptionId: 1 },
-                { name: 'Mekan dukan2', store_number: 2, store_floor: 1, about: 'hosh geldiniz!', logo: 'test2.jpg', bg_img: 'bg.jpg', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755729', second_number: '63755730', userId: 10, categoryId: 1, subscriptionId: 2 },
-                { name: 'Mekan dukan3', store_number: 3, store_floor: 2, about: 'hosh geldiniz!', logo: 'test3.jpg', bg_img: 'bg.jpg', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755731', second_number: '63755732', userId: 11, categoryId: 3, subscriptionId: 3 }
+                { name: 'Mekan dukan1', store_number: 1, store_floor: 1, about: 'hosh geldiniz!', logo: 'test1.jpg', bg_img: 'bg.jpg', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755727', second_number: '63755728', userId: 3, categoryId: 1, subscriptionId: 1, isVerified: true },
+                { name: 'Mekan dukan2', store_number: 2, store_floor: 1, about: 'hosh geldiniz!', logo: 'test2.jpg', bg_img: 'bg.jpg', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755729', second_number: '63755730', userId: 10, categoryId: 1, subscriptionId: 2, isVerified: true },
+                { name: 'Mekan dukan3', store_number: 3, store_floor: 2, about: 'hosh geldiniz!', logo: 'test3.jpg', bg_img: 'bg.jpg', seller_type: 'in-opt', sell_type: 'partial', instagram: 'https://instagram.com/mekan', tiktok: 'https://tiktok.com/mekan', main_number: '63755731', second_number: '63755732', userId: 11, categoryId: 3, subscriptionId: 3, isVerified: true }
             ]).then(() => { console.log('Sellers created') }).catch((err) => { console.log(err) })
 
             await Models.Products.bulkCreate([
@@ -502,6 +502,10 @@ class AdminService {
                 { url: '/api/customer/profile', method: 'GET', groupId: 4 },
                 // VIDEO ROUTER
                 { url: '/api/video/add', method: 'POST', groupId: 3 },
+                { url: '/api/video', method: 'GET', groupId: 4 },
+                { url: '/api/video', method: 'GET', groupId: 3 },
+                { url: '/api/video', method: 'GET', groupId: 2 },
+                { url: '/api/video', method: 'GET', groupId: 1 },
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])

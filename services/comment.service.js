@@ -7,19 +7,19 @@ class CommentService {
     // POST
     async addCommentService(body, filenames, userId) {
         try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const order = await Models.Orders.findOne({
                 attributes: ['id'],
                 where: {
-                    customerId: customerId,
+                    customerId: customer,
                     productId: body.productId,
                     status: 'completed'
                 }
             })
             if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
             const comments = await Models.Comments.create({
-                customerId: customerId,
+                customerId: customer,
                 productId: body.productId,
                 comment: body.comment
             })
@@ -96,9 +96,9 @@ class CommentService {
                     .then(() => { console.log(true) })
                 return Response.Success('Üstünlikli!', [])
             }
-            const customerId = await Verification.isCustomer(user.id)
-            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
-            const comment = await Models.Comments.findOne({ where: { customerId: customerId } })
+            const customer = await Verification.isCustomer(user.id)
+            if (isNaN(customer)) { return customer }
+            const comment = await Models.Comments.findOne({ where: { customerId: customer } })
             if (!comment) { return Response.Forbidden('Rugsat edilmedi!', []) }
             await Models.Comments.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })

@@ -59,11 +59,11 @@ class CustomerService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const products = await Models.Likes.findAndCountAll({
                 attributes: ['id'],
-                where: { customerId: customerId },
+                where: { customerId: customer },
                 include: {
                     model: Models.Products,
                     where: { isActive: true },
@@ -97,12 +97,12 @@ class CustomerService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const customerId = await Verification.isCustomer(id)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const basket = await Models.Baskets.findAndCountAll({
                 where: {
                     isActive: true,
-                    customerId: customerId
+                    customerId: customer
                 },
                 attributes: { exclude: ['customerId', 'productId', 'createdAt', 'updatedAt'] },
                 include: [
@@ -144,10 +144,10 @@ class CustomerService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const customerId = await Verification.isCustomer(id)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const followed = await Models.Followers.findAndCountAll({
-                where: { customerId: customerId },
+                where: { customerId: customer },
                 attributes: ['id'],
                 include: {
                     model: Models.Sellers,
@@ -169,11 +169,11 @@ class CustomerService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const customerId = await Verification.isCustomer(id)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const orders = await Models.Orders.findAndCountAll({
                 attributes: ['id', 'order_id', 'status', 'time'],
-                where: { customerId: customerId },
+                where: { customerId: customer },
                 include: [
                     {
                         model: Models.Products,
@@ -210,8 +210,8 @@ class CustomerService {
 
     async customerProfileService(userId) {
         try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const user = await Models.Users.findOne({
                 where: { id: userId },
                 attributes: ['id', 'phone'],

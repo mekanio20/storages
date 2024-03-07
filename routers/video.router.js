@@ -15,9 +15,14 @@ router.post('/add',
     videoController.addVideo)
 
 // GET
+router.get('/random',
+    authMiddleware,
+    videoController.getRandomId)
+
 router.get('/:id',
     authMiddleware, accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     videoController.getVideo)
+
 
 module.exports = router

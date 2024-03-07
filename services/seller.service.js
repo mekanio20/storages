@@ -103,15 +103,15 @@ class SellerService {
             let status = q.status || 'ondelivery'
             let sort = q.sort || 'id'
             let order = q.order || 'desc'
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
             const orders = await Models.Orders.findAndCountAll({
                 attributes: ['id', 'customerId', 'order_id', 'status', 'time'],
                 where: { status: status },
                 include: [
                     {
                         model: Models.Products,
-                        where: { isActive: true, sellerId: sellerId },
+                        where: { isActive: true, sellerId: seller },
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
                         include: [
                             {
@@ -144,14 +144,14 @@ class SellerService {
 
     async orderDetailService(id, userId) {
         try {
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
             const order = await Models.Orders.findOne({
                 attributes: { exclude: ['createdAt', 'updatedAt', 'customerId', 'productId'] },
                 include: [
                     {
                         model: Models.Products,
-                        where: { isActive: true, sellerId: sellerId },
+                        where: { isActive: true, sellerId: seller },
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
                         include: [
                             {
@@ -260,9 +260,9 @@ class SellerService {
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
             seller.dataValues.followers = await Models.Followers.count({ where: { sellerId: id } })
             seller.dataValues.products = await Models.Products.count({ where: { sellerId: id } })
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy login bolmady!', []) }
-            seller.dataValues.isFollow = await Models.Followers.findOne({ where: { customerId: customerId, sellerId: id } }) ? true : false
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
+            seller.dataValues.isFollow = await Models.Followers.findOne({ where: { customerId: customer, sellerId: id } }) ? true : false
             const _seller = await Models.Products.findAll({ attributes: ['id'], where: { sellerId: id } })
             for (let i = 0; i < _seller.length; i++) {
                 rating += await (await fetchReviewService(_seller[i].id)).detail.rating
@@ -353,8 +353,8 @@ class SellerService {
 
     async sellerStatisticService(userId) {
         try {
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
             let year = new Date().getFullYear()
             let month = new Date().getMonth() - 1
             if (month === 0) {
@@ -373,7 +373,7 @@ class SellerService {
                 include: {
                     model: Models.Products,
                     attributes: ['sale_price'],
-                    where: { sellerId: sellerId },
+                    where: { sellerId: seller },
                 }
             }).catch((err) => { console.log(err) })
             let oldTotalMoney = 0
@@ -386,7 +386,7 @@ class SellerService {
                 include: {
                     model: Models.Products,
                     attributes: ['sale_price'],
-                    where: { sellerId: sellerId },
+                    where: { sellerId: seller },
                 }
             }).catch((err) => { console.log(err) })
             let totalMoney = 0
@@ -412,12 +412,12 @@ class SellerService {
     async updateSellerProfileService(body, userId, files) {
         try {
             let newObj = {}
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
             for (const key in body) { if (body[key]) { newObj[key] = body[key] } }
             if (files?.logo) { newObj.logo = files.logo[0].filename }
             if (files?.bg_img) { newObj.bg_img = files.bg_img[0].filename }
-            await Models.Sellers.update(newObj, { where: { id: sellerId } })
+            await Models.Sellers.update(newObj, { where: { id: seller } })
                 .catch((err) => { console.log(err) })
             return Response.Success('Satyjy maglumaty täzelendi!', [])
         } catch (error) {
@@ -428,9 +428,9 @@ class SellerService {
     // DELETE
     async deleteSellerService(userId) {
         try {
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Forbidden('Rugsat edilmedi!', []) }
-            await Models.Sellers.destroy({ where: { id: sellerId } })
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
+            await Models.Sellers.destroy({ where: { id: seller } })
                 .then(() => { console.log(true) })
                 .catch((err) => { console.log(err) })
             return Response.Success('Satyjy maglumaty pozuldy!', [])

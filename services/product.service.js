@@ -10,8 +10,8 @@ class ProductService {
     // POST
     async addProductService(body, filenames, userId) {
         try {
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
             const slug = await Functions.generateSlug(body.tm_name)
             const _product = await Models.Products.findOne({
                 where: {
@@ -26,7 +26,7 @@ class ProductService {
             const subscription = await Models.Sellers.findOne({
                 attributes: ['subscriptionId'],
                 where: {
-                    id: sellerId
+                    id: seller
                 }
             }).catch((err) => { console.log(err) })
             console.log('SUBSCTIPTIONS --> ', JSON.stringify(subscription, 2, null))
@@ -39,7 +39,7 @@ class ProductService {
             console.log('LIMITS --> ', JSON.stringify(limits, 2, null))
             await Models.Products.findAll({
                 attributes: ['slug'],
-                where: { sellerId: sellerId },
+                where: { sellerId: seller },
                 include: { model: Models.ProductImages },
                 order: [['id', 'ASC']]
             }).then((res) => {
@@ -68,7 +68,7 @@ class ProductService {
                 gender: body.gender,
                 subcategoryId: body.subcategoryId,
                 brandId: body.brandId,
-                sellerId: sellerId
+                sellerId: seller
             }).catch((err) => { console.log(err) })
             if (filenames.img) {
                 filenames.img.forEach(async (item, index) => {
@@ -89,12 +89,12 @@ class ProductService {
 
     async addProductReviewService(body, userId) {
         try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const order = await Models.Orders.findOne({
                 attributes: ['id'],
                 where: {
-                    customerId: customerId,
+                    customerId: customer,
                     productId: body.productId,
                     status: 'completed'
                 }
@@ -103,12 +103,12 @@ class ProductService {
             const [review, created] = await Models.ProductReviews.findOrCreate({
                 where: {
                     productId: body.productId,
-                    customerId: customerId
+                    customerId: customer
                 },
                 defaults: {
                     star: body.star,
                     productId: body.productId,
-                    customerId: customerId
+                    customerId: customer
                 }
             })
             if (created == false) {
@@ -123,11 +123,11 @@ class ProductService {
 
     async addCouponService(body, img, userId) {
         try {
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
             const limit = await Models.Sellers.findOne({
                 attributes: [],
-                where: { id: sellerId },
+                where: { id: seller },
                 include: {
                     model: Models.Subscriptions,
                     attributes: ['voucher_limit']
@@ -151,7 +151,7 @@ class ProductService {
                 start_date: body.start_date,
                 end_date: body.end_date,
                 isPublic: body.isPublic,
-                sellerId: sellerId
+                sellerId: seller
             }).catch((err) => { console.log(err) })
             return Response.Created('Kupon döredildi!', [])
         } catch (error) {
@@ -161,10 +161,10 @@ class ProductService {
 
     async addOfferService(body, userId) {
         try {
-            const sellerId = await Verification.isSeller(userId)
-            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
-            const seller = await Models.Products.findOne({ where: { id: productId, sellerId: sellerId } })
-            if (!seller) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
+            const _seller = await Models.Products.findOne({ where: { id: productId, sellerId: seller } })
+            if (!_seller) { return Response.Forbidden('Rugsat edilmedi!', []) }
             const [offer, created] = await Models.Offers.findOrCreate({
                 where: { productId: body.productId },
                 defaults: {
@@ -645,9 +645,9 @@ class ProductService {
                     .then(() => { console.log(true) })
                 return Response.Success('Üstünlikli!', [])
             }
-            const sellerId = await Verification.isSeller(user.id)
-            if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
-            const product = await Models.Products.findOne({ where: { sellerId: Number(sellerId) } })
+            const seller = await Verification.isSeller(user.id)
+            if (isNaN(seller)) { return seller }
+            const product = await Models.Products.findOne({ where: { sellerId: Number(seller) } })
             if (!product) { return Response.Forbidden('Rugsat edilmedi!', []) }
             await Models.Products.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })

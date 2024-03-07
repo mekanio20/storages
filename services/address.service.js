@@ -7,12 +7,12 @@ class AddressService {
     // POST
     async addAddressService(body, userId) {
         try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
-            await Models.Addresses.update({ isDefault: false }, { where: { customerId: customerId } })
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
+            await Models.Addresses.update({ isDefault: false }, { where: { customerId: customer } })
                 .then(() => { console.log('Default false...') })
                 .catch((err) => { console.log(err) })
-            const address = Models.Addresses.create({ address: body.address, isDefault: true, customerId: customerId })
+            const address = Models.Addresses.create({ address: body.address, isDefault: true, customerId: customer })
             return Response.Created('Address döredildi!', address)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
@@ -22,11 +22,11 @@ class AddressService {
     // GET
     async allAddressService(userId) {
         try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const addresses = await Models.Addresses.findAll({
                 attributes: ['id', 'address', 'isDefault'],
-                where: { customerId: customerId },
+                where: { customerId: customer },
                 order: [['id', 'desc']]
             })
             if (addresses.length === 0) { return Response.NotFound('Salgy yok!', []) }
@@ -39,17 +39,17 @@ class AddressService {
     // PUT
     async updateAddressService(addressId, body, userId) {
         try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             let isDefault = body.isDefault ? true : false
             if (isDefault === true) {
-                await Models.Addresses.update({ isDefault: false }, { where: { customerId: customerId } })
+                await Models.Addresses.update({ isDefault: false }, { where: { customerId: customer } })
                     .then(() => { console.log('Default false...') })
                     .catch((err) => { console.log(err) })
             }
             await Models.Addresses.update(
                 { address: body.address, isDefault: isDefault }, 
-                { where: { id: addressId, customerId: customerId } 
+                { where: { id: addressId, customerId: customer } 
             })
             return Response.Success('Salgy üytgedildi!', [])
         } catch (error) {
@@ -60,12 +60,12 @@ class AddressService {
     // DELETE
     async deleteAddressService(addressId, userId) {
         try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Mushderi tapylmady!', []) }
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
             const address = await Models.Addresses.destroy({
                 where: {
                     id: addressId,
-                    customerId: customerId
+                    customerId: customer
                 }
             })
             if (!address) { return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) }
