@@ -4,162 +4,65 @@ class CustomerController {
     // POST
     async customerRegister(req, res) {
         try {
-            const body = req.body
-            const userId = req.user.id
-            const img = req.file
-            const data = await customerService.customerRegisterService(body, userId, img)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await customerService.customerRegisterService(req.body, req.user.id, req.file)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     // GET
     async allCustomer(req, res) {
         try {
-            const q = req.query
-            const data = await customerService.allCustomerService(q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await customerService.allCustomerService(req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async customerfavorite(req, res) {
         try {
-            const q = req.query
-            const id = req.user.id
-            const data = await customerService.customerFavoriteService(id, q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await customerService.customerFavoriteService(req.user.id, req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async customerBasket(req, res) {
         try {
-            const q = req.query
-            const id = req.user.id
-            const data = await customerService.customerBasketService(id, q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await customerService.customerBasketService(req.user.id, req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async customerFollowed(req, res) {
         try {
-            const q = req.query
-            const id = req.user.id
-            const data = await customerService.customerFollowedService(id, q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await customerService.customerFollowedService(req.user.id, req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async customerOrders(req, res) {
         try {
-            const q = req.query
-            const id = req.user.id
-            const data = await customerService.customerOrdersService(id, q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await customerService.customerOrdersService(req.user.id, req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async customerProfile(req, res) {
         try {
-            const userId = req.user.id
-            const data = await customerService.customerProfileService(userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await customerService.customerProfileService(req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 }

@@ -1,7 +1,8 @@
 const Verification = require('../helpers/verification.service')
+const Functions = require('../helpers/functions.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-const { Op, or } = require('sequelize')
+const { Op } = require('sequelize')
 const { Sequelize } = require('../config/database')
 const { allCommentService } = require('./comment.service')
 
@@ -11,7 +12,7 @@ class ProductService {
         try {
             const sellerId = await Verification.isSeller(userId)
             if (!sellerId) { return Response.Unauthorized('Satyjy tapylmady!', []) }
-            const slug = body.tm_name.split(" ").join('-').toLowerCase()
+            const slug = await Functions.generateSlug(body.tm_name)
             const _product = await Models.Products.findOne({
                 where: {
                     [Op.or]: [
@@ -561,36 +562,15 @@ class ProductService {
         }
     }
 
-    async allCategoryService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let _whereState = { isActive: true }
-            if (q.status === 'all') { _whereState = {} }
-            const categories = await Models.Categories.findAndCountAll({
-                where: _whereState,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'userId'] },
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['id', 'DESC']]
-            })
-            if (categories.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', categories)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async allSubcategoryService(q) {
         try {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            let _whereState = { isActive: true }
-            if (q.status === 'all') { _whereState = {} }
+            let whereState = { isActive: true }
+            if (q.status === 'all') { whereState = {} }
             const subcategories = await Models.Subcategories.findAndCountAll({
-                where: _whereState,
+                where: whereState,
                 attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt', 'userId', 'categoryId'] },
                 include: {
                     model: Models.Categories,
@@ -629,27 +609,6 @@ class ProductService {
             })
             const sum = sum2 / sum1
             return Response.Success('Üstünlikli!', { reviews: reviews, rating: sum })
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async allBrandsService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let _whereState = { isActive: true }
-            if (q.status === 'all') { _whereState = {} }
-            const brands = await Models.Brands.findAndCountAll({
-                where: _whereState,
-                attributes: { exclude: ['userId'] },
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['id', 'DESC']]
-            })
-            if (brands.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', brands)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

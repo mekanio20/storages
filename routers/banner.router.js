@@ -21,7 +21,7 @@ router.post('/add',
 // GET
 router.get('/all',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(bannerSchema.allBanner, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     bannerController.allBanner)
 
 // DELETE

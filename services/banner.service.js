@@ -41,37 +41,6 @@ class BannerService {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
     }
-
-    // GET
-    async allBannerService(q) {
-        try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let sort = q.sort || 'id'
-            let order = q.order || 'desc'
-            const banners = await Models.Banners.findAndCountAll({
-                attributes: ['id', 'sort_order', 'tm_img', 'type', 'start_date', 'end_date', 'userId'],
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [[sort, order]]
-            })
-            return Response.Success('Üstünlikli!', banners)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    // DELETE
-    async deleteBannerService(id) {
-        try {
-            await Models.Banners.destroy({ where: { id: Number(id) } })
-                .then(() => { console.log(true) })
-            return Response.Success('Üstünlikli!', [])
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
 }
 
 module.exports = new BannerService()

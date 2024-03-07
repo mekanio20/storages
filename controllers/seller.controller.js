@@ -2,235 +2,101 @@ const sellerService = require('../services/seller.service')
 const Response = require('../helpers/response.service')
 
 class SellerController {
+    // POST
     async sellerRegister(req, res) {
         try {
-            const body = req.body
-            const userId = req.user.id
             const { logo } = req.files
             if (!logo) {
                 let result = await Response.BadRequest('logo gerek!', [])
                 return res.json(result)
             }
-            const data = await sellerService.sellerRegisterService(body, req.files, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.sellerRegisterService(req.body, req.files, req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     // GET
     async allSeller(req, res) {
         try {
-            const q = req.query
-            const data = await sellerService.allSellerService(q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.allSellerService(req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async allOrders(req, res) {
         try {
-            const q = req.query
-            const userId = req.user.id
-            const data = await sellerService.allOrdersService(q, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.allOrdersService(req.query, req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async orderDetail(req, res) {
         try {
-            const { id } = req.params
-            const data = await sellerService.orderDetailService(id, req.user.id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.orderDetailService(req.params.id, req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async sellerFollowers(req, res) {
         try {
-            const { id } = req.params
-            const data = await sellerService.sellerFollowersService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.sellerFollowersService(req.params.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async topSellers(req, res) {
         try {
-            const q = req.query
-            const data = await sellerService.topSellersSerive(q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.topSellersSerive(req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async profileSeller(req, res) {
         try {
-            const { id } = req.params
-            const userId = req.user.id
-            const data = await sellerService.profileSellerService(id, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.profileSellerService(req.params.id, req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async sellerProducts(req, res) {
         try {
-            const q = req.query
-            const data = await sellerService.sellerProductsService(q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.sellerProductsService(req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async sellerStatistic(req, res) {
         try {
-            const userId = req.user.id
-            const data = await sellerService.sellerStatisticService(userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.sellerStatisticService(req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     // PUT
     async updateSellerProfile(req, res) {
         try {
-            const body = req.body
-            const userId = req.user.id
-            const files = req.files
-            const data = await sellerService.updateSellerProfileService(body, userId, files)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.updateSellerProfileService(req.body, req.user.id, req.files)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
 
         }
     }
@@ -238,23 +104,10 @@ class SellerController {
     // DELETE
     async deleteSeller(req, res) {
         try {
-            const userId = req.user.id
-            const data = await sellerService.deleteSellerService(userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await sellerService.deleteSellerService(req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
 
         }
     }

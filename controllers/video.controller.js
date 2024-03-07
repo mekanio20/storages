@@ -5,47 +5,19 @@ class VideoController {
     // POST
     async addVideo(req, res) {
         try {
-            const body = req.body
-            const video = req.file
-            const userId = req.user.id
-            const data = await videoService.addVideoService(body, video, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail,
-            })
+            const data = await videoService.addVideoService(req.body, req.file, req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ 
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
     // GET
     async getVideo(req, res) {
         try {
-            const { id } = req.params
-            const data = await videoService.getVideoService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail,
-            })
+            const data = await videoService.getVideoService(req.params.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ 
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 }

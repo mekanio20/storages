@@ -1,7 +1,7 @@
 const Joi = require('joi')
 
 const productSchema = {
-
+    // POST
     addProduct: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
@@ -17,10 +17,6 @@ const productSchema = {
         gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').default('non-gender'),
         subcategoryId: Joi.number().positive().required(),
         brandId: Joi.number().positive().required()
-    }),
-
-    addProductFeature: Joi.object({
-        product_features: Joi.array().items(Joi.number()).required()
     }),
 
     addProductReview: Joi.object({
@@ -61,7 +57,7 @@ const productSchema = {
         order: Joi.string().valid('asc', 'desc').optional(),
         isActive: Joi.string().valid('all').optional()
     }),
-
+    // GET
     searchProduct: Joi.object({
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),

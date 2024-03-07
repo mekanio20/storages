@@ -17,7 +17,7 @@ router.post('/register',
 // GET
 router.get('/all',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(customerSchema.allCustomer, 'query'),
+    valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.allCustomer)
 
 router.get('/favorite',

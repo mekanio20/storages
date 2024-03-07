@@ -1,12 +1,12 @@
 const Joi = require('joi')
 
 const commentSchema = {
-    
+    // POST
     addComment: Joi.object({
         productId: Joi.number().positive().required(),
         comment: Joi.string().min(2).required()
     }),
-
+    // GET
     allComment: Joi.object({
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),

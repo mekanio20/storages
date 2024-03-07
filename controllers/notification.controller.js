@@ -1,93 +1,44 @@
-const notificationService = require('../services/notification.service')
+const Models = require('../config/models')
+const baseService = require('../services/base.service')
 
 class NotificationController {
     // POST
     async addNotification(req, res) {
         try {
             const body = req.body
-            const userId = req.user.id
-            const data = await notificationService.addNotificationService(body, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail,
-            })
+            body.userId = req.user.id
+            body.status = 'on-wait'
+            const data = await new baseService(Models.Notifications).addService(body, body)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
     // GET
     async allNotification(req, res) {
         try {
-            const q = req.query
-            const data = await notificationService.allNotificationService(q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail,
-            })
+            const data = await new baseService(Models.Notifications).getService(req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
     // UPDATE
     async updateNotification(req, res) {
         try {
-            const body = req.body
-            const data = await notificationService.updateNotificationService(body)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail,
-            })
+            const data = await new baseService(Models.Notifications).updateService(req.body)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
     // DELETE
     async deleteNotification(req, res) {
         try {
-            const { id } = req.params
-            const data = await notificationService.deleteNotificationService(id)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail,
-            })
+            const data = await new baseService(Models.Notifications).deleteService(req.params.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 }

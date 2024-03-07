@@ -1,4 +1,5 @@
 const Models = require('../config/models')
+const Response = require('./response.service')
 
 class VerificationService {
     async isFile(file) {
@@ -31,7 +32,8 @@ class VerificationService {
                     userId: Number(userId)
                 }
             })
-            return customer ? customer.id : null
+            if (!customer) { return Response.Unauthorized('Müşderi tapylmady!', []) }
+            return customer.id
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -46,7 +48,8 @@ class VerificationService {
                     isVerified: true
                 }
             })
-            return seller ? seller.id : null
+            if (!seller) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            return seller.id
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }

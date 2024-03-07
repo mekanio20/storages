@@ -121,65 +121,10 @@ class UserService {
         }
     }
 
-    async addLikeService(body, userId) {
-        try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const [like, created] = await Models.Likes.findOrCreate({
-                where: {
-                    customerId: customerId,
-                    productId: body.id
-                },
-                defaults: {
-                    customerId: customerId,
-                    productId: body.id
-                }
-            }).catch(((err) => { console.log(err) }))
-            if (created == false) { return Response.Forbidden('Like goýulan!', []) }
-            return Response.Created('Like goyuldy!', like)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addOrderService(body, userId) {
-        try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            let order_id = ''
-            let today = new Date()
-            const numbers = '0123456789'
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-            today = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear()
-            for (let i = 0; i < 4; i++) {
-                order_id += characters.charAt(Math.floor(Math.random() * characters.length))
-            }
-            for (let i = 0; i < 4; i++) {
-                order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
-            }
-            const order = await Models.Orders.create({
-                fullname: body.fullname,
-                phone: body.phone,
-                address: body.address,
-                order_id: order_id,
-                status: 'ondelivery',
-                payment: body.payment,
-                amount: body.amount,
-                time: today,
-                note: body.note,
-                customerId: customerId,
-                productId: body.productId
-            }).catch((err) => { console.log(err) })
-            return Response.Created('Hasaba alyndy!', order)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
     async addBasketService(body, userId) {
         try {
             const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            if (!customerId) { return customerId }
             const product = await Models.Products.findOne({ where: { id: body.productId, isActive: true } })
             if (!product) { return Response.BadRequest('Haryt tapylmady!', []) }
             const [basket, created] = await Models.Baskets.findOrCreate({
@@ -200,29 +145,6 @@ class UserService {
                     .catch((err) => { console.log(err) })
             }
             return Response.Created('Harydyňyz sebede goşuldy!', basket)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
-        }
-    }
-
-    async addFollowerService(sellerId, userId) {
-        try {
-            const customerId = await Verification.isCustomer(userId)
-            if (!customerId) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            const seller = await Models.Sellers.findOne({ where: { id: Number(sellerId) } })
-            if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
-            const [follow, created] = await Models.Followers.findOrCreate({
-                where: {
-                    sellerId: seller.id,
-                    customerId: customerId
-                },
-                defaults: {
-                    sellerId: seller.id,
-                    customerId: customerId
-                }
-            }).catch(((err) => { console.log(err) }))
-            if (created == false) { return Response.Forbidden('Öň hem yzarlanýar!', []) }
-            return Response.Created('Satyjy yzarlanýar!', follow)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
         }
@@ -333,7 +255,7 @@ class UserService {
             await Models.Users.update({ isActive: false },
                 { where: { id: userDto.id, groupId: userDto.group } })
                 .catch((err) => { console.log(err) })
-            console.log(userDto.id);
+            console.log(userDto.id)
             await Models.Customers.destroy({ where: { userId: userDto.id } })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])

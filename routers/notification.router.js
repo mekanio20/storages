@@ -15,7 +15,7 @@ router.post('/add',
 // GET
 router.get('/all',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(notificationSchema.allNotification, 'query'),
+    valdidationMiddleware(baseSchema.queryControl, 'query'),
     notificationController.allNotification)
 
 // PUT

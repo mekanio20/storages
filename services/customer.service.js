@@ -1,7 +1,7 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
-const { Op, NUMBER } = require('sequelize')
+const { Op } = require('sequelize')
 const { fetchReviewService } = require('../services/product.service')
 const { allCommentService } = require('../services/comment.service')
 
@@ -41,11 +41,8 @@ class CustomerService {
             let offset = page * limit - limit
             let sort = q.sort || 'id'
             let order = q.order || 'desc'
-            let whereState = {}
-            if (q.gender) { whereState = { gender: q.gender } }
             const customers = await Models.Customers.findAndCountAll({
                 attributes: { exclude: ['userId'] },
-                where: whereState,
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [[sort, order]]

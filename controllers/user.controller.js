@@ -1,4 +1,8 @@
 const userService = require('../services/user.service')
+const baseService = require('../services/base.service')
+const Verification = require('../helpers/verification.service')
+const Response = require('../helpers/response.service')
+const Models = require('../config/models')
 
 class UserController {
     // POST
@@ -6,51 +10,23 @@ class UserController {
         try {
             const { phone, password } = req.body
             const data = await userService.userLoginService(phone, password)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail,
-                token: data.token
-            })
+            return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async userVerification(req, res) {
         try {
-            const { code } = req.body
-            const { userDto } = req
-            const data = await userService.userVerificationService(code, userDto)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            }) 
+            const data = await userService.userVerificationService(req.body.code, req.userDto)
+            return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async userRegister(req, res) {
         try {
-            const body = req.body
             let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
             ip = ip.substr(7)
             let device = null
@@ -63,45 +39,19 @@ class UserController {
                 }
             }
             console.log('DEVICE --> ', device)
-            const data = await userService.userRegisterService(body, ip, device)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await userService.userRegisterService(req.body, ip, device)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async checkControl(req, res) {
         try {
-            const { code } = req.body
-            const { userDto } = req
-            const data = await userService.checkControlService(code, userDto)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            }) 
+            const data = await userService.checkControlService(req.body.code, req.userDto)
+            return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
@@ -109,255 +59,134 @@ class UserController {
         try {
             const { phone, orgPass, verifPass } = req.body
             const data = await userService.forgotPasswordService(phone, orgPass, verifPass)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async resetPassword(req, res) {
         try {
-            const { code } = req.body
-            const { userDto } = req
-            const data = await userService.resetPasswordService(code, userDto)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            }) 
+            const data = await userService.resetPasswordService(req.body.code, req.userDto)
+            return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async resetSubscription(req, res) {
         try {
-            const { code } = req.body
-            const { userDto } = req
-            const data = await userService.resetSubscriptionService(code, userDto)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            }) 
+            const data = await userService.resetSubscriptionService(req.body.code, req.userDto)
+            return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
-    
+    // -----
     async addLike(req, res) {
         try {
+            const customerId = await Verification.isCustomer(req.user.id)
+            if (!customerId) { return customerId }
             const body = req.body
-            const userId = req.user.id
-            const data = await userService.addLikeService(body, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            body.customerId = customerId
+            body.productId = body.id
+            delete body.id
+            const data = await new baseService(Models.Likes).addService(body, body)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async addOrder(req, res) {
         try {
+            const customerId = await Verification.isCustomer(req.user.id)
+            if (!customerId) { return customerId }
+            let order_id = ''
+            let today = new Date()
+            const numbers = '0123456789'
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+            today = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear()
+            for (let i = 0; i < 4; i++) {
+                order_id += characters.charAt(Math.floor(Math.random() * characters.length))
+            }
+            for (let i = 0; i < 4; i++) {
+                order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
+            }
             const body = req.body
-            const userId = req.user.id
-            const data = await userService.addOrderService(body, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            body.order_id = order_id
+            body.status = 'ondelivery'
+            body.time = today
+            body.customerId = customerId
+            const data = await new baseService(Models.Orders).addService(body, body)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async addBasket(req, res) {
         try {
-            const body = req.body
-            const userId = req.user.id
-            const data = await userService.addBasketService(body, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await userService.addBasketService(req.body, req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async addFollower(req, res) {
         try {
-            const { id } = req.params
-            const userId = req.user.id
-            const data = await userService.addFollowerService(id, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const customerId = await Verification.isCustomer(req.user.id)
+            if (!customerId) { return customerId }
+            const sellerId = await Verification.isSeller(req.params.id)
+            if (!sellerId) { return sellerId }
+            const body = { customerId: customerId, sellerId: sellerId }
+            const data = await new baseService(Models.Followers).addService(body, body)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async addMessage(req, res) {
         try {
-            const body = req.body
-            const userId = req.user.id
             const file = req.file?.filename || null
-            const data = await userService.addMessageService(body, userId, file)
+            const data = await userService.addMessageService(req.body, req.user.id, file)
             if (data.type === 'success') {
                 const socket = req.app.get("socketio")
                 socket.emit("msg", data.detail)
             }
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     // GET
     async allMessages(req, res) {
         try {
-            const { id } = req.params
-            const userId = req.user.id
-            const data = await userService.allMessagesService(id, userId)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await userService.allMessagesService(req.params.id, req.user.id)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async allUsers(req, res) {
         try {
-            const q = req.query
-            const data = await userService.allUsersService(q)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await userService.allUsersService(req.query)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 
     async userLogout(req, res) {
         try {
-            const userDto = req.user
-            const data = await userService.userLogoutService(userDto)
-            return res.status(data.status).json({
-                status: data.status,
-                type: data.type,
-                msg: data.msg,
-                msg_key: data.msg_key,
-                detail: data.detail
-            })
+            const data = await userService.userLogoutService(req.user)
+            return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                type: 'error',
-                msg: error.message,
-                msg_key: error.name,
-                detail: []
-            })
+            return res.status(500).json({ status: 500, type: 'error', msg: error })
         }
     }
 

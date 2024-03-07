@@ -16,13 +16,12 @@ const sellerSchema = {
         categoryId: Joi.number().positive().required(),
         subscriptionId: Joi.number().positive().required()
     }),
-    
+
     updateSellerProfile: Joi.object({
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).allow('', null),
         store_number: Joi.number().positive().allow('', null),
         store_floor: Joi.number().positive().allow('', null),
         about: Joi.string().min(10).max(255).allow(null, ''),
-        color: Joi.string().regex(/^[a-zA-Z0-9#]+$/).allow('', null),
         seller_type: Joi.string().valid('in-opt', 'out-opt').allow('', null),
         sell_type: Joi.string().valid('wholesale', 'partial', 'both').allow('', null),
         instagram: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).allow(null, ''),

@@ -1,7 +1,7 @@
 const Joi = require('joi')
 
 const adminSchema = {
-    // ADD
+    // POST
     addGroup: Joi.object({
         id: Joi.number().positive().optional(),
         name: Joi.string().uppercase().min(3).max(20).regex(/^[a-zA-Z]/).required(),
@@ -78,7 +78,7 @@ const adminSchema = {
         tech_support: Joi.ref('smm_support'),
     }),
 
-    // UPDATE
+    // PUT
     updateUser: Joi.object({
         id: Joi.number().positive().required(),
         isActive: Joi.boolean().optional(),
