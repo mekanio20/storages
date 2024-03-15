@@ -449,6 +449,10 @@ class AdminService {
                 { url: '/api/seller/orders', method: 'GET', groupId: 2 },
                 { url: '/api/seller/orders', method: 'GET', groupId: 3 },
                 { url: '/api/seller/statistic', method: 'GET', groupId: 3 },
+                { url: '/api/seller/videos', method: 'GET', groupId: 1 },
+                { url: '/api/seller/videos', method: 'GET', groupId: 2 },
+                { url: '/api/seller/videos', method: 'GET', groupId: 3 },
+                { url: '/api/seller/videos', method: 'GET', groupId: 4 },
                 { url: '/api/seller/update', method: 'PUT', groupId: 3 },
                 { url: '/api/seller/delete', method: 'DELETE', groupId: 3 },
                 // BANNER ROUTERS
