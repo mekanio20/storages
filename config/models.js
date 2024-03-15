@@ -335,10 +335,23 @@ const Searches = database.define('searches', {
 
 const Videos = database.define('videos', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
+    thumbnail: { type: DataTypes.STRING(100), defaultValue: 'thumbnail.png' },
     video: { type: DataTypes.STRING(100), allowNull: false },
-    hesdek: { type: DataTypes.STRING, allowNull: true },
     desc: { type: DataTypes.STRING, allowNull: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
+    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+    updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
+})
+
+const Tags = database.define('tags', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
+    name: { type: DataTypes.STRING(50), allowNull: false },
+    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+    updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
+})
+
+const VideoTags = database.define('video_tags', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
@@ -569,6 +582,16 @@ Baskets.belongsTo(Customers)
 Products.hasOne(Offers, { onDelete: "cascade" })
 Offers.belongsTo(Products)
 
+// VideoTags -> VideoId
+
+Videos.hasMany(VideoTags)
+VideoTags.belongsTo(Videos)
+
+// VideosTags -> TagsId
+
+Tags.hasMany(VideoTags)
+VideoTags.belongsTo(Tags)
+
 module.exports = {
     Users, Customers, Addresses,
     Sellers, Orders, Subscriptions, Chats, Messages,
@@ -577,5 +600,5 @@ module.exports = {
     Coupons, CouponItem, Categories, Subcategories,
     Features, FeatureDescriptions, Groups, GroupPermissions,
     Likes, Comments, Baskets, Offers, SubcategoryFeatures,
-    ProductFeatures, Followers, Searches, Videos
+    ProductFeatures, Followers, Searches, Videos, Tags, VideoTags
 }

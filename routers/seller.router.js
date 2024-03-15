@@ -54,6 +54,11 @@ router.get('/statistic',
     authMiddleware, accessMiddleware(false),
     sellerController.sellerStatistic)
 
+router.get('/videos',
+    authMiddleware,  accessMiddleware(false),
+    valdidationMiddleware()
+)
+
 // PUT
 router.put('/update',
     authMiddleware, accessMiddleware(false),

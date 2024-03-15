@@ -3,6 +3,7 @@ const videoController = require('../controllers/video.controller')
 const accessMiddleware = require('../middlewares/access.middleware')
 const authMiddleware = require('../middlewares/auth.middleware')
 const videoMiddleware = require('../middlewares/video.middleware')
+const videoLimitMiddleware = require('../middlewares/video-limit.middleware')
 const valdidationMiddleware = require('../middlewares/validation.middleware')
 const videoSchema = require('../validates/video.schema')
 const baseSchema = require('../validates/base.schema')
@@ -12,6 +13,7 @@ router.post('/add',
     authMiddleware, accessMiddleware(false),
     videoMiddleware(process.env.VIDEO_PATH).single('video'),
     valdidationMiddleware(videoSchema.addVideo, 'body'),
+    videoLimitMiddleware,
     videoController.addVideo)
 
 // GET
