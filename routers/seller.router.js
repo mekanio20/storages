@@ -56,8 +56,8 @@ router.get('/statistic',
 
 router.get('/videos',
     authMiddleware,  accessMiddleware(false),
-    valdidationMiddleware()
-)
+    valdidationMiddleware(sellerSchema.sellerVideos, 'query'),
+    sellerController.sellerVideos)
 
 // PUT
 router.put('/update',

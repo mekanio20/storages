@@ -83,7 +83,7 @@ class ProductService {
             }
             return Response.Created('Haryt goýuldy!', product)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -117,7 +117,7 @@ class ProductService {
             }
             return Response.Created('Maglumat döredildi!', review)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -155,7 +155,7 @@ class ProductService {
             }).catch((err) => { console.log(err) })
             return Response.Created('Kupon döredildi!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -176,7 +176,7 @@ class ProductService {
             if (created === false) { return Response.BadRequest('Arzanladyş goýulan!', []) }
             return Response.Success('Arzanladyş goşuldy!', offer)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -252,7 +252,7 @@ class ProductService {
             }
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -319,7 +319,7 @@ class ProductService {
             }))
             return Response.Success('Gözleg netijesi', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -337,7 +337,7 @@ class ProductService {
             }).catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', searches)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -394,7 +394,7 @@ class ProductService {
             else result.rows.sort((a, b) => Number(a.offer.discount) - Number(b.offer.discount))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -456,7 +456,7 @@ class ProductService {
             else result.sort((a, b) => Number(a.totalSelling) - Number(b.totalSelling))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -518,7 +518,7 @@ class ProductService {
             else result.sort((a, b) => Number(a.totalLiked) - Number(b.totalLiked))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -558,7 +558,7 @@ class ProductService {
             }
             return Response.Success('Üstünlikli!', response)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -583,7 +583,7 @@ class ProductService {
             if (subcategories.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', subcategories)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -610,7 +610,7 @@ class ProductService {
             const sum = sum2 / sum1
             return Response.Success('Üstünlikli!', { reviews: reviews, rating: sum })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -633,7 +633,7 @@ class ProductService {
             if (likes.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', likes)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -653,7 +653,7 @@ class ProductService {
                 .then(() => { console.log(true) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 }

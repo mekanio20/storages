@@ -29,7 +29,7 @@ class CustomerService {
             await Models.Users.update({ isCustomer: true, isSeller: false, isStaff: false }, { where: { id: userId } })
             return Response.Created('Müşteri hasaba alyndy!', customer)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -50,7 +50,7 @@ class CustomerService {
             if (customers.count == 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', customers)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -88,7 +88,7 @@ class CustomerService {
             })).catch((err) => { console.log(err) })
             return Response.Success('Halaýan harytlarym', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -135,7 +135,7 @@ class CustomerService {
             if (basket.count === 0) { return Response.NotFound('Haryt ýok!', []) }
             return Response.Success('Sebedim', basket)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -160,7 +160,7 @@ class CustomerService {
             if (followed.count === 0) { return Response.NotFound('Yzarlanýan satyjy ýok!', []) }
             return Response.Success('Yzarlanýanlar', followed)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -204,7 +204,7 @@ class CustomerService {
             if (orders.count === 0) { return Response.NotFound('Sargyt ýok!', []) }
             return Response.Success('Üstünlikli!', orders)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -223,7 +223,7 @@ class CustomerService {
             if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', user)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 }

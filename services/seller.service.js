@@ -91,7 +91,7 @@ class SellerService {
             if (seller.count === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', seller)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -138,7 +138,7 @@ class SellerService {
             if (orders.count === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
             return Response.Success('Üstünlikli!', orders)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -176,7 +176,7 @@ class SellerService {
             if (!order) { return Response.NotFound('Sargyt tapylmady!', []) }
             return Response.Success('Üstünlikli!', order)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -195,7 +195,7 @@ class SellerService {
             if (followers.count === 0) { return Response.NotFound('Yzarlaýan yok!', []) }
             return Response.Success('Yzarlaýanlar!', followers)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -246,7 +246,7 @@ class SellerService {
             sellerSalesCounts.sort((a, b) => b.salesCount - a.salesCount)
             return Response.Success('Üstünlikli!', sellerSalesCounts)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -270,7 +270,7 @@ class SellerService {
             seller.dataValues.rating = rating / _seller.length
             return Response.Success('Satyjy Maglumaty!', seller)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -347,7 +347,7 @@ class SellerService {
             }
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -404,7 +404,28 @@ class SellerService {
             }
             return Response.Success('Üstünlikli!', _statistic)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
+    async sellerVideosService(query) {
+        try {
+            let page = query.page || 1
+            let limit = query.limit || 10
+            let offset = page * limit - limit
+            const videos = await Models.Videos.findAndCountAll({
+                attributes: ['id', 'thumbnail'],
+                where: {
+                    sellerId: Number(query.sellerId),
+                    isActive: true
+                },
+                limit: Number(limit),
+                offset: Number(offset)
+            }).catch((err) => { console.log(err) })
+            if (videos.count === 0) { return Response.NotFound('Video yok!', []) }
+            return Response.Success('Üstünlikli!', videos)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -421,7 +442,7 @@ class SellerService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Satyjy maglumaty täzelendi!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -435,7 +456,7 @@ class SellerService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Satyjy maglumaty pozuldy!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 }

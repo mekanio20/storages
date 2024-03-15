@@ -32,7 +32,7 @@ class CommentService {
             }
             return Response.Created('Teswir goyuldy!', comments)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -84,7 +84,7 @@ class CommentService {
             }))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -104,7 +104,7 @@ class CommentService {
                 .then(() => { console.log(true) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 }

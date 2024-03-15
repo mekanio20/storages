@@ -8,7 +8,7 @@ class BaseService {
             if (!created) { return Response.BadRequest('Maglumat eýýäm döredilen!', data) }
             return Response.Created('Maglumat döredildi!', data)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, msg_key: 'server error', detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
     async getService(query) {
@@ -30,7 +30,7 @@ class BaseService {
             if (data.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', data)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, msg_key: 'server error', detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
     async updateService(body) {
@@ -45,7 +45,7 @@ class BaseService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, msg_key: 'server error', detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
     async deleteService(id) {
@@ -55,7 +55,7 @@ class BaseService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, msg_key: 'server error', detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 }

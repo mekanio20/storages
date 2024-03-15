@@ -18,7 +18,7 @@ class AdminService {
             user.dataValues.token = token
             return Response.Success('Admin hasaba alyndy!', user)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -34,7 +34,7 @@ class AdminService {
             response.token = token
             return response
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -57,7 +57,7 @@ class AdminService {
             if (permissions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', permissions)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -91,7 +91,7 @@ class AdminService {
             if (subcategory_features.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', subcategory_features)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -103,7 +103,7 @@ class AdminService {
             }).catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', user_systems)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -118,7 +118,7 @@ class AdminService {
               }).catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', users)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -137,7 +137,7 @@ class AdminService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -151,7 +151,7 @@ class AdminService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -167,7 +167,7 @@ class AdminService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -183,7 +183,7 @@ class AdminService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -511,7 +511,7 @@ class AdminService {
             return Response.Created('Default maglumatlar döredildi!', [])
 
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 

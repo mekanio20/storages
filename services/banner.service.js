@@ -38,7 +38,7 @@ class BannerService {
             })
             return Response.Created('Banner döredildi!', banner)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 }

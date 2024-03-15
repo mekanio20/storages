@@ -27,7 +27,7 @@ class UserService {
             const response = await this.sendOtpService(_user)
             return response
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -40,7 +40,7 @@ class UserService {
             const token = await Functions.generateJwt(user.id, user.groupId)
             return Response.Success('Ulanyjy hasaba alyndy!', { token })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -61,7 +61,7 @@ class UserService {
             const response = await this.sendOtpService(_user)
             return response
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -73,7 +73,7 @@ class UserService {
             let token = await Functions.generateJwt(_user.id, _user.groupId)
             return Response.Created('Ulanyjy hasaba alyndy!', { token })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -86,7 +86,7 @@ class UserService {
             const response = await this.sendOtpService(user)
             return response
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -101,7 +101,7 @@ class UserService {
             let token = await Functions.generateJwt(userDto.user.id, userDto.user.groupId)
             return Response.Created('Ulanyjy paroly tazelendi!', { token })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -117,7 +117,7 @@ class UserService {
             let token = await Functions.generateJwt(userDto.user.id, userDto.user.groupId)
             return Response.Success('Satyjy hasaba alyndy!', { token })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -146,7 +146,7 @@ class UserService {
             }
             return Response.Created('Harydyňyz sebede goşuldy!', basket)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -175,7 +175,7 @@ class UserService {
             }).catch((err) => { console.log(err) })
             return Response.Created('Message ugradyldy!', message)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -206,7 +206,7 @@ class UserService {
             }).catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', messages)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -221,7 +221,7 @@ class UserService {
             await redis.expire(user.phone, 300)
             return Response.Success('Tassyklama kody ugradyldy!', { token })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -246,7 +246,7 @@ class UserService {
             if (users.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', users)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -260,7 +260,7 @@ class UserService {
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 

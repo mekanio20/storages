@@ -12,7 +12,7 @@ class UserController {
             const data = await userService.userLoginService(phone, password)
             return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -21,7 +21,7 @@ class UserController {
             const data = await userService.userVerificationService(req.body.code, req.userDto)
             return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -42,7 +42,7 @@ class UserController {
             const data = await userService.userRegisterService(req.body, ip, device)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -51,7 +51,7 @@ class UserController {
             const data = await userService.checkControlService(req.body.code, req.userDto)
             return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -61,7 +61,7 @@ class UserController {
             const data = await userService.forgotPasswordService(phone, orgPass, verifPass)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -70,7 +70,7 @@ class UserController {
             const data = await userService.resetPasswordService(req.body.code, req.userDto)
             return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -79,7 +79,7 @@ class UserController {
             const data = await userService.resetSubscriptionService(req.body.code, req.userDto)
             return res.status(data.status).json(data) 
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
     // -----
@@ -94,7 +94,7 @@ class UserController {
             const data = await new baseService(Models.Likes).addService(body, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -121,7 +121,7 @@ class UserController {
             const data = await new baseService(Models.Orders).addService(body, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -130,7 +130,7 @@ class UserController {
             const data = await userService.addBasketService(req.body, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -144,7 +144,7 @@ class UserController {
             const data = await new baseService(Models.Followers).addService(body, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -158,7 +158,7 @@ class UserController {
             }
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -168,7 +168,7 @@ class UserController {
             const data = await userService.allMessagesService(req.params.id, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -177,7 +177,7 @@ class UserController {
             const data = await userService.allUsersService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -186,7 +186,7 @@ class UserController {
             const data = await userService.userLogoutService(req.user)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 

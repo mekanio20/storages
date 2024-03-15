@@ -15,7 +15,7 @@ class AddressService {
             const address = Models.Addresses.create({ address: body.address, isDefault: true, customerId: customer })
             return Response.Created('Address döredildi!', address)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -32,7 +32,7 @@ class AddressService {
             if (addresses.length === 0) { return Response.NotFound('Salgy yok!', []) }
             return Response.Success('Salgylar...', addresses)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -53,7 +53,7 @@ class AddressService {
             })
             return Response.Success('Salgy üytgedildi!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
@@ -71,7 +71,7 @@ class AddressService {
             if (!address) { return Response.BadRequest('Yalnyshlyk yuze cykdy!', []) }
             return Response.Success('Salgy pozuldy!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 }

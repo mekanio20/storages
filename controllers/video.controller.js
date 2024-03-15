@@ -10,7 +10,7 @@ class VideoController {
             const data = await videoService.addVideoService(req.body, req.file, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
     // GET
@@ -19,7 +19,7 @@ class VideoController {
             const data = await videoService.getVideoService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
     async getRandomId(req, res) {
@@ -30,7 +30,7 @@ class VideoController {
             const data = await Response.Success('Üstünlikli!', shuffledIds)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 }

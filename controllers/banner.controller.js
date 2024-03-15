@@ -15,7 +15,7 @@ class BannerController {
             const data = await bannerService.addBannerService(req.body, req.user, req.files)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -25,7 +25,7 @@ class BannerController {
             const data = await new baseService(Models.Banners).getService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -35,7 +35,7 @@ class BannerController {
             const data = await new baseService(Models.Banners).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 }

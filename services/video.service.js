@@ -37,7 +37,7 @@ class VideoService {
             }
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
     // GET
@@ -66,7 +66,7 @@ class VideoService {
             if (!video) { return Response.BadRequest('Wideo tapylmady!', []) }
             return Response.Success('Üstünlikli!', video)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 }

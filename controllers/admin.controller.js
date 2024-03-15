@@ -12,7 +12,7 @@ class AdminController {
             const data = await adminService.adminLoginService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -24,7 +24,7 @@ class AdminController {
             const data = await new baseService(Models.Groups).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -33,7 +33,7 @@ class AdminController {
             const data = await new baseService(Models.GroupPermissions).addService(req.body, req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -53,7 +53,7 @@ class AdminController {
             const data = await new baseService(Models.Categories).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -73,7 +73,7 @@ class AdminController {
             const data = await new baseService(Models.Subcategories).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -85,7 +85,7 @@ class AdminController {
             const data = await new baseService(Models.Features).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -97,7 +97,7 @@ class AdminController {
             const data = await new baseService(Models.FeatureDescriptions).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -109,7 +109,7 @@ class AdminController {
             const data = await new baseService(Models.SubcategoryFeatures).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -130,7 +130,7 @@ class AdminController {
             const data = await new baseService(Models.Brands).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -139,7 +139,7 @@ class AdminController {
             const data = await adminService.addStaffService(req.body.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -149,7 +149,7 @@ class AdminController {
             const data = await new baseService(Models.Subscriptions).addService(isExist, req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -159,7 +159,7 @@ class AdminController {
             const data = await new baseService(Models.Groups).getService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -168,7 +168,7 @@ class AdminController {
             const data = await adminService.allPermissionsService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -177,7 +177,7 @@ class AdminController {
             const data = await new baseService(Models.Subscriptions).getService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -186,7 +186,7 @@ class AdminController {
             const data = await new baseService(Models.Features).getService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -195,7 +195,7 @@ class AdminController {
             const data = await new baseService(Models.FeatureDescriptions).getService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -204,7 +204,7 @@ class AdminController {
             const data = await adminService.allSubcategoryFeaturesService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -213,7 +213,7 @@ class AdminController {
             const data = await adminService.allSystemsService()
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -222,7 +222,7 @@ class AdminController {
             const data = await adminService.registerStatisticService()
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -232,7 +232,7 @@ class AdminController {
             const data = await new baseService(Models.Groups).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -241,7 +241,7 @@ class AdminController {
             const data = await new baseService(Models.GroupPermissions).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -250,7 +250,7 @@ class AdminController {
             const data = await new baseService(Models.Subscriptions).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -265,7 +265,7 @@ class AdminController {
             const data = await new baseService(Models.Brands).updateService(body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -279,7 +279,7 @@ class AdminController {
             const data = await new baseService(Models.Categories).updateService(body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -293,7 +293,7 @@ class AdminController {
             const data = await new baseService(Models.Subcategories).updateService(body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -302,7 +302,7 @@ class AdminController {
             const data = await adminService.updateUserService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -311,7 +311,7 @@ class AdminController {
             const data = await new baseService(Models.Sellers).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -320,7 +320,7 @@ class AdminController {
             const data = await new baseService(Models.Products).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -329,7 +329,7 @@ class AdminController {
             const data = await new baseService(Models.Comments).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -338,7 +338,7 @@ class AdminController {
             const data = await new baseService(Models.Features).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -347,7 +347,7 @@ class AdminController {
             const data = await new baseService(Models.FeatureDescriptions).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -356,7 +356,7 @@ class AdminController {
             const data = await new baseService(Models.SubcategoryFeatures).updateService(req.body)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -366,7 +366,7 @@ class AdminController {
             const data = await new baseService(Models.Groups).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -375,7 +375,7 @@ class AdminController {
             const data = await new baseService(Models.GroupPermissions).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -384,7 +384,7 @@ class AdminController {
             const data = await new baseService(Models.Subscriptions).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -393,7 +393,7 @@ class AdminController {
             const data = await new baseService(Models.Brands).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -402,7 +402,7 @@ class AdminController {
             const data = await new baseService(Models.Categories).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -411,7 +411,7 @@ class AdminController {
             const data = await new baseService(Models.Subcategories).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -420,7 +420,7 @@ class AdminController {
             const data = await adminService.deleteUserService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -429,7 +429,7 @@ class AdminController {
             const data = await adminService.deleteCustomerService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -438,7 +438,7 @@ class AdminController {
             const data = await adminService.deleteSellerService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -447,7 +447,7 @@ class AdminController {
             const data = await new baseService(Models.Features).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -456,7 +456,7 @@ class AdminController {
             const data = await new baseService(Models.FeatureDescriptions).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -465,7 +465,7 @@ class AdminController {
             const data = await new baseService(Models.SubcategoryFeatures).deleteService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -475,7 +475,7 @@ class AdminController {
             const data = await adminService.defaultCreateService()
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 

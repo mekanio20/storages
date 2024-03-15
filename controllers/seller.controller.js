@@ -13,7 +13,7 @@ class SellerController {
             const data = await sellerService.sellerRegisterService(req.body, req.files, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -23,7 +23,7 @@ class SellerController {
             const data = await sellerService.allSellerService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -32,7 +32,7 @@ class SellerController {
             const data = await sellerService.allOrdersService(req.query, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -41,7 +41,7 @@ class SellerController {
             const data = await sellerService.orderDetailService(req.params.id, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -50,7 +50,7 @@ class SellerController {
             const data = await sellerService.sellerFollowersService(req.params.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -59,7 +59,7 @@ class SellerController {
             const data = await sellerService.topSellersSerive(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -68,7 +68,7 @@ class SellerController {
             const data = await sellerService.profileSellerService(req.params.id, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -77,7 +77,7 @@ class SellerController {
             const data = await sellerService.sellerProductsService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -86,7 +86,16 @@ class SellerController {
             const data = await sellerService.sellerStatisticService(req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+
+    async sellerVideos(req, res) {
+        try {
+            const data = await sellerService.sellerVideosService(req.query)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -96,8 +105,7 @@ class SellerController {
             const data = await sellerService.updateSellerProfileService(req.body, req.user.id, req.files)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
-
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -107,7 +115,7 @@ class SellerController {
             const data = await sellerService.deleteSellerService(req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
 
         }
     }

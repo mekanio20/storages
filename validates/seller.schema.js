@@ -60,6 +60,12 @@ const sellerSchema = {
         brandId: Joi.number().positive().optional(),
         gender: Joi.string().valid('male', 'fmale').optional(),
         isActive: Joi.string().valid('all').optional()
+    }),
+
+    sellerVideos: Joi.object({
+        sellerId: Joi.number().positive().required(),
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional()
     })
 }
 

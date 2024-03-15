@@ -7,7 +7,7 @@ class AddressController {
             const data = await addressService.addAddressService(req.body, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -17,7 +17,7 @@ class AddressController {
             const data = await addressService.allAddressService(req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -27,7 +27,7 @@ class AddressController {
             const data = await addressService.updateAddressService(req.params.id, req.body, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 
@@ -37,7 +37,7 @@ class AddressController {
             const data = await addressService.deleteAddressService(req.params.id, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error })
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
 }
