@@ -13,6 +13,7 @@ require('./ioredis')
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 8081
+const ip = 'localhost'
 
 const server = http.createServer(app)
 const io = require('socket.io')(server)
@@ -76,7 +77,7 @@ server.listen(port, async () => {
         await database.authenticate()
         await database.sync({})
         console.log('Database connected...')
-        console.log(`Server is running: http://localhost:${port}`)
+        console.log(`Server is running: http://${ip}:${port}`)
     } catch (error) {
         throw error
     }

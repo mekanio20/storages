@@ -9,11 +9,11 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
         { name: "img", maxCount: 20 }
     ]),
-    validationMiddleware(productSchema.addProduct, 'body'),
+    // validationMiddleware(productSchema.addProduct, 'body'),
     productController.addProduct)
 
 router.post('/add/review',

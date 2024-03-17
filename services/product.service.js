@@ -10,78 +10,86 @@ class ProductService {
     // POST
     async addProductService(body, filenames, userId) {
         try {
-            const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
-            const slug = await Functions.generateSlug(body.tm_name)
-            const _product = await Models.Products.findOne({
-                where: {
-                    [Op.or]: [
-                        { slug: slug },
-                        { barcode: body.barcode },
-                        { stock_code: body.stock_code }
-                    ]
-                }
+            // const seller = await Verification.isSeller(userId)
+            // if (isNaN(seller)) { return seller }
+            // const slug = await Functions.generateSlug(body.tm_name)
+            // const _product = await Models.Products.findOne({
+            //     where: {
+            //         [Op.or]: [
+            //             { slug: slug },
+            //             { barcode: body.barcode },
+            //             { stock_code: body.stock_code }
+            //         ]
+            //     }
+            // }).catch((err) => { console.log(err) })
+            // if (_product) { return Response.Forbidden('Maglumat eýýäm döredilen!', []) }
+            // const subscription = await Models.Sellers.findOne({
+            //     attributes: ['subscriptionId'],
+            //     where: {
+            //         id: seller
+            //     }
+            // }).catch((err) => { console.log(err) })
+            // console.log('SUBSCTIPTIONS --> ', JSON.stringify(subscription, 2, null))
+            // const limits = await Models.Subscriptions.findOne({
+            //     attributes: ['p_limit', 'p_img_limit'],
+            //     where: {
+            //         id: subscription.subscriptionId
+            //     }
+            // }).catch((err) => { console.log(err) })
+            // console.log('LIMITS --> ', JSON.stringify(limits, 2, null))
+            // await Models.Products.findAll({
+            //     attributes: ['slug'],
+            //     where: { sellerId: seller },
+            //     include: { model: Models.ProductImages },
+            //     order: [['id', 'ASC']]
+            // }).then((res) => {
+            //     const product_count = res.length
+            //     const image_count = res.reduce((count, product) => count + product.product_images.length, 0)
+            //     console.log('PRODUCT COUNT: ', product_count)
+            //     console.log('IMAGE COUNT: ', image_count)
+            //     if (product_count >= limits.p_limit || image_count >= limits.p_img_limit) {
+            //         return Response.Forbidden('Limidiniz doldy!', [])
+            //     }
+            // }).catch((err) => { console.log(err) })
+            const features = []
+            const subcategory_features = await Models.SubcategoryFeatures.findAll({
+                attributes: ['featureId'],
+                where: { subcategoryId: body.subcategoryId }
             }).catch((err) => { console.log(err) })
-            if (_product) { return Response.Forbidden('Maglumat eýýäm döredilen!', []) }
-            const subscription = await Models.Sellers.findOne({
-                attributes: ['subscriptionId'],
-                where: {
-                    id: seller
-                }
-            }).catch((err) => { console.log(err) })
-            console.log('SUBSCTIPTIONS --> ', JSON.stringify(subscription, 2, null))
-            const limits = await Models.Subscriptions.findOne({
-                attributes: ['p_limit', 'p_img_limit'],
-                where: {
-                    id: subscription.subscriptionId
-                }
-            }).catch((err) => { console.log(err) })
-            console.log('LIMITS --> ', JSON.stringify(limits, 2, null))
-            await Models.Products.findAll({
-                attributes: ['slug'],
-                where: { sellerId: seller },
-                include: { model: Models.ProductImages },
-                order: [['id', 'ASC']]
-            }).then((res) => {
-                const product_count = res.length
-                const image_count = res.reduce((count, product) => count + product.product_images.length, 0)
-                console.log('PRODUCT COUNT: ', product_count)
-                console.log('IMAGE COUNT: ', image_count)
-                if (product_count >= limits.p_limit || image_count >= limits.p_img_limit) {
-                    return Response.Forbidden('Limidiniz doldy!', [])
-                }
-            }).catch((err) => { console.log(err) })
-            console.log('LOADING...')
-            const product = await Models.Products.create({
-                tm_name: body.tm_name,
-                ru_name: body.ru_name || null,
-                en_name: body.en_name || null,
-                tm_desc: body.tm_desc,
-                ru_desc: body.ru_desc || null,
-                en_desc: body.en_desc || null,
-                slug: slug,
-                barcode: body.barcode,
-                stock_code: body.stock_code,
-                quantity: body.quantity,
-                org_price: body.org_price,
-                sale_price: body.sale_price,
-                gender: body.gender,
-                subcategoryId: body.subcategoryId,
-                brandId: body.brandId,
-                sellerId: seller
-            }).catch((err) => { console.log(err) })
-            if (filenames.img) {
-                filenames.img.forEach(async (item, index) => {
-                    await Models.ProductImages.create({
-                        img: item.filename,
-                        order: index + 1,
-                        productId: product.id
-                    })
-                        .then(() => { console.log(true) })
-                        .catch((err) => { console.log(err) })
-                })
+            for (let item of subcategory_features) {
+                const feature = await Models.Features.findOne({ where: { id: item.featureId } })
+                features.push(feature)
             }
-            return Response.Created('Haryt goýuldy!', product)
+            // const product = await Models.Products.create({
+            //     tm_name: body.tm_name,
+            //     ru_name: body.ru_name || null,
+            //     en_name: body.en_name || null,
+            //     tm_desc: body.tm_desc,
+            //     ru_desc: body.ru_desc || null,
+            //     en_desc: body.en_desc || null,
+            //     slug: slug,
+            //     barcode: body.barcode,
+            //     stock_code: body.stock_code,
+            //     quantity: body.quantity,
+            //     org_price: body.org_price,
+            //     sale_price: body.sale_price,
+            //     gender: body.gender,
+            //     subcategoryId: body.subcategoryId,
+            //     brandId: body.brandId,
+            //     sellerId: seller
+            // }).catch((err) => { console.log(err) })
+            // if (filenames.img) {
+            //     filenames.img.forEach(async (item, index) => {
+            //         await Models.ProductImages.create({
+            //             img: item.filename,
+            //             order: index + 1,
+            //             productId: product.id
+            //         })
+            //             .then(() => { console.log(true) })
+            //             .catch((err) => { console.log(err) })
+            //     })
+            // }
+            return Response.Created('Haryt goýuldy!', features)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }

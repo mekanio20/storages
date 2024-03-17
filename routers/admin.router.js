@@ -88,14 +88,14 @@ router.get('/all/features',
     validationMiddleware(baseSchema.queryControl, 'query'),
     adminController.allFeatures)
 
-router.get('/all/feature/descriptions',
+router.get('/feature/descriptions',
     authMiddleware, accessMiddleware(false),
-    validationMiddleware(baseSchema.queryControl, 'query'),
+    validationMiddleware(adminSchema.featureDescriptions, 'query'),
     adminController.allFeatureDescriptions)
 
 router.get('/subcategory/features',
     authMiddleware,
-    validationMiddleware(baseSchema.queryControl, 'query'),
+    validationMiddleware(adminSchema.subcategoryFeatures, 'query'),
     adminController.allSubcategoryFeatures)
 
 // -- statistic

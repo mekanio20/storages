@@ -108,6 +108,23 @@ const adminSchema = {
         featureId: Joi.number().positive().optional(),
         subcategoryId: Joi.ref('featureId'),
         isActive: Joi.boolean().optional()
+    }),
+
+    // GET
+    subcategoryFeatures: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.ref('page'),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        status: Joi.string().valid('all', true, false).optional(),
+        subcategoryId: Joi.number().positive().optional()
+    }),
+
+    featureDescriptions: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.ref('page'),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        status: Joi.string().valid('all', true, false).optional(),
+        featureId: Joi.number().positive().optional()
     })
 }
 

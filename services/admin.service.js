@@ -69,6 +69,7 @@ class AdminService {
             let order = q.order || 'desc'
             let whereState = { isActive: true }
             if (q.status === 'all') { whereState = {} }
+            if (q.subcategoryId) { whereState.subcategoryId = q.subcategoryId }
             const subcategory_features = await Models.SubcategoryFeatures.findAndCountAll({
                 attributes: ['id', 'isActive', 'createdAt', 'updatedAt'],
                 where: whereState,
@@ -421,9 +422,9 @@ class AdminService {
                 { url: '/api/admin/all/features', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/features', method: 'GET', groupId: 2 },
                 { url: '/api/admin/all/features', method: 'GET', groupId: 3 },
-                { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 1 },
-                { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 2 },
-                { url: '/api/admin/all/feature/descriptions', method: 'GET', groupId: 3 },
+                { url: '/api/admin/feature/descriptions', method: 'GET', groupId: 1 },
+                { url: '/api/admin/feature/descriptions', method: 'GET', groupId: 2 },
+                { url: '/api/admin/feature/descriptions', method: 'GET', groupId: 3 },
                 { url: '/api/admin/all/systems', method: 'GET', groupId: 1 },
                 { url: '/api/admin/all/systems', method: 'GET', groupId: 2 },
                 { url: '/api/admin/register/statistic', method: 'GET', groupId: 1 },
