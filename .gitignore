@@ -1,0 +1,12 @@
+node_modules/*
+public/*
+.env
+access.log
+package.json/*
+test.js
+firebase.js
+yarn.lock
+*.log
+otpApp/node_modules/*
+otpApp/.env
+otpApp/package-lock.json
