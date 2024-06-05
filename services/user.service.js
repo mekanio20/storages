@@ -209,12 +209,12 @@ class UserService {
         try {
             console.log('Send Otp Service --> ', JSON.stringify(user.phone, 2, null))
             const bodyParameters = { phone: user.phone }
-            const { data } = await Axios.post('http://localhost:3000/otp', bodyParameters)
+            const { data } = await Axios.post('http://localhost:3001/otp', bodyParameters)
             const random = data.pass
             const token = jwt.sign({ user }, process.env.PRIVATE_KEY, { expiresIn: '5m' })
             await redis.set(user.phone, random)
             await redis.expire(user.phone, 300)
-            return Response.Success('Tassyklama kody ugradyldy!', { token })
+            return Response.Success('Tassyklama kody ugradyldy!', { token, random })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
