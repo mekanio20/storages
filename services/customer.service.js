@@ -21,7 +21,7 @@ class CustomerService {
                     fullname: fullname,
                     gender: gender,
                     email: email,
-                    img: img.filename,
+                    img: img?.filename || null,
                     userId: userId
                 }
             }).catch(((err) => { console.log(err) }))
