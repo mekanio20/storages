@@ -483,6 +483,8 @@ class AdminService {
                 { url: '/api/banner/add', method: 'POST', groupId: 2 },
                 { url: '/api/banner/add', method: 'POST', groupId: 3 },
                 { url: '/api/banner/all', method: 'GET', groupId: 1 },
+                { url: '/api/banner/all', method: 'GET', groupId: 2 },
+                { url: '/api/banner/all', method: 'GET', groupId: 3 },
                 { url: '/api/banner', method: 'DELETE', groupId: 1 },
                 // COMMENT ROUTERS
                 { url: '/api/comment/add', method: 'POST', groupId: 4 },

@@ -23,7 +23,7 @@ const adminSchema = {
         id: Joi.number().positive().optional(),
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).optional(),
-        en_name: Joi.ref('ru_name'),
+        en_name: Joi.string().min(3).max(100).optional(),
         isActive: Joi.boolean().default(false)
     }),
 
@@ -31,7 +31,7 @@ const adminSchema = {
         id: Joi.number().positive().optional(),
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).optional(),
-        en_name: Joi.ref('ru_name'),
+        en_name: Joi.string().min(3).max(100).optional(),
         categoryId: Joi.number().positive().required(),
         isActive: Joi.boolean().default(false)
     }),
@@ -40,7 +40,7 @@ const adminSchema = {
         id: Joi.number().positive().optional(),
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).optional(),
-        en_name: Joi.ref('ru_name'),
+        en_name: Joi.string().min(3).max(100).optional(),
         isActive: Joi.boolean().default(false)
     }),
 
