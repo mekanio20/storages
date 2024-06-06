@@ -237,7 +237,7 @@ class CustomerService {
             const user = await Models.Customers.update(obj, { where: { id: customer } })
                 .catch((err) => console.log(err))
             if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', user)
+            return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
