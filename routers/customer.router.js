@@ -44,4 +44,11 @@ router.get('/profile',
     authMiddleware, accessMiddleware(false),
     customerController.customerProfile)
 
+// PUT
+router.put('/edit',
+    authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.CUSTOMER_PATH).single('img'),
+    valdidationMiddleware(customerSchema.customerEditProfile, 'body'),
+    customerController.customerEditProfile)
+
 module.exports = router

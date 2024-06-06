@@ -529,6 +529,7 @@ class AdminService {
                 { url: '/api/customer/orders', method: 'GET', groupId: 2 },
                 { url: '/api/customer/orders', method: 'GET', groupId: 4 },
                 { url: '/api/customer/profile', method: 'GET', groupId: 4 },
+                { url: '/api/customer/edit', method: 'PUT', groupId: 4 },
                 // VIDEO ROUTER
                 { url: '/api/video/add', method: 'POST', groupId: 3 },
                 { url: '/api/video', method: 'GET', groupId: 4 },

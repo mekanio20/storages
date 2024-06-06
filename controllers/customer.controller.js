@@ -65,6 +65,15 @@ class CustomerController {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
+    // PUT
+    async customerEditProfile(req, res) {
+        try {
+            const data = await customerService.customerEditProfileService(req.user.id, req.body, req.file)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
 }
 
 module.exports = new CustomerController()
