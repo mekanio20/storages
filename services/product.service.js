@@ -555,12 +555,12 @@ class ProductService {
             let offset = page * limit - limit
             let whereState = { isActive: true }
             if (q.status === 'all') { whereState = {} }
-            const subcategories = await Models.Subcategories.findAndCountAll({
+            const subcategories = await Models.Categories.findAndCountAll({
                 where: whereState,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt', 'userId', 'categoryId'] },
+                attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt', 'userId'] },
                 include: {
-                    model: Models.Categories,
-                    attributes: ['id', 'tm_name']
+                    model: Models.Subcategories,
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name']
                 },
                 limit: Number(limit),
                 offset: Number(offset),
