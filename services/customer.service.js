@@ -92,7 +92,7 @@ class CustomerService {
         }
     }
 
-    async customerBasketService(id, q) {
+    async customerBasketService(userId, q) {
         try {
             let page = q.page || 1
             let limit = q.limit || 10
