@@ -51,4 +51,9 @@ router.put('/edit',
     valdidationMiddleware(customerSchema.customerEditProfile, 'body'),
     customerController.customerEditProfile)
 
+router.put('/edit/basket',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(customerSchema.editBasket, 'body'),
+    customerController.customerEditBasket)
+
 module.exports = router
