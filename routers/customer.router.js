@@ -56,4 +56,10 @@ router.put('/edit/basket',
     valdidationMiddleware(customerSchema.editBasket, 'body'),
     customerController.customerEditBasket)
 
+// DELETE
+router.delete('/delete/basket/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
+    customerController.customerDeleteBasket)
+
 module.exports = router
