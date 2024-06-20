@@ -242,6 +242,18 @@ class CustomerService {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
+    async customerEditBasketService(userId, body) {
+        try {
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
+            const user = await Models.Baskets.update({ quantity: body.quantity }, { where: { id: customer } })
+                .catch((err) => console.log(err))
+            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
 }
 
 module.exports = new CustomerService()
