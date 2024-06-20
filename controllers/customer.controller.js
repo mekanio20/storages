@@ -84,6 +84,15 @@ class CustomerController {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
+    // DELETE
+    async customerDeleteBasket(req, res) {
+        try {
+            const data = await customerService.customerDeleteBasketService(req.user.id, req.params.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
 }
 
 module.exports = new CustomerController()

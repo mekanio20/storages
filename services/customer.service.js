@@ -254,6 +254,19 @@ class CustomerService {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
+    // DELETE
+    async customerDeleteBasketService(userId, id) {
+        try {
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
+            const user = await Models.Baskets.destroy({ where: { id: id, customerId: customer } })
+                .catch((err) => console.log(err))
+            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
 }
 
 module.exports = new CustomerService()
