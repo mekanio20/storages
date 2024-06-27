@@ -1,6 +1,14 @@
 const Joi = require('joi')
 
 const bannerSchema = {
+    // GET
+    allBanner: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        sort: Joi.string().valid('sort_order', 'id').optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        type: Joi.string().valid('home', 'product', 'profile', 'ad', 'category', 'etc').optional()
+    }),
     // POST
     addBanner: Joi.object({
         url: Joi.string().uri({ scheme: ['http', 'https'] }).required(),

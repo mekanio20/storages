@@ -2,6 +2,28 @@ const Response = require('../helpers/response.service')
 const Models = require('../config/models')
 
 class BannerService {
+    // GET
+    async allBannerService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let sort = q.sort || 'id'
+            let order = q.order || 'asc'
+            let whereState = {}
+            if (q.type) whereState.type = q.type
+            const banners = await Models.Banners.findAndCountAll({
+                where: whereState,
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [[sort, order]]
+            }).catch((err) => console.log(err))
+            if (banners.count === 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            return Response.Success('Üstünlikli!', banners)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
     // POST
     async addBannerService(body, user, filenames) {
         try {
