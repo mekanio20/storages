@@ -48,7 +48,7 @@ const sellerSchema = {
         limit: Joi.number().positive().optional()
     }),
 
-    sellerProucts: Joi.object({
+    sellerProducts: Joi.object({
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
         sort: Joi.string().valid('id', 'sale_price'),

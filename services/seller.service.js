@@ -327,7 +327,7 @@ class SellerService {
             await Promise.all(products.rows.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'order', 'img']
+                    attributes: ['id', 'img']
                 })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await fetchReviewService(item.id)

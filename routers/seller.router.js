@@ -3,7 +3,7 @@ const sellerController = require('../controllers/seller.controller')
 const accessMiddleware = require('../middlewares/access.middleware')
 const authMiddleware = require('../middlewares/auth.middleware')
 const imagesMiddleware = require('../middlewares/images.middleware')
-const valdidationMiddleware = require('../middlewares/validation.middleware')
+const validationMiddleware = require('../middlewares/validation.middleware')
 const sellerSchema = require('../validates/seller.schema')
 const baseSchema = require('../validates/base.schema')
 
@@ -14,40 +14,40 @@ router.post('/register',
         { name: "logo", maxCount: 1 },
         { name: "bg_img", maxCount: 1 }
     ]),
-    valdidationMiddleware(sellerSchema.sellerRegister, 'body'),
+    validationMiddleware(sellerSchema.sellerRegister, 'body'),
     sellerController.sellerRegister)
 
 // GET
 router.get('/top',
-    valdidationMiddleware(baseSchema.queryControl, 'query'),
+    validationMiddleware(baseSchema.queryControl, 'query'),
     sellerController.topSellers)
 
 router.get('/all',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(sellerSchema.allSeller, 'query'),
+    validationMiddleware(sellerSchema.allSeller, 'query'),
     sellerController.allSeller)
 
 router.get('/orders',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(sellerSchema.allOrders, 'query'),
+    validationMiddleware(sellerSchema.allOrders, 'query'),
     sellerController.allOrders)
 
 router.get('/order/detail/:id',
     authMiddleware, accessMiddleware(true),
-    valdidationMiddleware(baseSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     sellerController.orderDetail)
 
 router.get('/followers/:id',
-    valdidationMiddleware(baseSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     sellerController.sellerFollowers)
 
 router.get('/profile/:id',
     authMiddleware,
-    valdidationMiddleware(baseSchema.idControl, 'params'),
+    validationMiddleware(baseSchema.idControl, 'params'),
     sellerController.profileSeller)
 
 router.get('/products',
-    valdidationMiddleware(sellerSchema.sellerProucts, 'query'),
+    validationMiddleware(sellerSchema.sellerProducts, 'query'),
     sellerController.sellerProducts)
 
 router.get('/statistic',
@@ -56,7 +56,7 @@ router.get('/statistic',
 
 router.get('/videos',
     authMiddleware,  accessMiddleware(false),
-    valdidationMiddleware(sellerSchema.sellerVideos, 'query'),
+    validationMiddleware(sellerSchema.sellerVideos, 'query'),
     sellerController.sellerVideos)
 
 // PUT
@@ -66,7 +66,7 @@ router.put('/update',
         { name: "logo", maxCount: 1 },
         { name: "bg_img", maxCount: 1 }
     ]),
-    valdidationMiddleware(sellerSchema.updateSellerProfile, 'body'),
+    validationMiddleware(sellerSchema.updateSellerProfile, 'body'),
     sellerController.updateSellerProfile)
 
 // DELETE

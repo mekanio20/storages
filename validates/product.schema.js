@@ -4,11 +4,11 @@ const productSchema = {
     // POST
     addProduct: Joi.object({
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
+        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).optional(),
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
         tm_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
-        ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
-        en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
+        ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).optional(),
+        en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
         barcode: Joi.number().positive().required(),
         stock_code: Joi.string().min(3).max(50).alphanum().required(),
         quantity: Joi.number().positive().default(0),
@@ -26,11 +26,11 @@ const productSchema = {
 
     addCoupon: Joi.object({
         tm_name: Joi.string().min(3).max(100).required(),
-        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
-        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
+        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).optional(),
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
         tm_desc: Joi.string().min(3).max(100).required(),
-        ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).allow('', null),
-        en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).allow('', null),
+        ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).optional(),
+        en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
         conditions: Joi.string().valid('on-register', 'on-follow', 'min-buy').required(),
         min_amount: Joi.number().positive().optional(),
         limit: Joi.number().positive().required(),
@@ -56,6 +56,23 @@ const productSchema = {
         sort: Joi.string().valid('id', 'sale_price').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         isActive: Joi.string().valid('all').optional()
+    }),
+    // PUT
+    updateProduct: Joi.object({
+        productId: Joi.number().positive().required(),
+        ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).optional(),
+        en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
+        tm_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).optional(),
+        ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).optional(),
+        en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
+        stock_code: Joi.string().min(3).max(50).alphanum().optional(),
+        barcode: Joi.number().positive().optional(),
+        quantity: Joi.number().positive().default(0),
+        org_price: Joi.number().positive().optional(),
+        sale_price: Joi.number().positive().optional(),
+        gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').default('non-gender'),
+        subcategoryId: Joi.number().positive().optional(),
+        brandId: Joi.number().positive().optional()
     }),
     // GET
     searchProduct: Joi.object({

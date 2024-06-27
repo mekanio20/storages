@@ -80,7 +80,6 @@ class ProductService {
                 filenames.img.forEach(async (item, index) => {
                     await Models.ProductImages.create({
                         img: item.filename,
-                        order: index + 1,
                         productId: product.id
                     })
                         .then(() => { console.log(true) })
@@ -88,6 +87,28 @@ class ProductService {
                 })
             }
             return Response.Created('Haryt goýuldy!', features)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
+    async addProductImageService(body, filenames, userId) {
+        try {
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
+            const product = await Models.Products.findOne({ where: { id: body.id, sellerId: seller }, attributes: ['id'] })
+            if (!product) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            if (filenames.img) {
+                filenames.img.forEach(async (item, index) => {
+                    await Models.ProductImages.create({
+                        img: item.filename,
+                        productId: product.id
+                    })
+                        .then(() => { console.log(true) })
+                        .catch((err) => { console.log(err) })
+                })
+            }
+            return Response.Created('Surat goýuldy!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
@@ -186,6 +207,23 @@ class ProductService {
         }
     }
 
+    // PUT
+    async updateProductService(userId, body) {
+        try {
+            const obj = {}
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
+            const isProduct = await Models.Products.findOne({ where: { id: body.productId, sellerId: seller }, attributes: ['id'] })
+            if (!isProduct) { return Response.Forbidden('Bu haryt size degişli däl!', []) }
+            for (const item in body) { if (item && item !== 'productId') { obj[item] = body[item] } }
+            await Models.Products.update(obj, { where: { id: isProduct.id } })
+                .catch((err) => { console.log(err) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
     // GET
     async allProductService(q) {
         try {
@@ -238,7 +276,7 @@ class ProductService {
             await Promise.all(products.rows.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'order', 'img']
+                    attributes: ['id', 'img']
                 })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
@@ -310,7 +348,7 @@ class ProductService {
             await Promise.all(products.rows.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'order', 'img']
+                    attributes: ['id', 'img']
                 })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
@@ -365,7 +403,7 @@ class ProductService {
             await Promise.all(products.rows.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'order', 'img']
+                    attributes: ['id', 'img']
                 })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
@@ -427,7 +465,7 @@ class ProductService {
             await Promise.all(selling_products.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'order', 'img']
+                    attributes: ['id', 'img']
                 })
                 const comment = await Models.Comments.count({ where: { productId: item.product.id } })
                 const rating = await this.fetchReviewService(item.product.id)
@@ -489,7 +527,7 @@ class ProductService {
             await Promise.all(top_liked.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'order', 'img']
+                    attributes: ['id', 'img']
                 })
                 const comment = await Models.Comments.count({ where: { productId: item.product.id } })
                 const rating = await this.fetchReviewService(item.product.id)
@@ -532,7 +570,7 @@ class ProductService {
             })
             const images = await Models.ProductImages.findAndCountAll({
                 where: { productId: product.id, isActive: true },
-                attributes: ['id', 'order', 'img']
+                attributes: ['id', 'img']
             })
             const rating = await this.fetchReviewService(product.id)
             const comment = await allCommentService({ productId: product.id })
@@ -624,6 +662,26 @@ class ProductService {
     }
 
     // DELETE
+    async deleteProductImageService(id, user) {
+        try {
+            const product_image = await Models.ProductImages.findOne({ where: { id: Number(id) }, attributes: ['id', 'productId']})
+            if (user.group == 1 || user.group == 2) {
+                await Models.ProductImages.destroy({ where: { id: Number(id) } })
+                    .then(() => { console.log(true) })
+                return Response.Success('Üstünlikli!', [])
+            }
+            const seller = await Verification.isSeller(user.id)
+            if (isNaN(seller)) { return seller }
+            const product = await Models.Products.findOne({ where: { id: product_image.productId, sellerId: Number(seller) } })
+            if (!product) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            await Models.ProductImages.destroy({ where: { id: Number(product_image.id) } })
+                .then(() => { console.log(true) })
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
     async deleteProductService(id, user) {
         try {
             if (user.group == 1) {
@@ -633,7 +691,7 @@ class ProductService {
             }
             const seller = await Verification.isSeller(user.id)
             if (isNaN(seller)) { return seller }
-            const product = await Models.Products.findOne({ where: { sellerId: Number(seller) } })
+            const product = await Models.Products.findOne({ where: { id: id, sellerId: Number(seller) } })
             if (!product) { return Response.Forbidden('Rugsat edilmedi!', []) }
             await Models.Products.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
