@@ -87,6 +87,13 @@ const adminSchema = {
         isStaff: Joi.ref('isActive')
     }),
 
+    updateBrand: Joi.object({
+        id: Joi.number().positive().required(),
+        name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).optional(),
+        desc: Joi.string().min(5).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).optional(),
+        isActive: Joi.boolean().optional()
+    }),
+
     updateSeller: Joi.object({
         id: Joi.number().positive().required(),
         isVerified: Joi.boolean().required()

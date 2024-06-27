@@ -127,7 +127,7 @@ router.put('/update/subscription',
 router.put('/update/brand',
     authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.BRANDS_PATH).single('brand_img'),
-    validationMiddleware(adminSchema.addBrand, 'body'),
+    validationMiddleware(adminSchema.updateBrand, 'body'),
     adminController.updateBrand)
 
 router.put('/update/category',
