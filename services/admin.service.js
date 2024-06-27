@@ -15,6 +15,7 @@ class AdminService {
             const hash = await bcrypt.compare(body.password, user.password)
             if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
             const token = await Functions.generateJwt(user.id, user.groupId)
+            delete user.dataValues.password
             user.dataValues.token = token
             return Response.Success('Admin hasaba alyndy!', user)
         } catch (error) {

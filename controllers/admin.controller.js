@@ -258,10 +258,13 @@ class AdminController {
         try {
             const body = req.body
             const file = await Verification.isFile(req?.file?.filename)
-            const slug = await Functions.generateSlug(req.body.name)
+            let slug = null
             if (file) { body.img = file }
-            body.slug = slug
-            body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
+            if (body.name) {
+                body.name = body.name.trim().split(' ').join(' ').charAt(0).toUpperCase() + body.name.slice(1).toLowerCase()
+                slug = await Functions.generateSlug(body.name)
+                body.slug = slug
+            }
             const data = await new baseService(Models.Brands).updateService(body)
             return res.status(data.status).json(data)
         } catch (error) {
