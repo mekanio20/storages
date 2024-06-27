@@ -54,7 +54,10 @@ class SellerService {
         try {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
-            const profile = await Models.Sellers.findOne({ where: { id: seller }, attributes: { exclude: ['updatedAt'] } })
+            const profile = await Models.Sellers.findOne({
+                where: { id: seller },
+                attributes: { exclude: ['userId', 'categoryId', 'deletedAt', 'updatedAt'] }
+            })
             if (!profile) { return Response.NotFound('Satyjy tapylmady!', {}) }
             return Response.Success('Üstünlikli!', profile)
         } catch (error) {
