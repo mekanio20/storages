@@ -13,6 +13,15 @@ class productController {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
+    
+    async addProductImage(req, res) {
+        try {
+            const data = await productService.addProductImageService(req.body, req.files, req.user.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
 
     async addProductReview(req, res) {
         try {
@@ -39,6 +48,16 @@ class productController {
     async addOffer(req, res) {
         try {
             const data = await productService.addOfferService(req.body, req.user.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+
+    // PUT
+    async updateProduct(req, res) {
+        try {
+            const data = await productService.updateProductService(req.user.id, req.body)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
@@ -146,6 +165,15 @@ class productController {
     }
 
     // DELETE
+    async deleteProductImage(req, res) {
+        try {
+            const data = await productService.deleteProductImageService(req.params.id, req.user)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+
     async deleteProduct(req, res) {
         try {
             const data = await productService.deleteProductService(req.params.id, req.user)

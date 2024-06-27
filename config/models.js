@@ -139,7 +139,6 @@ const Products = database.define('products', {
 const ProductImages = database.define('product_images', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     img: { type: DataTypes.STRING(255), allowNull: false },
-    order: { type: DataTypes.SMALLINT, allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }

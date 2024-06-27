@@ -313,9 +313,9 @@ class AdminService {
             ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
 
             await Models.ProductImages.bulkCreate([
-                { img: "download.jpeg", order: 1, productId: 1 },
-                { img: "download.jpeg", order: 2, productId: 1 },
-                { img: "download.jpeg", order: 3, productId: 1 },
+                { img: "download.jpeg", productId: 1 },
+                { img: "download.jpeg", productId: 1 },
+                { img: "download.jpeg", productId: 1 },
             ]).then(() => { console.log('Products images created') }).catch((err) => { console.log(err) })
 
             await Models.ProductFeatures.bulkCreate([

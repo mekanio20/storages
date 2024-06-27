@@ -11,10 +11,18 @@ const baseSchema = require('../validates/base.schema')
 router.post('/add',
     authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
-        { name: "img", maxCount: 20 }
+        { name: "img", maxCount: 10 }
     ]),
     validationMiddleware(productSchema.addProduct, 'body'),
     productController.addProduct)
+
+router.post('/add/image',
+    authMiddleware, accessMiddleware(false),
+    imagesMiddleware(process.env.PRODUCTS_PATH).fields([
+        { name: 'img', maxCount: 10 }
+    ]),
+    validationMiddleware(baseSchema.idControl, 'body'),
+    productController.addProductImage)
 
 router.post('/add/review',
     authMiddleware, accessMiddleware(false),
@@ -76,7 +84,18 @@ router.get('/likes',
 
 router.get('/:slug', productController.fetchProduct)
 
+// PUT
+router.put('/update',
+    authMiddleware, accessMiddleware(false),
+    validationMiddleware(productSchema.updateProduct, 'body'),
+    productController.updateProduct)
+
 // DELETE
+router.delete('/image/:id',
+    authMiddleware, accessMiddleware(true),
+    validationMiddleware(baseSchema.idControl, 'params'),
+    productController.deleteProductImage)
+
 router.delete('/:id',
     authMiddleware, accessMiddleware(true),
     validationMiddleware(baseSchema.idControl, 'params'),
