@@ -22,7 +22,7 @@ class BannerController {
     // GET
     async allBanner(req, res) {
         try {
-            const data = await new baseService(Models.Banners).getService(req.query)
+            const data = await bannerService.allBannerService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
