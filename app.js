@@ -33,7 +33,7 @@ const database = require('./config/database')
 const router = require('./routers/index.router')
 
 app.disable('x-powered-by')
-app.use(cors({ origin: true }))
+app.use(cors({ origin: "*", methods: ['GET', 'POST', 'PUT', 'DELETE'] }))
 app.use(helmet())
 
 let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
