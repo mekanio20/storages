@@ -181,7 +181,6 @@ const Banners = database.define('banners', {
     sort_order: { type: DataTypes.SMALLINT, allowNull: false },
     start_date: { type: DataTypes.DATE, allowNull: false },
     end_date: { type: DataTypes.DATE, allowNull: false },
-    isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
