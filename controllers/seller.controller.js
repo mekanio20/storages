@@ -18,6 +18,15 @@ class SellerController {
     }
 
     // GET
+    async fetchSeller(req, res) {
+        try {
+            const data = await sellerService.fetchSellerService(req.user.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+
     async allSeller(req, res) {
         try {
             const data = await sellerService.allSellerService(req.query)

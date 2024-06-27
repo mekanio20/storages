@@ -18,6 +18,10 @@ router.post('/register',
     sellerController.sellerRegister)
 
 // GET
+router.get('/',
+    authMiddleware, accessMiddleware(false),
+    sellerController.fetchSeller)
+
 router.get('/top',
     validationMiddleware(baseSchema.queryControl, 'query'),
     sellerController.topSellers)
@@ -41,7 +45,7 @@ router.get('/followers/:id',
     validationMiddleware(baseSchema.idControl, 'params'),
     sellerController.sellerFollowers)
 
-router.get('/profile/:id',
+router.get('/profile/:id', // customer ucin
     authMiddleware,
     validationMiddleware(baseSchema.idControl, 'params'),
     sellerController.profileSeller)

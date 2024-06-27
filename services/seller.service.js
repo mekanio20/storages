@@ -50,6 +50,18 @@ class SellerService {
     }
 
     // GET
+    async fetchSellerService(userId) {
+        try {
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
+            const profile = await Models.Sellers.findOne({ where: { id: seller }, attributes: { exclude: ['updatedAt'] } })
+            if (!profile) { return Response.NotFound('Satyjy tapylmady!', {}) }
+            return Response.Success('Üstünlikli!', profile)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
     async allSellerService(q) {
         try {
             let page = q.page || 1
