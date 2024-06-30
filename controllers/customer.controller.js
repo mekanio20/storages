@@ -93,6 +93,22 @@ class CustomerController {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
+    async customerDeleteFollow(req, res) {
+        try {
+            const data = await customerService.customerDeleteFollowService(req.user.id, req.params.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+    async customerDeleteLike(req, res) {
+        try {
+            const data = await customerService.customerDeleteLikeService(req.user.id, req.params.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
 }
 
 module.exports = new CustomerController()

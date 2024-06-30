@@ -117,6 +117,15 @@ class SellerController {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
+    
+    async updateOrderStatus(req, res) {
+        try {
+            const data = await sellerService.updateOrderStatusService(req.body, req.user.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
 
     // DELETE
     async deleteSeller(req, res) {

@@ -145,6 +145,46 @@ class UserService {
         }
     }
 
+    async addOrderService(body, userId) {
+        try {
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
+            const basket = await Models.Baskets.findAll({ where: { customerId: customer, isActive: true } })
+            if (basket.length === 0) { return Response.BadRequest('Haryt tapylmady!', []) }
+            const orders = await Models.Orders.findOne({ where: { customerId: customer, status: { [Op.ne]: 'completed' } } })
+            if (orders) { return Response.Forbidden('Sargydyňyz tamamlanandan soňra sargyt edip bilersiňiz!', []) }
+            let order_id = ''
+            let today = new Date()
+            const numbers = '0123456789'
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+            today = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear()
+            for (let i = 0; i < 4; i++) {
+                order_id += characters.charAt(Math.floor(Math.random() * characters.length))
+            }
+            for (let i = 0; i < 4; i++) {
+                order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
+            }
+            body.order_id = order_id
+            body.status = 'pending'
+            body.time = today
+            body.customerId = customer
+            const order = await Models.Orders.create(body)
+            if (!order) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
+            basket.forEach(async (item) => {
+                await Models.OrderItems.create({
+                    orderId: order.id,
+                    quantity: item.quantity,
+                    productId: item.productId
+                }).then(() => console.log(true))
+                item.isActive = false
+                await item.save()
+            })
+            return Response.Success('Sargydyňyz kabul edildi!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
     async addMessageService(body, userId, file) {
         try {
             const customerId = await Verification.isCustomer(userId) || await Verification.isCustomer(body.userId)

@@ -6,35 +6,33 @@ const sellerSchema = {
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/),
         store_number: Joi.number().positive().required(),
         store_floor: Joi.number().positive().required(),
-        about: Joi.string().min(10).max(255).allow(null, ''),
+        about: Joi.string().min(10).max(255).optional(),
         seller_type: Joi.string().valid('in-opt', 'out-opt').required(),
         sell_type: Joi.string().valid('wholesale', 'partial', 'both').required(),
-        instagram: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).allow(null, ''),
-        tiktok: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).allow(null, ''),
+        instagram: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).optional(),
+        tiktok: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).optional(),
         main_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).required(),
-        second_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).allow(null, ''),
+        second_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).optional(),
         categoryId: Joi.number().positive().required(),
         subscriptionId: Joi.number().positive().required()
     }),
 
     updateSellerProfile: Joi.object({
-        name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).allow('', null),
-        store_number: Joi.number().positive().allow('', null),
-        store_floor: Joi.number().positive().allow('', null),
-        about: Joi.string().min(10).max(255).allow(null, ''),
-        seller_type: Joi.string().valid('in-opt', 'out-opt').allow('', null),
-        sell_type: Joi.string().valid('wholesale', 'partial', 'both').allow('', null),
-        instagram: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).allow(null, ''),
-        tiktok: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).allow(null, ''),
-        main_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).allow('', null),
-        second_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).allow('', null),
+        name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).optional(),
+        store_number: Joi.number().positive().optional(),
+        store_floor: Joi.number().positive().optional(),
+        about: Joi.string().min(10).max(255).optional(),
+        seller_type: Joi.string().valid('in-opt', 'out-opt').optional(),
+        sell_type: Joi.string().valid('wholesale', 'partial', 'both').optional(),
+        instagram: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).optional(),
+        tiktok: Joi.string().min(10).max(50).regex(/^[a-zA-Z!?@#$:/\/%^&-=+_]+$/).optional(),
+        main_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).optional(),
+        second_number: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Invalid phone number'}).optional(),
         categoryId: Joi.number().positive().optional()
     }),
     
     allOrders: Joi.object({
-        status: Joi.string().valid('new', 'ondelivery', 'completed', 'cancelled'),
-        sort: Joi.string().valid('id', 'time').optional(),
-        order: Joi.string().valid('asc', 'desc').optional()
+        status: Joi.string().valid('ondelivery', 'completed', 'cancelled').optional()
     }),
 
     allSeller: Joi.object({
@@ -66,6 +64,11 @@ const sellerSchema = {
         sellerId: Joi.number().positive().required(),
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional()
+    }),
+
+    updateOrderStatus: Joi.object({
+        orderId: Joi.number().positive().required(),
+        status: Joi.string().valid('pending', 'accepted', 'ondelivery', 'completed', 'cancelled').required()
     })
 }
 

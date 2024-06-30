@@ -16,9 +16,7 @@ const userSchema = {
         phone: Joi.string().regex(/^6[0-9]{7}$/).messages({'string.pattern.base': 'Telefon belgi nädogry!'}).required(),
         address: Joi.string().min(4).required(),
         payment: Joi.string().valid('online', 'cash', 'terminal').required(),
-        amount: Joi.number().positive().required(),
-        note: Joi.string().min(10).optional(),
-        productId: Joi.number().positive().required()
+        note: Joi.string().min(10).optional()
     }),
 
     addBasket: Joi.object({

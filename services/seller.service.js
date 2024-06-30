@@ -112,18 +112,27 @@ class SellerService {
 
     async allOrdersService(q, userId) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let status = q.status || 'ondelivery'
-            let sort = q.sort || 'id'
-            let order = q.order || 'desc'
+            // let page = q.page || 1
+            // let limit = q.limit || 10
+            // let offset = page * limit - limit
+            // let sort = q.sort || 'id'
+            // let order = q.order || 'desc'
+            let whereState = {}
+            if (q.status) whereState.status = q.status
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
-            const orders = await Models.Orders.findAndCountAll({
-                attributes: ['id', 'customerId', 'order_id', 'status', 'time'],
-                where: { status: status },
+            const orders = await Models.OrderItems.findAll({
+                attributes: [['id', 'orderItemId'], 'quantity'],
                 include: [
+                    {
+                        model: Models.Orders,
+                        attributes: ['id', 'order_id', 'status', 'time'],
+                        where: whereState,
+                        include: {
+                            model: Models.Customers,
+                            attributes: ['id', 'fullname']
+                        },
+                    },
                     {
                         model: Models.Products,
                         where: { isActive: true, sellerId: seller },
@@ -137,20 +146,13 @@ class SellerService {
                             {
                                 model: Models.Offers,
                                 where: { isActive: true }, required: false,
-                                attributes: ['id', 'discount']
+                                attributes: ['id', 'discount', 'currency']
                             }
                         ]
-                    },
-                    {
-                        model: Models.Customers,
-                        attributes: ['fullname']
                     }
-                ],
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [[sort, order]]
-            }).catch((err) => { console.log(err) })
-            if (orders.count === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
+                ]
+            }).catch((err) => console.log(err))
+            if (orders.length === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
             return Response.Success('Üstünlikli!', orders)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
@@ -456,6 +458,34 @@ class SellerService {
             await Models.Sellers.update(newObj, { where: { id: seller } })
                 .catch((err) => { console.log(err) })
             return Response.Success('Satyjy maglumaty täzelendi!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
+    async updateOrderStatusService(body, userId) {
+        try {
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
+            const order = await Models.Orders.findOne({
+                attributes: ['id', 'status'],
+                where: { id: body.orderId },
+                include: {
+                    model: Models.OrderItems,
+                    required: true,
+                    attributes: ['id', 'quantity'],
+                    include: {
+                        model: Models.Products,
+                        required: true,
+                        attributes: ['sellerId'],
+                        where: { sellerId: seller, isActive: true }
+                    }
+                }
+            }).catch((err) => console.log(err))
+            if (!order) { return Response.Forbidden('Rugsat edilmedi!', {}) }
+            order.status = body.status
+            await order.save()
+            return Response.Success('Sargydyň ýagdaýy täzelendi!', { id: order.id, status: order.status })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }

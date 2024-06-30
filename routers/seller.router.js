@@ -73,6 +73,11 @@ router.put('/update',
     validationMiddleware(sellerSchema.updateSellerProfile, 'body'),
     sellerController.updateSellerProfile)
 
+router.put('/update/status',
+    authMiddleware, accessMiddleware(false),
+    validationMiddleware(sellerSchema.updateOrderStatus, 'body'),
+    sellerController.updateOrderStatus)
+
 // DELETE
 router.delete('/delete',
     authMiddleware, accessMiddleware(false),

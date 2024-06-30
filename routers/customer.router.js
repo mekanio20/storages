@@ -62,4 +62,14 @@ router.delete('/delete/basket/:id',
     valdidationMiddleware(baseSchema.idControl, 'params'),
     customerController.customerDeleteBasket)
 
+router.delete('/delete/follow/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
+    customerController.customerDeleteFollow)
+    
+router.delete('/delete/like/:id',
+    authMiddleware, accessMiddleware(true),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
+    customerController.customerDeleteLike)
+
 module.exports = router
