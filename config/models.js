@@ -60,13 +60,18 @@ const Orders = database.define('orders', {
     phone: { type: DataTypes.STRING(12), allowNull: false },
     address: { type: DataTypes.STRING(50), allowNull: false },
     order_id: { type: DataTypes.STRING(30), allowNull: false },
-    status: { type: DataTypes.ENUM({ values: ['new', 'ondelivery', 'completed', 'cancelled'] }), allowNull: false },
+    status: { type: DataTypes.ENUM({ values: ['pending', 'accepted', 'ondelivery', 'completed', 'cancelled'] }), defaultValue: 'pending' },
     payment: { type: DataTypes.ENUM({ values: ['online', 'cash', 'terminal'] }), allowNull: false },
-    amount: { type: DataTypes.INTEGER, allowNull: false },
     time: { type: DataTypes.STRING(20), allowNull: false },
     note: { type: DataTypes.STRING, allowNull: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
+})
+
+const OrderItems = database.define('order_items', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
+    quantity: { type: DataTypes.SMALLINT, defaultValue: 1 },
+    createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
 })
 
 const Subscriptions = database.define('subscriptions', {
@@ -348,6 +353,16 @@ const VideoTags = database.define('video_tags', {
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
 
+// OrderItems -> OrderId
+
+Orders.hasMany(OrderItems)
+OrderItems.belongsTo(Orders)
+
+// OrderItems -> ProductId
+
+Products.hasMany(OrderItems)
+OrderItems.belongsTo(Products)
+
 // Videos -> SellerId
 
 Sellers.hasMany(Videos)
@@ -387,11 +402,6 @@ Sellers.belongsTo(Subscriptions)
 
 Customers.hasMany(Orders)
 Orders.belongsTo(Customers)
-
-// Orders -> ProductId
-
-Products.hasMany(Orders)
-Orders.belongsTo(Products)
 
 // Chats -> SellerId, CustomerId
 
@@ -580,7 +590,7 @@ Tags.hasMany(VideoTags)
 VideoTags.belongsTo(Tags)
 
 module.exports = {
-    Users, Customers, Addresses,
+    Users, Customers, Addresses, OrderItems,
     Sellers, Orders, Subscriptions, Chats, Messages,
     Brands, Products, ProductImages, ProductReviews,
     ProductReviewImages, Notifications, Banners,

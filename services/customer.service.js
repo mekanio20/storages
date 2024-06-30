@@ -99,7 +99,7 @@ class CustomerService {
             let offset = page * limit - limit
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
-            const basket = await Models.Baskets.findAndCountAll({
+            const basket = await Models.Baskets.findAll({
                 where: {
                     isActive: true,
                     customerId: customer
@@ -132,14 +132,14 @@ class CustomerService {
                 offset: Number(offset),
                 order: [['id', 'desc']]
             }).catch((err) => { console.log(err) })
-            if (basket.count === 0) { return Response.NotFound('Haryt ýok!', []) }
+            if (basket.length === 0) { return Response.NotFound('Haryt ýok!', []) }
             return Response.Success('Sebedim', basket)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
 
-    async customerFollowedService(id, q) {
+    async customerFollowedService(userId, q) {
         try {
             let page = q.page || 1
             let limit = q.limit || 10
@@ -164,26 +164,30 @@ class CustomerService {
         }
     }
 
-    async customerOrdersService(id, q) {
+    async customerOrdersService(userId, q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
+            // let page = q.page || 1
+            // let limit = q.limit || 10
+            // let offset = page * limit - limit
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
-            const orders = await Models.Orders.findAndCountAll({
-                attributes: ['id', 'order_id', 'status', 'time'],
+            const orders = await Models.Orders.findAll({
+                attributes: { exclude: ['customerId', 'createdAt', 'updatedAt']},
                 where: { customerId: customer },
-                include: [
-                    {
+                include: {
+                    model: Models.OrderItems,
+                    required: true,
+                    attributes: ['id', 'quantity'],
+                    include: {
                         model: Models.Products,
+                        require: true,
                         where: { isActive: true },
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price', 'sellerId'],
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
                         include: [
                             {
                                 model: Models.ProductImages,
                                 where: { isActive: true }, required: false,
-                                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
+                                attributes: { exclude: ['isActive', 'productId', 'createdAt', 'updatedAt'] },
                             },
                             {
                                 model: Models.Sellers,
@@ -196,12 +200,9 @@ class CustomerService {
                             }
                         ]
                     }
-                ],
-                limit: Number(limit),
-                offset: Number(offset),
-                order: [['id', 'desc']]
+                }
             }).catch((err) => { console.log(err) })
-            if (orders.count === 0) { return Response.NotFound('Sargyt ýok!', []) }
+            if (orders.length === 0) { return Response.NotFound('Sargyt ýok!', []) }
             return Response.Success('Üstünlikli!', orders)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
@@ -260,6 +261,30 @@ class CustomerService {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
             const user = await Models.Baskets.destroy({ where: { id: id, customerId: customer } })
+                .catch((err) => console.log(err))
+            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+    async customerDeleteFollowService(userId, id) {
+        try {
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
+            const user = await Models.Followers.destroy({ where: { sellerId: id, customerId: customer } })
+                .catch((err) => console.log(err))
+            if (!user) { return Response.Unauthorized('Satyjy tapylmady!', []) }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+    async customerDeleteLikeService(userId, id) {
+        try {
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
+            const user = await Models.Likes.destroy({ where: { id: id, customerId: customer } })
                 .catch((err) => console.log(err))
             if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', [])

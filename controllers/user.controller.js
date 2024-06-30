@@ -100,25 +100,7 @@ class UserController {
 
     async addOrder(req, res) {
         try {
-            const customerId = await Verification.isCustomer(req.user.id)
-            if (!customerId) { return customerId }
-            let order_id = ''
-            let today = new Date()
-            const numbers = '0123456789'
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-            today = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear()
-            for (let i = 0; i < 4; i++) {
-                order_id += characters.charAt(Math.floor(Math.random() * characters.length))
-            }
-            for (let i = 0; i < 4; i++) {
-                order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
-            }
-            const body = req.body
-            body.order_id = order_id
-            body.status = 'ondelivery'
-            body.time = today
-            body.customerId = customerId
-            const data = await new baseService(Models.Orders).addService(body, body)
+            const data = await userService.addOrderService(req.body, req.user.id)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
