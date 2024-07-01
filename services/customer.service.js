@@ -284,7 +284,7 @@ class CustomerService {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
-            const user = await Models.Likes.destroy({ where: { id: id, customerId: customer } })
+            const user = await Models.Likes.destroy({ where: { productId: id, customerId: customer } })
                 .catch((err) => console.log(err))
             if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', [])
