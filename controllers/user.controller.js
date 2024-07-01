@@ -119,9 +119,9 @@ class UserController {
     async addFollower(req, res) {
         try {
             const customerId = await Verification.isCustomer(req.user.id)
-            if (!customerId) { return customerId }
+            if (isNaN(customerId)) { return res.status(customerId.status).json(customerId) }
             const sellerId = await Verification.isSeller(req.params.id)
-            if (!sellerId) { return sellerId }
+            if (isNaN(sellerId)) { return res.status(sellerId.status).json(sellerId) }
             const body = { customerId: customerId, sellerId: sellerId }
             const data = await new baseService(Models.Followers).addService(body, body)
             return res.status(data.status).json(data)
