@@ -91,7 +91,7 @@ class SellerService {
                     {
                         model: Models.Categories,
                         where: { isActive: true }, required: false,
-                        attributes: ['id', 'slug']
+                        attributes: ['id', 'name', 'slug']
                     },
                     {
                         model: Models.Subscriptions,
