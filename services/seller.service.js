@@ -86,23 +86,18 @@ class SellerService {
             }
             const seller = await Models.Sellers.findAndCountAll({
                 where: conditions,
-                attributes: { exclude: ['deletedAt', 'userId', 'categoryId', 'subscriptionId'] },
+                attributes: ['id', 'name', 'store_number', 'store_floor', 'logo', 'seller_type', 'sell_type'],
                 include: [
                     {
                         model: Models.Categories,
                         where: { isActive: true }, required: false,
-                        attributes: ['id', 'name', 'slug']
-                    },
-                    {
-                        model: Models.Subscriptions,
-                        where: { isActive: true },
-                        attributes: ['name']
+                        attributes: ['id', 'tm_name', 'slug']
                     }
                 ],
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [[sort, order]]
-            })
+            }).catch((err) => console.log(err))
             if (seller.count === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', seller)
         } catch (error) {
