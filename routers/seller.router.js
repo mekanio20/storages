@@ -27,7 +27,7 @@ router.get('/top',
     sellerController.topSellers)
 
 router.get('/all',
-    authMiddleware, accessMiddleware(false),
+    // authMiddleware, accessMiddleware(false),
     validationMiddleware(sellerSchema.allSeller, 'query'),
     sellerController.allSeller)
 
