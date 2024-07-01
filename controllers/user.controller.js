@@ -120,9 +120,12 @@ class UserController {
         try {
             const customerId = await Verification.isCustomer(req.user.id)
             if (isNaN(customerId)) { return res.status(customerId.status).json(customerId) }
-            const sellerId = await Verification.isSeller(req.params.id)
-            if (isNaN(sellerId)) { return res.status(sellerId.status).json(sellerId) }
-            const body = { customerId: customerId, sellerId: sellerId }
+            const seller = await Models.Sellers.findOne({ where: { id: Number(req.params.id) }, attributes: ['id']})
+            if (!seller) {
+                const response = await Response.Unauthorized('Satyjy tapylmady!', [])
+                return res.status(response.status).json(response)
+            }
+            const body = { customerId: customerId, sellerId: seller.id }
             const data = await new baseService(Models.Followers).addService(body, body)
             return res.status(data.status).json(data)
         } catch (error) {
