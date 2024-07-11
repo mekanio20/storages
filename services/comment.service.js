@@ -9,21 +9,27 @@ class CommentService {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
-            const order = await Models.Orders.findOne({
-                attributes: ['id'],
+            const order = await Models.OrderItems.findOne({
                 where: {
-                    customerId: customer,
-                    productId: body.productId,
-                    status: 'completed'
+                    productId: body.productId
+                },
+                include: {
+                    model: Models.Orders,
+                    attributes: ['id', 'customerId', 'status'],
+                    where: {
+                        customerId: customer,
+                        status: 'completed'
+                    }
                 }
-            })
+            }).catch((err) => console.log(err))
             if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
             const comments = await Models.Comments.create({
                 customerId: customer,
                 productId: body.productId,
                 comment: body.comment
-            })
+            }).catch((err) => console.log(err))
             if (filenames?.review) {
+                console.log(filenames)
                 filenames.review.forEach(async (item) => {
                     await Models.ProductReviewImages.create({ img: item.filename })
                         .then(() => { console.log(true) })
