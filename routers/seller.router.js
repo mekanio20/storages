@@ -27,9 +27,14 @@ router.get('/top',
     sellerController.topSellers)
 
 router.get('/all',
-    // authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(false),
     validationMiddleware(sellerSchema.allSeller, 'query'),
     sellerController.allSeller)
+
+router.get('/banners',
+    authMiddleware, accessMiddleware(false),
+    validationMiddleware(sellerSchema.allBanners, 'query'),
+    sellerController.allBanners)
 
 router.get('/orders',
     authMiddleware, accessMiddleware(false),

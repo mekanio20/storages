@@ -69,6 +69,10 @@ const sellerSchema = {
     updateOrderStatus: Joi.object({
         orderId: Joi.number().positive().required(),
         status: Joi.string().valid('pending', 'accepted', 'ondelivery', 'completed', 'cancelled').required()
+    }),
+
+    allBanners: Joi.object({
+        type: Joi.string().valid('home', 'product', 'profile', 'ad', 'category', 'etc').optional()
     })
 }
 
