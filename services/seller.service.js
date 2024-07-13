@@ -234,7 +234,8 @@ class SellerService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
-            const topProducts = await Models.Orders.findAll({
+            let order = q.order || 'desc'
+            const topProducts = await Models.OrderItems.findAll({
                 attributes: [
                     [Sequelize.fn('COUNT', Sequelize.col('productId')), 'salesCount']
                 ],
@@ -251,7 +252,6 @@ class SellerService {
                     }
                 ],
                 group: ['product.id', 'product.seller.id'],
-                order: [[Sequelize.fn('COUNT', Sequelize.col('productId')), 'DESC']],
                 limit: Number(limit),
                 offset: Number(offset)
             })
@@ -273,7 +273,8 @@ class SellerService {
                     sellerSalesCounts[sellerSalesCounts.length - 1].salesCount += salesCount
                 }
             })
-            sellerSalesCounts.sort((a, b) => b.salesCount - a.salesCount)
+            if (order === 'desc') sellerSalesCounts.sort((a, b) => b.salesCount - a.salesCount)
+            else sellerSalesCounts.sort((a, b) => a.salesCount - b.salesCount)
             return Response.Success('Üstünlikli!', sellerSalesCounts)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
