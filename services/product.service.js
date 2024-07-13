@@ -118,15 +118,18 @@ class ProductService {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
-            const order = await Models.Orders.findOne({
-                attributes: ['id'],
-                where: {
-                    customerId: customer,
-                    productId: body.productId,
-                    status: 'completed'
+            const order = await Models.OrderItems.findOne({
+                where: { productId: body.productId },
+                include: {
+                    model: Models.Orders,
+                    required: true,
+                    where: {
+                        customerId: customer,
+                        status: 'completed'
+                    }
                 }
-            })
-            if (!order) { return Response.Forbidden('Harydy sargyt etmediňiz!', []) }
+            }).catch((err) => console.log(err))
+            if (!order) { return Response.Forbidden('Harydy sargyt etmediňiz!', {}) }
             const [review, created] = await Models.ProductReviews.findOrCreate({
                 where: {
                     productId: body.productId,
@@ -429,55 +432,37 @@ class ProductService {
             let limit = q.limit || 10
             let offset = page * limit - limit
             let order = q.order || 'desc'
-            const selling_products = await Models.Orders.findAll({
+            const selling_products = await Models.OrderItems.findAll({
                 attributes: [
-                    [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalSelling']
+                    'productId',
+                    [Sequelize.fn('COUNT', Sequelize.col('quantity')), 'totalSelling']
                 ],
-                include: [
-                    {
-                        model: Models.Products,
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'isActive', 'quantity', 'sale_price'],
-                        include: [
-                            {
-                                model: Models.Subcategories,
-                                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                                where: { isActive: true }
-                            },
-                            {
-                                model: Models.Brands,
-                                attributes: ['id', 'name', 'img', 'slug'],
-                                where: { isActive: true }
-                            },
-                            {
-                                model: Models.Sellers,
-                                attributes: ['id', 'name']
-                            }
-                        ],
-                    }
-                ],
-                group: [
-                    'product.id', 'product.subcategory.id',
-                    'product.brand.id', 'product.seller.id'
-                ],
+                include: {
+                    model: Models.Products,
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'isActive', 'sale_price'],
+                },
+                group: ['productId'],
                 limit: Number(limit),
-                offset: Number(offset)
-            })
-            await Promise.all(selling_products.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({
-                    where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'img']
-                })
-                const comment = await Models.Comments.count({ where: { productId: item.product.id } })
-                const rating = await this.fetchReviewService(item.product.id)
-                result.push({
-                    ...item.dataValues,
-                    images: images,
-                    comment: comment,
-                    rating: rating.detail.rating
-                })
-            }))
-            if (order === 'desc') result.sort((a, b) => Number(b.totalSelling) - Number(a.totalSelling))
-            else result.sort((a, b) => Number(a.totalSelling) - Number(b.totalSelling))
+                offset: Number(offset),
+                order: [[Sequelize.literal('totalSelling'), 'DESC']]
+            }).catch((err) => console.log(err))
+            console.log(JSON.stringify(selling_products, null, 2))
+            // await Promise.all(selling_products.map(async (item) => {
+            //     const images = await Models.ProductImages.findAndCountAll({
+            //         where: { productId: item.id, isActive: true },
+            //         attributes: ['id', 'img']
+            //     })
+            //     const comment = await Models.Comments.count({ where: { productId: item.product.id } })
+            //     const rating = await this.fetchReviewService(item.product.id)
+            //     result.push({
+            //         ...item.dataValues,
+            //         images: images,
+            //         comment: comment,
+            //         rating: rating.detail.rating
+            //     })
+            // }))
+            // if (order === 'desc') result.sort((a, b) => Number(b.totalSelling) - Number(a.totalSelling))
+            // else result.sort((a, b) => Number(a.totalSelling) - Number(b.totalSelling))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }

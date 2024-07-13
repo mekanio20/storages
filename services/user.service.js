@@ -166,16 +166,17 @@ class UserService {
             const numbers = '0123456789'
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
             today = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear()
+            order_id += today
             for (let i = 0; i < 4; i++) {
                 order_id += characters.charAt(Math.floor(Math.random() * characters.length))
             }
             for (let i = 0; i < 4; i++) {
                 order_id += numbers.charAt(Math.floor(Math.random() * numbers.length))
             }
+            body.customerId = customer
             body.order_id = order_id
             body.status = 'pending'
-            body.time = today
-            body.customerId = customer
+            body.time = `${today} ${new Date().getHours()}:${new Date().getMinutes()}`
             const order = await Models.Orders.create(body)
             if (!order) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
             basket.forEach(async (item) => {
