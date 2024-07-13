@@ -37,7 +37,7 @@ router.get('/followed',
 
 router.get('/orders',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(baseSchema.queryControl, 'query'),
+    valdidationMiddleware(customerSchema.customerOrders, 'query'),
     customerController.customerOrders)
 
 router.get('/profile',
@@ -55,6 +55,11 @@ router.put('/edit/basket',
     authMiddleware, accessMiddleware(false),
     valdidationMiddleware(customerSchema.editBasket, 'body'),
     customerController.customerEditBasket)
+
+router.put('/edit/order',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(customerSchema.editOrder, 'body'),
+    customerController.customerEditOrder)
 
 // DELETE
 router.delete('/delete/basket/:id',

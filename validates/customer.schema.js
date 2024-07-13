@@ -14,6 +14,13 @@ const customerSchema = {
     editBasket: Joi.object({
         id: Joi.number().positive().required(),
         quantity: Joi.number().positive().required()
+    }),
+    customerOrders: Joi.object({
+        status: Joi.string().valid('pending', 'accepted', 'ondelivery', 'completed', 'cancelled').optional()
+    }),
+    editOrder: Joi.object({
+        id: Joi.number().positive().required(),
+        status: Joi.string().valid('cancelled').optional()
     })
 }
 
