@@ -379,6 +379,10 @@ class ProductService {
                 where: { isActive: true },
                 include: [
                     {
+                        model: Models.Sellers,
+                        attributes: ['id', 'logo', 'name']
+                    },
+                    {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                         where: { isActive: true }, required: false
@@ -389,12 +393,8 @@ class ProductService {
                         where: { isActive: true }, required: false
                     },
                     {
-                        model: Models.Sellers,
-                        attributes: ['id', 'logo', 'name']
-                    },
-                    {
                         model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency', 'isActive'],
+                        attributes: ['id', 'discount', 'currency'],
                         where: { isActive: true }
                     }
                 ],
@@ -464,7 +464,7 @@ class ProductService {
                         {
                             model: Models.Offers,
                             attributes: ['id', 'discount', 'currency'],
-                            where: { isActive: true }
+                            where: { isActive: true }, required: false
                         }
                     ]
                 }).catch((err) => console.log(err))
@@ -532,7 +532,7 @@ class ProductService {
                         {
                             model: Models.Offers,
                             attributes: ['id', 'discount', 'currency'],
-                            where: { isActive: true }
+                            where: { isActive: true }, required: false
                         }
                     ]
                 }).catch((err) => console.log(err))
@@ -555,6 +555,62 @@ class ProductService {
             }))
             if (order === 'desc') result.sort((a, b) => Number(b.totalLiked) - Number(a.totalLiked))
             else result.sort((a, b) => Number(a.totalLiked) - Number(b.totalLiked))
+            return Response.Success('Üstünlikli!', result)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
+    async topRatedService(q) {
+        try {
+            let result = []
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let order = q.order || 'desc'
+            let products = await Models.Products.findAll({
+                where: { isActive: true },
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                include: [
+                    {
+                        model: Models.Sellers,
+                        attributes: ['id', 'logo', 'name']
+                    },
+                    {
+                        model: Models.Subcategories,
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                        where: { isActive: true }, required: false
+                    },
+                    {
+                        model: Models.Brands,
+                        attributes: ['id', 'name', 'img', 'slug'],
+                        where: { isActive: true }, required: false
+                    },
+                    {
+                        model: Models.Offers,
+                        attributes: ['id', 'discount', 'currency'],
+                        where: { isActive: true }, required: false
+                    }
+                ],
+                limit: Number(limit),
+                offset: Number(offset)
+            }).catch((err) => console.log(err))
+            await Promise.all(products.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'img']
+                })
+                const comment = await Models.Comments.count({ where: { productId: item.id } })
+                const rating = await this.fetchReviewService(item.id)
+                result.push({
+                    ...item.dataValues,
+                    images: images,
+                    comment: comment,
+                    rating: rating.detail.rating
+                })
+            }))
+            if (order === 'desc') result.sort((a, b) => Number(b.rating) - Number(a.rating))
+            else result.sort((a, b) => Number(a.rating) - Number(b.rating))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }

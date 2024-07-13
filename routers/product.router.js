@@ -61,6 +61,10 @@ router.get('/top/liked',
     validationMiddleware(baseSchema.queryControl, 'query'),
     productController.topLiked)
 
+router.get('/top/rated',
+    validationMiddleware(baseSchema.queryControl, 'query'),
+    productController.topRated)
+
 router.get('/reviews/:id',
     validationMiddleware(baseSchema.idControl, 'params'),
     productController.fetchReview)
