@@ -125,7 +125,8 @@ class UserService {
             const [basket, created] = await Models.Baskets.findOrCreate({
                 where: {
                     productId: body.productId,
-                    customerId: customer
+                    customerId: customer,
+                    isActive: true
                 },
                 defaults: {
                     quantity: body.quantity,
@@ -151,7 +152,14 @@ class UserService {
             if (isNaN(customer)) { return customer }
             const basket = await Models.Baskets.findAll({ where: { customerId: customer, isActive: true } })
             if (basket.length === 0) { return Response.BadRequest('Haryt tapylmady!', []) }
-            const orders = await Models.Orders.findOne({ where: { customerId: customer, status: { [Op.ne]: 'completed' } } })
+            const orders = await Models.Orders.findOne({
+                where: {
+                    customerId: customer,
+                    status: {
+                        [Op.notIn]: ['completed', 'cancelled']
+                    }
+                }
+            }).catch((err) => console.log(err))
             if (orders) { return Response.Forbidden('Sargydyňyz tamamlanandan soňra sargyt edip bilersiňiz!', []) }
             let order_id = ''
             let today = new Date()

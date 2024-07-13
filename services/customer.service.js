@@ -112,13 +112,13 @@ class CustomerService {
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price', 'sellerId'],
                         include: [
                             {
+                                model: Models.Sellers,
+                                attributes: ['logo', 'name'],
+                            },
+                            {
                                 model: Models.ProductImages,
                                 where: { isActive: true }, required: false,
                                 attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
-                            },
-                            {
-                                model: Models.Sellers,
-                                attributes: ['id', 'logo', 'name'],
                             },
                             {
                                 model: Models.Offers,
@@ -169,11 +169,14 @@ class CustomerService {
             // let page = q.page || 1
             // let limit = q.limit || 10
             // let offset = page * limit - limit
+            let whereState = {}
+            if (q.status) whereState.status = q.status
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
+            whereState.customerId = customer
             const orders = await Models.Orders.findAll({
                 attributes: { exclude: ['customerId', 'createdAt', 'updatedAt']},
-                where: { customerId: customer },
+                where: whereState,
                 include: {
                     model: Models.OrderItems,
                     required: true,
@@ -250,6 +253,20 @@ class CustomerService {
             const user = await Models.Baskets.update({ quantity: body.quantity }, { where: { id: body.id, customerId: customer } })
                 .catch((err) => console.log(err))
             if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
+            return Response.Success('Üstünlikli!', [])
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+    async customerEditOrderService(userId, body) {
+        try {
+            const customer = await Verification.isCustomer(userId)
+            if (isNaN(customer)) { return customer }
+            const order = await Models.Orders.findOne({ where: { id: body.id, customerId: customer } })
+            if (!order) { return Response.Unauthorized('Sargyt tapylmady!', []) }
+            if (order.status !== "pending") { return Response.BadRequest('Sargydy goýbolsun edip bolmaýar!', []) }
+            order.status = body.status
+            await order.save()
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
