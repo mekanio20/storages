@@ -110,6 +110,15 @@ class productController {
         }
     }
 
+    async topRated(req, res) {
+        try {
+            const data = await productService.topRatedService(req.query)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+
     async fetchProduct(req, res) {
         try {
             const data = await productService.fetchProductService(req.params.slug)
