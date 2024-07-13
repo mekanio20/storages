@@ -552,6 +552,15 @@ class ProductService {
                 where: { slug: slug, isActive: true },
                 include: [
                     {
+                        model: Models.Sellers,
+                        attributes: ['id', 'name', 'logo', 'isVerified']
+                    },
+                    {
+                        model: Models.Offers,
+                        attributes: ['id', 'discount', 'currency'],
+                        where: { isActive: true }, required: false
+                    },
+                    {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                         where: { isActive: true }, required: false
@@ -561,10 +570,6 @@ class ProductService {
                         attributes: ['id', 'name', 'img', 'slug'],
                         where: { isActive: true }, required: false,
                     },
-                    {
-                        model: Models.Sellers,
-                        attributes: ['id', 'name', 'logo', 'isVerified']
-                    }
                 ],
                 attributes: { exclude: ['slug', 'subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] }
             })
