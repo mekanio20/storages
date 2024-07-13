@@ -448,6 +448,10 @@ class ProductService {
                     attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
                     include: [
                         {
+                            model: Models.Sellers,
+                            attributes: ['id', 'logo', 'name']
+                        },
+                        {
                             model: Models.Subcategories,
                             attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                             where: { isActive: true }, required: false
@@ -456,10 +460,6 @@ class ProductService {
                             model: Models.Brands,
                             attributes: ['id', 'name', 'img', 'slug'],
                             where: { isActive: true }, required: false
-                        },
-                        {
-                            model: Models.Sellers,
-                            attributes: ['id', 'logo', 'name']
                         },
                         {
                             model: Models.Offers,
@@ -496,50 +496,56 @@ class ProductService {
     async topLikedService(q) {
         try {
             let result = []
+            let products = []
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
             let order = q.order || 'desc'
             const top_liked = await Models.Likes.findAll({
                 attributes: [
+                    'productId',
                     [Sequelize.fn('COUNT', Sequelize.col('productId')), 'totalLiked']
                 ],
-                include: [
-                    {
-                        model: Models.Products,
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'quantity', 'org_price', 'sale_price'],
-                        include: [
-                            {
-                                model: Models.Subcategories,
-                                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                                where: { isActive: true }
-                            },
-                            {
-                                model: Models.Brands,
-                                attributes: ['id', 'name', 'img', 'slug'],
-                                where: { isActive: true }
-                            },
-                            {
-                                model: Models.Sellers,
-                                attributes: ['id', 'name']
-                            }
-                        ],
-                    }
-                ],
-                group: [
-                    'product.id', 'product.subcategory.id',
-                    'product.brand.id', 'product.seller.id'
-                ],
+                group: ['productId'],
                 limit: Number(limit),
                 offset: Number(offset)
-            })
-            await Promise.all(top_liked.map(async (item) => {
+            }).catch((err) => console.log(err))
+            for (let item of top_liked) {
+                let product = await Models.Products.findOne({
+                    where: { id: item.productId, isActive: true },
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                    include: [
+                        {
+                            model: Models.Sellers,
+                            attributes: ['id', 'logo', 'name']
+                        },
+                        {
+                            model: Models.Subcategories,
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
+                            where: { isActive: true }, required: false
+                        },
+                        {
+                            model: Models.Brands,
+                            attributes: ['id', 'name', 'img', 'slug'],
+                            where: { isActive: true }, required: false
+                        },
+                        {
+                            model: Models.Offers,
+                            attributes: ['id', 'discount', 'currency'],
+                            where: { isActive: true }
+                        }
+                    ]
+                }).catch((err) => console.log(err))
+                product.dataValues.totalLiked = Number(item.dataValues.totalLiked)
+                products.push(product)
+            }
+            await Promise.all(products.map(async (item) => {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
                     attributes: ['id', 'img']
                 })
-                const comment = await Models.Comments.count({ where: { productId: item.product.id } })
-                const rating = await this.fetchReviewService(item.product.id)
+                const comment = await Models.Comments.count({ where: { productId: item.id } })
+                const rating = await this.fetchReviewService(item.id)
                 result.push({
                     ...item.dataValues,
                     images: images,
