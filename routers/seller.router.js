@@ -32,7 +32,6 @@ router.get('/all',
     sellerController.allSeller)
 
 router.get('/banners',
-    authMiddleware, accessMiddleware(false),
     validationMiddleware(sellerSchema.allBanners, 'query'),
     sellerController.allBanners)
 

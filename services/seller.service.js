@@ -105,15 +105,15 @@ class SellerService {
         }
     }
 
-    async allBannersService(userId, q) {
+    async allBannersService(q) {
         try {
+            const seller = await Models.Sellers.findOne({ where: { id: q.sellerId }, attributes: ['userId'] })
+            if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
             let whereState = {}
-            whereState.userId = userId
+            whereState.userId = seller.userId
             if (q.type) whereState.type = q.type
-            const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
             const banners = await Models.Banners.findAndCountAll({
-                where: { userId: userId },
+                where: whereState,
                 attributes: ['id', 'tm_img', 'ru_img', 'en_img', 'url', 'type', 'sort_order']
             }).catch((err) => console.log(err))
             if (banners.count === 0) { return Response.NotFound('Banner ýok!', []) }
