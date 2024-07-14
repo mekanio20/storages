@@ -330,6 +330,10 @@ class SellerService {
                 where: { [Op.and]: obj },
                 include: [
                     {
+                        model: Models.Sellers,
+                        attributes: []
+                    },
+                    {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                         where: { isActive: true }, required: false
@@ -340,18 +344,13 @@ class SellerService {
                         where: { isActive: true }, required: false
                     },
                     {
-                        model: Models.Sellers,
-                        attributes: []
-                    },
-                    {
                         model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency', 'isActive'],
+                        attributes: ['id', 'discount', 'currency'],
                         where: { isActive: true }, required: false
                     }
                 ],
                 limit: Number(limit),
-                offset: Number(offset),
-
+                offset: Number(offset)
             }).catch((err) => { console.log(err) })
             const result = { count: 0, rows: [] }
             result.count = await products.count
@@ -394,8 +393,8 @@ class SellerService {
             }
             let oldMonth_ = new Date(`2024-02-01`)
             let _oldMonth = new Date(`2024-02-31`)
-            const oldStatistic = await Models.Orders.findAndCountAll({
-                attributes: ['amount', 'time', 'createdAt'],
+            const oldStatistic = await Models.OrderItems.findAndCountAll({
+                attributes: ['quantity', 'createdAt'],
                 where: {
                     createdAt: {
                         [Op.between]: [oldMonth_, _oldMonth]
@@ -404,15 +403,19 @@ class SellerService {
                 include: {
                     model: Models.Products,
                     attributes: ['sale_price'],
-                    where: { sellerId: seller },
+                    where: { sellerId: seller }
                 }
             }).catch((err) => { console.log(err) })
+            if (oldStatistic.count === 0) {
+
+            }
+            console.log(JSON.stringify(oldStatistic, null, 2))
             let oldTotalMoney = 0
             oldStatistic.rows.forEach((item) => {
-                oldTotalMoney += Number(item.amount) * Number(item.product.sale_price)
+                oldTotalMoney += Number(item.quantity) * Number(item.product.sale_price)
             })
-            const statistic = await Models.Orders.findAndCountAll({
-                attributes: ['amount', 'time'],
+            const statistic = await Models.OrderItems.findAndCountAll({
+                attributes: ['quantity'],
                 where: { status: 'completed' },
                 include: {
                     model: Models.Products,
@@ -422,7 +425,7 @@ class SellerService {
             }).catch((err) => { console.log(err) })
             let totalMoney = 0
             statistic.rows.forEach((item) => {
-                totalMoney += Number(item.amount) * Number(item.product.sale_price)
+                totalMoney += Number(item.quantity) * Number(item.product.sale_price)
             })
             let prosent = Number(totalMoney) - Number(oldTotalMoney)
             prosent = prosent / Number(oldTotalMoney)

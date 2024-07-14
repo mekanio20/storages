@@ -47,11 +47,11 @@ const sellerSchema = {
     }),
 
     sellerProducts: Joi.object({
+        sellerId: Joi.number().positive().required(),
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
         sort: Joi.string().valid('id', 'sale_price'),
         order: Joi.string().valid('asc', 'desc').optional(),
-        sellerId: Joi.number().positive().required(),
         start_price: Joi.number().positive().optional(),
         end_price: Joi.number().positive().optional(),
         subcategoryId: Joi.number().positive().optional(),
