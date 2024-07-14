@@ -324,6 +324,10 @@ class ProductService {
                 where: { [Op.or]: search, [Op.and]: { isActive: true } },
                 include: [
                     {
+                        model: Models.Sellers,
+                        attributes: ['id', 'logo', 'name']
+                    },
+                    {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                         where: { isActive: true }, required: false
@@ -332,10 +336,6 @@ class ProductService {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
                         where: { isActive: true }, required: false
-                    },
-                    {
-                        model: Models.Sellers,
-                        attributes: ['id', 'logo', 'name']
                     },
                     {
                         model: Models.Offers,

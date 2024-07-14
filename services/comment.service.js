@@ -23,20 +23,36 @@ class CommentService {
                 }
             }).catch((err) => console.log(err))
             if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
-            const comments = await Models.Comments.create({
-                customerId: customer,
-                productId: body.productId,
-                comment: body.comment
+            const [comment, created] = await Models.Comments.findOrCreate({
+                where: {
+                    customerId: customer,
+                    productId: body.productId
+                },
+                defaults: {
+                    customerId: customer,
+                    productId: body.productId,
+                    comment: body.comment
+                }
             }).catch((err) => console.log(err))
-            if (filenames?.review) {
-                console.log(filenames)
-                filenames.review.forEach(async (item) => {
-                    await Models.ProductReviewImages.create({ img: item.filename })
-                        .then(() => { console.log(true) })
-                        .catch((err) => { console.log(err) })
-                })
+            if (created == false) {
+                comment.comment = body.comment
+                await comment.save()
             }
-            return Response.Created('Teswir goyuldy!', comments)
+            if (filenames?.review) {
+                const imgs = await Models.ProductReviewImages.count({ where: { commentId: comment.id, customerId: customer } })
+                if (imgs > 3) { return Response.Created('Teswir goyuldy! Surat limidi doldy!', []) }
+                else {
+                    filenames.review.forEach(async (item) => {
+                        await Models.ProductReviewImages.create({
+                            img: item.filename,
+                            commentId: comment.id,
+                            customerId: customer
+                        }).then(() => { console.log(true) })
+                        .catch((err) => { console.log(err) })
+                    })
+                }
+            }
+            return Response.Created('Teswir goyuldy!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
@@ -58,7 +74,7 @@ class CommentService {
             }
             const comments = await Models.Comments.findAndCountAll({
                 where: whereState,
-                attributes: ['id', 'comment', 'isActive', 'createdAt', 'updatedAt'],
+                attributes: ['id', 'comment', 'createdAt'],
                 include: [
                     {
                         model: Models.Customers,
@@ -78,7 +94,7 @@ class CommentService {
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [[sort, order]]
-            })
+            }).catch((err) => console.log(err))
             const result = { count: 0, rows: [] }
             result.count = comments.count
             await Promise.all(comments.rows.map(async (item) => {
