@@ -159,7 +159,7 @@ const ProductReviews = database.define('product_reviews', {
 
 const ProductReviewImages = database.define('product_review_images', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    img: { type: DataTypes.STRING(100), allowNull: false, unique: true },
+    img: { type: DataTypes.STRING, allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
