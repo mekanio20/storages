@@ -39,6 +39,7 @@ class CommentService {
                 await comment.save()
             }
             if (filenames?.review) {
+                console.log(filenames.review);
                 const imgs = await Models.ProductReviewImages.count({ where: { commentId: comment.id, customerId: customer } })
                 if (imgs > 3) { return Response.Created('Teswir goyuldy! Surat limidi doldy!', []) }
                 else {
