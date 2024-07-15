@@ -252,6 +252,10 @@ class ProductService {
                 where: { [Op.and]: obj },
                 include: [
                     {
+                        model: Models.Sellers,
+                        attributes: ['id', 'logo', 'name']
+                    },
+                    {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
                         where: { isActive: true }, required: false
@@ -262,17 +266,14 @@ class ProductService {
                         where: { isActive: true }, required: false
                     },
                     {
-                        model: Models.Sellers,
-                        attributes: ['id', 'logo', 'name']
-                    },
-                    {
                         model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency', 'isActive'],
+                        attributes: ['id', 'discount', 'currency'],
                         where: { isActive: true }, required: false
                     }
                 ],
                 limit: Number(limit),
                 offset: Number(offset),
+                order: [[sort, order]]
             }).catch((err) => { console.log(err) })
             const result = { count: 0, rows: [] }
             result.count = await products.count
@@ -291,11 +292,11 @@ class ProductService {
                 })
             }))
             if (order === 'desc') {
-                if (sort === 'sale_price') result.rows.sort((a, b) => Number(b.sale_price) - Number(a.sale_price))
-                else result.rows.sort((a, b) => Number(b.id) - Number(a.id))
+                if (sort === 'sale_price') { result.rows.sort((a, b) => Number(b.sale_price) - Number(a.sale_price)) }
+                else { result.rows.sort((a, b) => Number(b.id) - Number(a.id)) }
             } else {
-                if (sort === 'sale_price') result.rows.sort((a, b) => Number(a.sale_price) - Number(b.sale_price))
-                else result.rows.sort((a, b) => Number(a.id) - Number(b.id))
+                if (sort === 'sale_price') { result.rows.sort((a, b) => Number(a.sale_price) - Number(b.sale_price)) }
+                else { result.rows.sort((a, b) => Number(a.id) - Number(b.id)) }
             }
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
