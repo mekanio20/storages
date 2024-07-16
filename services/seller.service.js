@@ -305,6 +305,68 @@ class SellerService {
         }
     }
 
+    async sellerSubcategoriesService(q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let sort = q.sort || 'id'
+            let order = q.order || 'desc'
+            const products = await Models.Products.findAndCountAll({
+                where: { isActive: true, sellerId: Number(q.sellerId) },
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'subcategoryId'],
+                include: [
+                    {
+                        model: Models.Sellers,
+                        attributes: [], required: true
+                    },
+                    {
+                        model: Models.Brands,
+                        attributes: ['id', 'name', 'img', 'slug'],
+                        where: { isActive: true }, required: false
+                    },
+                    {
+                        model: Models.Offers,
+                        attributes: ['id', 'discount', 'currency'],
+                        where: { isActive: true }, required: false
+                    }
+                ],
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [[sort, order]]
+            }).catch((err) => console.log(err))
+            if (products.count === 0) { return Response.NotFound('Haryt ýok!', {}) }
+            const result = { count: products.count, rows: [] }
+            await Promise.all(products.rows.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'img']
+                })
+                const comment = await Models.Comments.count({ where: { productId: item.id } })
+                const rating = await fetchReviewService(item.id)
+                result.rows.push({
+                    ...item.dataValues,
+                    images: images,
+                    comment: comment,
+                    rating: rating.detail.rating,
+                })
+            })).catch((err) => { console.log(err) })
+            const subcategories = await Models.Subcategories.findAll({
+                where: { isActive: true },
+                attributes: { exclude: ['isActive', 'userId', 'categoryId', 'createdAt', 'updatedAt'] }
+            }).catch((err) => console.log(err))
+            const response = result.rows.map((item) => {
+                return {
+                    ...subcategories.find((i) => i.id === item.subcategoryId).toJSON(),
+                    products: item
+                }
+            })
+            return Response.Success('Üstünlikli!', { count: result.count, rows: response })
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
     async sellerProductsService(q) {
         try {
             let obj = {}
