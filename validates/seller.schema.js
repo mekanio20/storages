@@ -56,7 +56,7 @@ const sellerSchema = {
         end_price: Joi.number().positive().optional(),
         subcategoryId: Joi.number().positive().optional(),
         brandId: Joi.number().positive().optional(),
-        gender: Joi.string().valid('male', 'fmale').optional(),
+        gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').optional(),
         isActive: Joi.string().valid('all').optional()
     }),
 

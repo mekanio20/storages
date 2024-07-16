@@ -312,8 +312,15 @@ class SellerService {
             let offset = page * limit - limit
             let sort = q.sort || 'id'
             let order = q.order || 'desc'
+            let start_price = Number(q.start_price) || 0
+            let end_price = Number(q.end_price) || 100000
+            let whereState = { isActive: true, sellerId: Number(q.sellerId) }
+            whereState.sale_price = { [Op.between]: [start_price, end_price] }
+            if (q.subcategoryId) whereState.subcategoryId = q.subcategoryId
+            if (q.brandId) whereState.brandId = q.brandId
+            if (q.gender) whereState.gender = q.gender
             const products = await Models.Products.findAndCountAll({
-                where: { isActive: true, sellerId: Number(q.sellerId) },
+                where: whereState,
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'subcategoryId'],
                 include: [
                     {
