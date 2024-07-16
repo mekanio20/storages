@@ -76,6 +76,7 @@ const productSchema = {
     }),
     // GET
     searchProduct: Joi.object({
+        sellerId: Joi.number().positive().optional(),
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
         name: Joi.string().max(100).required()

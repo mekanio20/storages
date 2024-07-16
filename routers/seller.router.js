@@ -54,6 +54,10 @@ router.get('/profile/:id', // customer ucin
     validationMiddleware(baseSchema.idControl, 'params'),
     sellerController.profileSeller)
 
+router.get('/subcategories',
+    validationMiddleware(sellerSchema.sellerProducts, 'query'),
+    sellerController.sellerSubcategories)
+
 router.get('/products',
     validationMiddleware(sellerSchema.sellerProducts, 'query'),
     sellerController.sellerProducts)

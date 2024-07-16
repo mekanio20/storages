@@ -309,6 +309,7 @@ class ProductService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
+            let whereState = { isActive: true }
             let search = []
             if (q.name) {
                 search = [
@@ -320,9 +321,10 @@ class ProductService {
                     { en_desc: { [Op.iLike]: `%${q.name}%` } }
                 ]
             }
+            if (q.sellerId) whereState.sellerId = q.sellerId
             const products = await Models.Products.findAndCountAll({
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
-                where: { [Op.or]: search, [Op.and]: { isActive: true } },
+                where: { [Op.or]: search, [Op.and]: whereState },
                 include: [
                     {
                         model: Models.Sellers,
@@ -340,7 +342,7 @@ class ProductService {
                     },
                     {
                         model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency', 'isActive'],
+                        attributes: ['id', 'discount', 'currency'],
                         where: { isActive: true }, required: false
                     }
                 ],
