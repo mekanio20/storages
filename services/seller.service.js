@@ -72,9 +72,9 @@ class SellerService {
             let offset = page * limit - limit
             let sort = q.sort || 'name'
             let order = q.order || 'asc'
-            let conditions = {}
             let search = []
-            if (q.name) search = [{ name: { [Op.iLike]: `%${q.name}%` } }]
+            let whereState = {}
+            let conditions = {}
             let _conditions = {
                 isVerified: q.status || null,
                 store_number: q.store_number || null,
@@ -86,8 +86,13 @@ class SellerService {
                     conditions[i] = _conditions[i]
                 }
             }
+            whereState = { [Op.and]: conditions }
+            if (q.name) {
+                search = [{ name: { [Op.iLike]: `%${q.name}%` } }]
+                whereState = { [Op.and]: conditions, [Op.or]: search }
+            }
             const seller = await Models.Sellers.findAndCountAll({
-                where: { [Op.or]: search, [Op.and]: conditions},
+                where: whereState,
                 attributes: ['id', 'name', 'store_number', 'store_floor', 'logo', 'seller_type', 'sell_type'],
                 include: [
                     {
