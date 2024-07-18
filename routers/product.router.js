@@ -82,7 +82,7 @@ router.get('/brands',
     productController.allBrands)
 
 router.get('/likes',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware, accessMiddleware(false),
     validationMiddleware(productSchema.productLikes, 'query'),
     productController.productLikes)
 
