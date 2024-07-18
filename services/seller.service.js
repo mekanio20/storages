@@ -73,6 +73,8 @@ class SellerService {
             let sort = q.sort || 'name'
             let order = q.order || 'asc'
             let conditions = {}
+            let search = []
+            if (q.name) search = [{ name: { [Op.iLike]: `%${q.name}%` } }]
             let _conditions = {
                 isVerified: q.status || null,
                 store_number: q.store_number || null,
@@ -85,7 +87,7 @@ class SellerService {
                 }
             }
             const seller = await Models.Sellers.findAndCountAll({
-                where: conditions,
+                where: { [Op.or]: search, [Op.and]: conditions},
                 attributes: ['id', 'name', 'store_number', 'store_floor', 'logo', 'seller_type', 'sell_type'],
                 include: [
                     {

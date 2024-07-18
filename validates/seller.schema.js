@@ -36,6 +36,7 @@ const sellerSchema = {
     }),
 
     allSeller: Joi.object({
+        name: Joi.string().min(2).max(255).optional(),
         store_number: Joi.number().positive().optional(),
         store_floor: Joi.number().positive().optional(),
         categoryId: Joi.number().positive().optional(),
