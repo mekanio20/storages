@@ -1,62 +1,83 @@
-const cors = require('cors')
-const morgan = require('morgan')
-const express = require('express')
-const session = require('express-session')
-const swaggerJsDoc = require('swagger-jsdoc')
-const swaggerUI = require('swagger-ui-express')
-const helmet = require('helmet')
-const path = require('path')
-const http = require('http')
-const fs = require('fs')
+const cors = require("cors");
+const morgan = require("morgan");
+const express = require("express");
+const session = require("express-session");
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
+const helmet = require("helmet");
+const path = require("path");
+const http = require("http");
+const fs = require("fs");
+const os = require("os");
+const cluster = require("cluster");
 
-require('./ioredis')
-require('dotenv').config()
-const app = express()
-const port = process.env.PORT || 8081
-const ip = 'localhost'
+if (cluster.isMaster) {
+  const numCPUs = os.cpus().length;
+  console.log(`Master process is running with PID: ${process.pid}`);
+  console.log(`Forking for ${numCPUs} CPUs`);
 
-const server = http.createServer(app)
-const io = require('socket.io')(server)
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-// Socket test...
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html')
-})
-
-io.on('connection', (socket) => {
-  console.log(`new client socket id ==> ${socket.id}`)
-  app.set('socketio', socket)
-})
-
-require('./config/models')
-const database = require('./config/database')
-const router = require('./routers/index.router')
-
-app.disable('x-powered-by')
-app.use(cors({ origin: "*", methods: ['GET', 'POST', 'PUT', 'DELETE'] }))
-app.use(helmet())
-
-let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
-app.use(morgan('common', { stream: accessLogStream }))
-app.use(morgan('dev'))
-
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use('/uploads', express.static('public'))
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 86400000 }
-}))
-
-const options = {
-    definition: {
+  cluster.on("exit", (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died`);
+    console.log("Starting a new worker");
+    cluster.fork();
+  });
+} else {
+    require("./ioredis");
+    require("dotenv").config();
+    const app = express();
+    const port = process.env.PORT || 8081;
+    const ip = "localhost";
+    
+    const server = http.createServer(app);
+    const io = require("socket.io")(server);
+    
+    // Socket test...
+    app.get("/", (req, res) => {
+      res.sendFile(__dirname + "/public/index.html");
+    });
+    
+    io.on("connection", (socket) => {
+      console.log(`new client socket id ==> ${socket.id}`);
+      app.set("socketio", socket);
+    });
+    
+    require("./config/models");
+    const database = require("./config/database");
+    const router = require("./routers/index.router");
+    
+    app.disable("x-powered-by");
+    app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }));
+    app.use(helmet());
+    
+    let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), {
+      flags: "a",
+    });
+    app.use(morgan("common", { stream: accessLogStream }));
+    app.use(morgan("dev"));
+    
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use("/uploads", express.static("public"));
+    app.use(
+      session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { maxAge: 86400000 },
+      })
+    );
+    
+    const options = {
+      definition: {
         openapi: "3.0.0",
         info: {
-            title: "Library API",
-            version: "1.0.0",
-            description: "Swagger JavaScript document"
+          title: "Library API",
+          version: "1.0.0",
+          description: "Swagger JavaScript document",
         },
         servers: [
             {
@@ -82,3 +103,4 @@ server.listen(port, async () => {
         throw error
     }
 })
+}
