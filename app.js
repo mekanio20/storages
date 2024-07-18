@@ -89,11 +89,7 @@ if (cluster.isMaster) {
 
   app.use("/api", router);
   app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
-  app.all("*", (req, res) => {
-    return res
-      .status(404)
-      .sendFile(`${path.join(__dirname + "/public/404.html")}`);
-  });
+  app.all("*", (req, res) => { return res.status(404).sendFile(`${path.join(__dirname + "/public/404.html")}`) });
 
   server.listen(port, async () => {
     try {
