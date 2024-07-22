@@ -11,7 +11,7 @@ const productSchema = {
         en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
         barcode: Joi.number().positive().required(),
         stock_code: Joi.string().min(3).max(50).alphanum().required(),
-        quantity: Joi.number().positive().default(0),
+        quantity: Joi.number().positive().default(1),
         org_price: Joi.number().positive().required(),
         sale_price: Joi.number().positive().required(),
         gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').default('non-gender'),

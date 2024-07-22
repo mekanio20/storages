@@ -349,6 +349,7 @@ class SellerService {
                 offset: Number(offset),
                 order: [[sort, order]]
             }).catch((err) => console.log(err))
+            console.log(JSON.stringify(products, null, 2));
             if (products.count === 0) { return Response.NotFound('Haryt ýok!', {}) }
             const result = { count: products.count, rows: [] }
             await Promise.all(products.rows.map(async (item) => {
@@ -369,13 +370,11 @@ class SellerService {
                 where: { isActive: true },
                 attributes: { exclude: ['isActive', 'userId', 'categoryId', 'createdAt', 'updatedAt'] }
             }).catch((err) => console.log(err))
-            const response = result.rows.map((item) => {
-                return {
-                    ...subcategories.find((i) => i.id === item.subcategoryId).toJSON(),
-                    products: item
-                }
-            })
-            return Response.Success('Üstünlikli!', { count: result.count, rows: response })
+            const groupedProducts = subcategories.map(subcategory => ({
+                ...subcategory.toJSON(),
+                products: result.rows.filter(product => product.subcategoryId === subcategory.id)
+            })).filter(group => group.products.length > 0)
+            return Response.Success('Üstünlikli!', { count: result.count, rows: groupedProducts })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }

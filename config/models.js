@@ -181,7 +181,7 @@ const Banners = database.define('banners', {
     tm_img: { type: DataTypes.STRING(100), allowNull: false },
     ru_img: { type: DataTypes.STRING(100), allowNull: true },
     en_img: { type: DataTypes.STRING(100), allowNull: true },
-    url: { type: DataTypes.STRING(100), allowNull: false, validate: { isUrl: true } },
+    url: { type: DataTypes.STRING(100), allowNull: true, validate: { isUrl: true } },
     type: { type: DataTypes.ENUM({ values: ['home', 'product', 'profile', 'ad', 'category', 'etc'] }), allowNull: false },
     sort_order: { type: DataTypes.SMALLINT, allowNull: false },
     start_date: { type: DataTypes.DATE, allowNull: false },

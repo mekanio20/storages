@@ -49,15 +49,15 @@ class ProductService {
                     return Response.Forbidden('Limidiniz doldy!', [])
                 }
             }).catch((err) => { console.log(err) })
-            const features = []
-            const subcategory_features = await Models.SubcategoryFeatures.findAll({
-                attributes: ['featureId'],
-                where: { subcategoryId: body.subcategoryId }
-            }).catch((err) => { console.log(err) })
-            for (let item of subcategory_features) {
-                const feature = await Models.Features.findOne({ where: { id: item.featureId } })
-                features.push(feature)
-            }
+            // const features = []
+            // const subcategory_features = await Models.SubcategoryFeatures.findAll({
+            //     attributes: ['featureId'],
+            //     where: { subcategoryId: body.subcategoryId }
+            // }).catch((err) => { console.log(err) })
+            // for (let item of subcategory_features) {
+            //     const feature = await Models.Features.findOne({ where: { id: item.featureId } })
+            //     features.push(feature)
+            // }
             const product = await Models.Products.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -86,7 +86,7 @@ class ProductService {
                         .catch((err) => { console.log(err) })
                 })
             }
-            return Response.Created('Haryt goýuldy!', features)
+            return Response.Created('Haryt goýuldy!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
