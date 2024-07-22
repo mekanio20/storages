@@ -349,7 +349,6 @@ class SellerService {
                 offset: Number(offset),
                 order: [[sort, order]]
             }).catch((err) => console.log(err))
-            console.log(JSON.stringify(products, null, 2));
             if (products.count === 0) { return Response.NotFound('Haryt ýok!', {}) }
             const result = { count: products.count, rows: [] }
             await Promise.all(products.rows.map(async (item) => {

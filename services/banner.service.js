@@ -1,5 +1,6 @@
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
+const { Op } = require('sequelize')
 
 class BannerService {
     // GET
@@ -12,6 +13,8 @@ class BannerService {
             let order = q.order || 'asc'
             let whereState = {}
             if (q.type) whereState.type = q.type
+            if (q.isMain) whereState.userId = { [Op.ne]: 3 }
+            console.log(whereState);
             const banners = await Models.Banners.findAndCountAll({
                 where: whereState,
                 limit: Number(limit),

@@ -7,7 +7,8 @@ const bannerSchema = {
         limit: Joi.number().positive().optional(),
         sort: Joi.string().valid('sort_order', 'id').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
-        type: Joi.string().valid('home', 'product', 'profile', 'ad', 'category', 'etc').optional()
+        type: Joi.string().valid('home', 'product', 'profile', 'ad', 'category', 'etc').optional(),
+        isMain: Joi.boolean().optional()
     }),
     // POST
     addBanner: Joi.object({
