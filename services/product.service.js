@@ -677,6 +677,7 @@ class ProductService {
                 attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt', 'userId'] },
                 include: {
                     model: Models.Subcategories,
+                    required: true,
                     attributes: ['id', 'slug', 'tm_name', 'ru_name', 'en_name', 'logo']
                 },
                 limit: Number(limit),

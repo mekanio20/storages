@@ -14,7 +14,6 @@ class BannerService {
             let whereState = {}
             if (q.type) whereState.type = q.type
             if (q.isMain) whereState.userId = { [Op.ne]: 3 }
-            console.log(whereState);
             const banners = await Models.Banners.findAndCountAll({
                 where: whereState,
                 limit: Number(limit),
