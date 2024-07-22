@@ -13,7 +13,7 @@ class BannerService {
             let order = q.order || 'asc'
             let whereState = {}
             if (q.type) whereState.type = q.type
-            if (q.isMain === true) whereState.userId = { [Op.ne]: 3 }
+            if (q.isMain) whereState.userId = { [Op.ne]: 3 }
             console.log(whereState);
             const banners = await Models.Banners.findAndCountAll({
                 where: whereState,
