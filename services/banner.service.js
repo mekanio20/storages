@@ -59,7 +59,7 @@ class BannerService {
                 start_date: body.start_date,
                 end_date: body.end_date,
                 userId: user.id
-            })
+            }).catch((err) => console.log(err))
             return Response.Created('Banner döredildi!', banner)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }

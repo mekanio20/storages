@@ -21,6 +21,15 @@ class CommentController {
         }
     }
 
+    async sellerComment(req, res) {
+        try {
+            const data = await commentService.sellerCommentService(req.user.id, req.query)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+
     // DELETE
     async deleteComment(req, res) {
         try {

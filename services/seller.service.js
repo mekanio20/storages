@@ -184,6 +184,7 @@ class SellerService {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
             const order = await Models.Orders.findOne({
+                where: { id: Number(id) },
                 attributes: { exclude: ['createdAt', 'updatedAt', 'customerId', 'productId'] },
                 include: [
                     {
@@ -205,7 +206,6 @@ class SellerService {
                     },
                     {
                         model: Models.Customers,
-                        where: { id: Number(id) },
                         attributes: ['id', 'img', 'fullname']
                     }
                 ]

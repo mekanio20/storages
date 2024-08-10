@@ -111,6 +111,53 @@ class CommentService {
         }
     }
 
+    async sellerCommentService(userId, q) {
+        try {
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let order = q.order || 'desc'
+            let sort = q.sort || 'id'
+            let whereState = {}
+            for (let item in q) {
+                if (q.productId || q.isActive) {
+                    whereState[item] = q[item]
+                }
+            }
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
+            const comments = await Models.Comments.findAll({
+                where: whereState,
+                attributes: ['id', 'comment'],
+                include: [
+                    {
+                        model: Models.Customers,
+                        attributes: ['id', 'fullname']
+                    },
+                    {
+                        model: Models.Products,
+                        attributes: ['id', 'tm_name'],
+                        where: { sellerId: seller }, required: true
+                    },
+                    {
+                        model: Models.ProductReviewImages,
+                        attributes: ['id', 'img'],
+                        where: { isActive: true }, required: false,
+                    }
+                ],
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [[sort, order]]
+            }).catch((err) => console.log(err))
+            const result = { count: 0, rows: [] }
+            result.count = comments.length
+            result.rows = comments
+            return Response.Success('Üstünlikli!', result)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
     // DELETE
     async deleteCommentService(id, user) {
         try {
