@@ -132,48 +132,60 @@ class SellerService {
 
     async allOrdersService(q, userId) {
         try {
-            // let page = q.page || 1
-            // let limit = q.limit || 10
-            // let offset = page * limit - limit
-            // let sort = q.sort || 'id'
-            // let order = q.order || 'desc'
+            let page = q.page || 1
+            let limit = q.limit || 10
+            let offset = page * limit - limit
+            let sort = q.sort || 'id'
+            let order = q.order || 'desc'
             let whereState = {}
             if (q.status) whereState.status = q.status
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
-            const orders = await Models.OrderItems.findAll({
-                attributes: [['id', 'orderItemId'], 'quantity'],
+            const orders = await Models.Orders.findAll({
+                attributes: ['id'],
+                where: whereState,
+                limit: Number(limit),
+                offset: Number(offset),
+                order: [[sort, order]],
+                raw: true
+            }).catch((err) => console.log(err))
+            const orderIds = orders.map(order => order.id)
+            const detailedOrders = await Models.Orders.findAll({
+                attributes: ['id', 'order_id', 'status', 'time'],
+                where: { id: orderIds },
                 include: [
                     {
-                        model: Models.Orders,
-                        attributes: ['id', 'order_id', 'status', 'time'],
-                        where: whereState,
+                        model: Models.OrderItems,
+                        attributes: ['id', 'quantity'],
+                        required: true,
                         include: {
-                            model: Models.Customers,
-                            attributes: ['id', 'fullname']
+                            model: Models.Products,
+                            where: { isActive: true, sellerId: seller },
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
+                            include: [
+                                {
+                                    model: Models.ProductImages,
+                                    where: { isActive: true }, required: false,
+                                    attributes: { exclude: ['productId', 'isActive', 'createdAt', 'updatedAt'] },
+                                },
+                                {
+                                    model: Models.Offers,
+                                    where: { isActive: true }, required: false,
+                                    attributes: ['id', 'discount', 'currency']
+                                }
+                            ],
                         },
                     },
                     {
-                        model: Models.Products,
-                        where: { isActive: true, sellerId: seller },
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
-                        include: [
-                            {
-                                model: Models.ProductImages,
-                                where: { isActive: true }, required: false,
-                                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
-                            },
-                            {
-                                model: Models.Offers,
-                                where: { isActive: true }, required: false,
-                                attributes: ['id', 'discount', 'currency']
-                            }
-                        ]
+                        model: Models.Customers,
+                        attributes: ['id', 'fullname'],
+                        required: true
                     }
-                ]
+                ],
+                order: [[sort, order]]
             }).catch((err) => console.log(err))
-            if (orders.length === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
-            return Response.Success('Üstünlikli!', orders)
+            if (detailedOrders.length === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
+            return Response.Success('Üstünlikli!', detailedOrders)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
@@ -184,31 +196,36 @@ class SellerService {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
             const order = await Models.Orders.findOne({
-                where: { id: Number(id) },
                 attributes: { exclude: ['createdAt', 'updatedAt', 'customerId', 'productId'] },
+                where: { id: Number(id) },
                 include: [
                     {
-                        model: Models.Products,
-                        where: { isActive: true, sellerId: seller },
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
-                        include: [
-                            {
-                                model: Models.ProductImages,
-                                where: { isActive: true }, required: false,
-                                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
-                            },
-                            {
-                                model: Models.Offers,
-                                where: { isActive: true }, required: false,
-                                attributes: ['id', 'discount']
-                            }
-                        ]
+                        model: Models.OrderItems,
+                        attributes: ['id', 'quantity'],
+                        required: true,
+                        include: {
+                            model: Models.Products,
+                            where: { isActive: true, sellerId: seller },
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
+                            include: [
+                                {
+                                    model: Models.ProductImages,
+                                    where: { isActive: true }, required: false,
+                                    attributes: { exclude: ['productId', 'isActive', 'createdAt', 'updatedAt'] },
+                                },
+                                {
+                                    model: Models.Offers,
+                                    where: { isActive: true }, required: false,
+                                    attributes: ['id', 'discount']
+                                }
+                            ]
+                        },
                     },
                     {
                         model: Models.Customers,
                         attributes: ['id', 'img', 'fullname']
                     }
-                ]
+                ],
             }).catch((err) => { console.log(err) })
             if (!order) { return Response.NotFound('Sargyt tapylmady!', []) }
             return Response.Success('Üstünlikli!', order)

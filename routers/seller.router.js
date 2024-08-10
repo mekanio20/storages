@@ -41,7 +41,8 @@ router.get('/orders',
     sellerController.allOrders)
 
 router.get('/order/detail/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     validationMiddleware(baseSchema.idControl, 'params'),
     sellerController.orderDetail)
 

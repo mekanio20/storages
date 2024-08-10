@@ -32,7 +32,11 @@ const sellerSchema = {
     }),
     
     allOrders: Joi.object({
-        status: Joi.string().valid('ondelivery', 'completed', 'cancelled').optional()
+        status: Joi.string().valid('ondelivery', 'completed', 'cancelled').optional(),
+        sort: Joi.string().valid('id', 'time').optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional()
     }),
 
     allSeller: Joi.object({
