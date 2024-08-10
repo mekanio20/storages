@@ -623,6 +623,7 @@ class ProductService {
     async fetchProductService(slug) {
         try {
             const product = await Models.Products.findOne({
+                attributes: { exclude: ['subcategoryId', 'brandId', 'sellerId'] },
                 where: { slug: slug, isActive: true },
                 include: [
                     {
@@ -645,12 +646,11 @@ class ProductService {
                         where: { isActive: true }, required: false,
                     },
                 ],
-                attributes: { exclude: ['slug', 'subcategoryId', 'brandId', 'sellerId', 'createdAt', 'updatedAt'] }
-            })
+            }).catch((err) => console.log(err))
             const images = await Models.ProductImages.findAndCountAll({
                 where: { productId: product.id, isActive: true },
                 attributes: ['id', 'img']
-            })
+            }).catch((err) => console.log(err))
             const rating = await this.fetchReviewService(product.id)
             const comment = await allCommentService({ productId: product.id })
             const response = {
