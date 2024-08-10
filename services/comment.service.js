@@ -137,12 +137,12 @@ class CommentService {
                     {
                         model: Models.Products,
                         attributes: ['id', 'tm_name'],
-                        where: { sellerId: seller }, required: true
-                    },
-                    {
-                        model: Models.ProductReviewImages,
-                        attributes: ['id', 'img'],
-                        where: { isActive: true }, required: false,
+                        where: { sellerId: seller }, required: true,
+                        include: {
+                            model: Models.ProductImages,
+                            attributes: ['id', 'img'],
+                            where: { isActive: true }, required: false,
+                        }
                     }
                 ],
                 limit: Number(limit),
