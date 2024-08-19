@@ -46,7 +46,7 @@ class CustomerService {
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [[sort, order]]
-            })
+            }).catch((err) => console.log(err))
             if (customers.count == 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
             return Response.Success('Üstünlikli!', customers)
         } catch (error) {
@@ -67,7 +67,7 @@ class CustomerService {
                 include: {
                     model: Models.Products,
                     where: { isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price']
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 },
                 limit: Number(limit),
                 offset: Number(offset)
@@ -109,7 +109,7 @@ class CustomerService {
                     {
                         model: Models.Products,
                         where: { isActive: true },
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price', 'sellerId'],
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                         include: [
                             {
                                 model: Models.Sellers,
@@ -119,11 +119,6 @@ class CustomerService {
                                 model: Models.ProductImages,
                                 where: { isActive: true }, required: false,
                                 attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
-                            },
-                            {
-                                model: Models.Offers,
-                                where: { isActive: true }, required: false,
-                                attributes: ['id', 'discount']
                             }
                         ]
                     }
@@ -185,7 +180,7 @@ class CustomerService {
                         model: Models.Products,
                         require: true,
                         where: { isActive: true },
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                         include: [
                             {
                                 model: Models.ProductImages,
@@ -195,11 +190,6 @@ class CustomerService {
                             {
                                 model: Models.Sellers,
                                 attributes: ['id', 'logo', 'name'],
-                            },
-                            {
-                                model: Models.Offers,
-                                where: { isActive: true }, required: false,
-                                attributes: ['id', 'discount']
                             }
                         ]
                     }
