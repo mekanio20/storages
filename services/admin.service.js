@@ -250,7 +250,8 @@ class AdminService {
                 { name: 'miweler', slug: 'miweler', img: 'test1.jpg', desc: 'abcdefg', isActive: true, userId: 1 },
                 { name: 'addidas', slug: 'addidas', img: 'test2.jpg', desc: 'abcdefg', isActive: true, userId: 1 },
                 { name: 'pumma', slug: 'pumma', img: 'test3.jpg', desc: 'abcdefg', isActive: true, userId: 2 },
-                { name: 'galaxy', slug: 'galaxy', img: 'test4.jpg', desc: 'abcdefg', isActive: true, userId: 2 }
+                { name: 'galaxy', slug: 'galaxy', img: 'test4.jpg', desc: 'abcdefg', isActive: true, userId: 2 },
+                { name: 'brendsiz', slug: 'brendsiz', img: 'test5.jpg', desc: 'abcdefg', isActive: true, userId: 1 },
             ]).then(() => { console.log('Brands created') }).catch((err) => { console.log(err) })
 
             await Models.Categories.bulkCreate([
@@ -260,7 +261,8 @@ class AdminService {
                 { logo: 'image.jpg', tm_name: 'Telewizor', ru_name: 'Телевидение', en_name: 'Television', slug: 'telewizor', userId: 5 },
                 { logo: 'image.jpg', tm_name: 'Oglan aýakgap', ru_name: 'Мужская обувь', en_name: 'Men shoes', slug: 'oglan-aýakgap', userId: 6 },
                 { logo: 'image.jpg', tm_name: 'Gyz aýakgap', ru_name: 'Женская обувь', en_name: 'Women shoes', slug: 'gyz-aýakgap', userId: 7 },
-                { logo: 'image.jpg', tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', userId: 8 }
+                { logo: 'image.jpg', tm_name: 'Kostýum', ru_name: 'Костюм', en_name: 'Costume', slug: 'kostýum', userId: 8 },
+                { logo: 'image.jpg', tm_name: 'Batnik', slug: 'batnik', userId: 8 },
             ]).then(() => { console.log('Categories created') }).catch((err) => { console.log(err) })
 
             await Models.Features.bulkCreate([
@@ -285,7 +287,8 @@ class AdminService {
                 { logo: 'image.jpg', tm_name: 'Peýnir', ru_name: 'Сыр', en_name: 'Cheese', slug: 'peýnir', categoryId: 2, userId: 6 },
                 { logo: 'image.jpg', tm_name: 'Öýjükli telefon', ru_name: 'Мобильный телефон', en_name: 'Mobile phone', slug: 'öýjükli-telefon', categoryId: 3, userId: 7 },
                 { logo: 'image.jpg', tm_name: 'Sensor telefon', ru_name: 'Сенсорный телефон', en_name: 'Touchscreen phone', slug: 'sensor-telefon', categoryId: 3 },
-                { logo: 'image.jpg', tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4, userId: 1 }
+                { logo: 'image.jpg', tm_name: 'Smart TV', ru_name: 'Смарт ТВ', en_name: 'Smart TV', slug: 'smart-tv', categoryId: 4, userId: 1 },
+                { logo: 'image.jpg', tm_name: 'Kici maykalar', slug: 'kici-maykalar', categoryId: 8, userId: 1 }
             ]).then(() => { console.log('Subcategories created') }).catch((err) => { console.log(err) })
 
             await Models.SubcategoryFeatures.bulkCreate([
@@ -307,10 +310,11 @@ class AdminService {
             ]).then(() => { console.log('Sellers created') }).catch((err) => { console.log(err) })
 
             await Models.Products.bulkCreate([
-                { tm_name: 'alma', ru_name: 'яблоко', en_name: 'apple', tm_desc: 'alma1', ru_desc: 'яблоко1', en_desc: 'apple1', slug: 'alma', barcode: 11111, stock_code: 'aaaaaa', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 1 },
-                { tm_name: 'apelsin', ru_name: 'апельсин', en_name: 'orange', tm_desc: 'apelsin1', ru_desc: 'апельсин1', en_desc: 'orange1', slug: 'apelsin', barcode: 22222, stock_code: 'bbbbb', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 2 },
-                { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 20, sale_price: 19.90, subcategoryId: 1, brandId: 1, sellerId: 2 },
-                { tm_name: 'Galaxy-A12', ru_name: 'Галакси-А12', en_name: 'Galaxy-A12', tm_desc: 'Galaxy-A12 desc', ru_desc: 'Галакси-А12 1', en_desc: 'Galaxy-A12 desc', slug: 'galaxy-a12', barcode: 44444, stock_code: 'ddddd', quantity: 10, org_price: 2000, sale_price: 19000, subcategoryId: 6, brandId: 4, sellerId: 3 }
+                { tm_name: 'alma', ru_name: 'яблоко', en_name: 'apple', tm_desc: 'alma1', ru_desc: 'яблоко1', en_desc: 'apple1', slug: 'alma', barcode: 11111, stock_code: 'aaaaaa', quantity: 10, org_price: 10, sale_price: 20, final_price: 20, subcategoryId: 1, brandId: 1, sellerId: 1, model_code: Date.now() },
+                { tm_name: 'apelsin', ru_name: 'апельсин', en_name: 'orange', tm_desc: 'apelsin1', ru_desc: 'апельсин1', en_desc: 'orange1', slug: 'apelsin', barcode: 22222, stock_code: 'bbbbb', quantity: 10, org_price: 20, sale_price: 25, dis_price: 3, final_price: 22, subcategoryId: 1, brandId: 1, sellerId: 2, model_code: Date.now() },
+                { tm_name: 'banan', ru_name: 'банан', en_name: 'banana', tm_desc: 'banan1', ru_desc: 'банан1', en_desc: 'banana1', slug: 'banan', barcode: 33333, stock_code: 'ccccc', quantity: 10, org_price: 60, sale_price: 100, dis_type: 'goterim', dis_price: 10, final_price: 90, subcategoryId: 1, brandId: 1, sellerId: 2, model_code: Date.now() },
+                { tm_name: 'Galaxy-A12', ru_name: 'Галакси-А12', en_name: 'Galaxy-A12', tm_desc: 'Galaxy-A12 desc', ru_desc: 'Галакси-А12 1', en_desc: 'Galaxy-A12 desc', slug: 'galaxy-a12', barcode: 44444, stock_code: 'ddddd', quantity: 10, org_price: 2000, sale_price: 19000, dis_price: 6000, final_price: 13000, subcategoryId: 6, brandId: 4, sellerId: 3, model_code: Date.now() },
+                { tm_name: 'Ak batnik', tm_desc: 'Ak batnik desc', slug: 'ak-batnik', barcode: 55555, stock_code: 'eeeeee', quantity: 2, org_price: 1000, sale_price: 1200, dis_price: 100, final_price: 1100, subcategoryId: 8, brandId: 5, sellerId: 1, model_code: 3123718927381 },
             ]).then(() => { console.log('Products created') }).catch((err) => { console.log(err) })
 
             await Models.ProductImages.bulkCreate([
@@ -320,8 +324,8 @@ class AdminService {
             ]).then(() => { console.log('Products images created') }).catch((err) => { console.log(err) })
 
             await Models.ProductFeatures.bulkCreate([
-                { productId: 4, fatureDescriptionId: 2 },
-                { productId: 4, fatureDescriptionId: 6 }
+                { productId: 4, featureDescriptionId: 2 },
+                { productId: 4, featureDescriptionId: 6 }
             ]).then(() => { console.log('Product Features created') }).catch((err) => { console.log(err) })
 
             await Models.ProductReviews.bulkCreate([
@@ -345,12 +349,6 @@ class AdminService {
                 { customerId: 2, productId: 1 },
                 { customerId: 2, productId: 2 }
             ]).then(() => { console.log('Likes created') }).catch((err) => { console.log(err) })
-
-            await Models.Offers.bulkCreate([
-                { discount: 17.9, productId: 1, currency: 'manat' },
-                { discount: 17.9, productId: 2, currency: 'manat' },
-                { discount: 12.9, productId: 3, currency: 'manat' }
-            ]).then(() => { console.log('Offers created') }).catch((err) => { console.log(err) })
 
             await Models.Comments.bulkCreate([
                 { comment: 'gaty gowey', productId: 1, customerId: 1 },

@@ -5,7 +5,7 @@ const adminSchema = {
     addGroup: Joi.object({
         id: Joi.number().positive().optional(),
         name: Joi.string().uppercase().min(3).max(20).regex(/^[a-zA-Z]/).required(),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     addRole: Joi.object({
@@ -24,7 +24,7 @@ const adminSchema = {
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).optional(),
         en_name: Joi.string().min(3).max(100).optional(),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     addSubcategory: Joi.object({
@@ -33,7 +33,7 @@ const adminSchema = {
         ru_name: Joi.string().min(3).max(100).optional(),
         en_name: Joi.string().min(3).max(100).optional(),
         categoryId: Joi.number().positive().required(),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     addFeature: Joi.object({
@@ -41,26 +41,26 @@ const adminSchema = {
         tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
         ru_name: Joi.string().min(3).max(100).optional(),
         en_name: Joi.string().min(3).max(100).optional(),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     addFeatureDescription: Joi.object({
         desc: Joi.string().max(50).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/),
         featureId: Joi.number().positive().required(),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     addSubcategoryFeature: Joi.object({
         subcategoryId: Joi.number().positive().required(),
         featureId: Joi.ref('subcategoryId'),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     addBrand: Joi.object({
         id: Joi.number().positive().optional(),
         name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).required(),
         desc: Joi.string().min(5).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).optional(),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     addSubscription: Joi.object({
@@ -81,7 +81,7 @@ const adminSchema = {
     // PUT
     updateUser: Joi.object({
         id: Joi.number().positive().required(),
-        isActive: Joi.boolean().default(false),
+        isActive: Joi.boolean().optional(),
         isCustomer: Joi.ref('isActive'),
         isSeller: Joi.ref('isActive'),
         isStaff: Joi.ref('isActive')
@@ -107,14 +107,14 @@ const adminSchema = {
     updateFetureDescription: Joi.object({
         id: Joi.number().positive().required(),
         desc: Joi.string().required(),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     updateSubcategoryFeature: Joi.object({
         id: Joi.number().positive().required(),
         featureId: Joi.number().positive().optional(),
         subcategoryId: Joi.ref('featureId'),
-        isActive: Joi.boolean().default(false)
+        isActive: Joi.boolean().optional()
     }),
 
     // GET

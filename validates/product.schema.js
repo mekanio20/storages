@@ -14,9 +14,13 @@ const productSchema = {
         quantity: Joi.number().positive().default(1),
         org_price: Joi.number().positive().required(),
         sale_price: Joi.number().positive().required(),
+        dis_price: Joi.number().positive().optional(),
+        dis_type: Joi.string().valid('manat', 'goterim').optional(),
         gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').default('non-gender'),
         subcategoryId: Joi.number().positive().required(),
-        brandId: Joi.number().positive().required()
+        brandId: Joi.number().positive().required(),
+        model_code: Joi.number().positive().optional(),
+        features: Joi.array().items(Joi.number().positive().required()).required()
     }),
 
     addProductReview: Joi.object({
@@ -85,6 +89,9 @@ const productSchema = {
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
         id: Joi.number().positive().required()
+    }),
+    allSubcategoryFeatures: Joi.object({
+        subcategoryId: Joi.number().positive().required()
     })
 }
 

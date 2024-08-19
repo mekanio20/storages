@@ -77,6 +77,10 @@ router.get('/subcategories',
     validationMiddleware(baseSchema.queryControl, 'query'),
     productController.allSubcategory)
 
+router.get('/subcategory/features',
+    validationMiddleware(productSchema.allSubcategoryFeatures, 'query'),
+    productController.allSubcategoryFeatures)
+
 router.get('/brands',
     validationMiddleware(baseSchema.queryControl, 'query'),
     productController.allBrands)

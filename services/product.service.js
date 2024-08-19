@@ -25,16 +25,14 @@ class ProductService {
             if (_product) { return Response.Forbidden('Maglumat eýýäm döredilen!', []) }
             const subscription = await Models.Sellers.findOne({
                 attributes: ['subscriptionId'],
-                where: {
-                    id: seller
-                }
+                where: { id: seller }
             }).catch((err) => { console.log(err) })
-            console.log('SUBSCTIPTIONS --> ', JSON.stringify(subscription, 2, null))
+            console.log('SUBSCTIPTIONS --> ', JSON.stringify(subscription, null, 2))
             const limits = await Models.Subscriptions.findOne({
                 attributes: ['p_limit', 'p_img_limit'],
                 where: { id: subscription.subscriptionId }
             }).catch((err) => { console.log(err) })
-            console.log('LIMITS --> ', JSON.stringify(limits, 2, null))
+            console.log('LIMITS --> ', JSON.stringify(limits, null, 2))
             await Models.Products.findAll({
                 attributes: ['slug'],
                 where: { sellerId: seller },
@@ -49,15 +47,15 @@ class ProductService {
                     return Response.Forbidden('Limidiniz doldy!', [])
                 }
             }).catch((err) => { console.log(err) })
-            // const features = []
-            // const subcategory_features = await Models.SubcategoryFeatures.findAll({
-            //     attributes: ['featureId'],
-            //     where: { subcategoryId: body.subcategoryId }
-            // }).catch((err) => { console.log(err) })
-            // for (let item of subcategory_features) {
-            //     const feature = await Models.Features.findOne({ where: { id: item.featureId } })
-            //     features.push(feature)
-            // }
+            let final_price = body.sale_price
+            if (body.dis_price > 0) {
+                if (body?.dis_type === 'goterim') {
+                    let discount_amount = (body.sale_price * body.dis_price) / 100
+                    final_price = body.sale_price - discount_amount
+                } else {
+                    final_price -= body.dis_price
+                }
+            }
             const product = await Models.Products.create({
                 tm_name: body.tm_name,
                 ru_name: body.ru_name || null,
@@ -71,19 +69,28 @@ class ProductService {
                 quantity: body.quantity,
                 org_price: body.org_price,
                 sale_price: body.sale_price,
+                dis_price: body.dis_price,
+                final_price: final_price,
+                dis_type: body.dis_type || 'manat',
                 gender: body.gender,
                 subcategoryId: body.subcategoryId,
                 brandId: body.brandId,
                 sellerId: seller
             }).catch((err) => { console.log(err) })
+            for (let item of body.features) {
+                await Models.ProductFeatures.create({
+                    productId: product.id,
+                    featureDescriptionId: item
+                }).then(() => { console.log(true) })
+                .catch((err) => { console.log(err) })
+            }
             if (filenames.img) {
                 filenames.img.forEach(async (item, index) => {
                     await Models.ProductImages.create({
                         img: item.filename,
                         productId: product.id
-                    })
-                        .then(() => { console.log(true) })
-                        .catch((err) => { console.log(err) })
+                    }).then(() => { console.log(true) })
+                    .catch((err) => { console.log(err) })
                 })
             }
             return Response.Created('Haryt goýuldy!', [])
@@ -98,14 +105,36 @@ class ProductService {
             if (isNaN(seller)) { return seller }
             const product = await Models.Products.findOne({ where: { id: body.id, sellerId: seller }, attributes: ['id'] })
             if (!product) { return Response.Forbidden('Rugsat edilmedi!', []) }
+            const subscription = await Models.Sellers.findOne({
+                attributes: ['subscriptionId'],
+                where: { id: seller }
+            }).catch((err) => { console.log(err) })
+
+            const limits = await Models.Subscriptions.findOne({
+                attributes: ['p_img_limit'],
+                where: { id: subscription.subscriptionId }
+            }).catch((err) => { console.log(err) })
+
+            await Models.Products.findAll({
+                attributes: ['slug'],
+                where: { sellerId: seller },
+                include: { model: Models.ProductImages },
+                order: [['id', 'ASC']]
+            }).then((res) => {
+                const image_count = res.reduce((count, product) => count + product.product_images.length, 0)
+                console.log('IMAGE COUNT: ', image_count)
+                if (image_count >= limits.p_img_limit) {
+                    return Response.Forbidden('Limidiniz doldy!', [])
+                }
+            }).catch((err) => { console.log(err) })
+
             if (filenames.img) {
-                filenames.img.forEach(async (item, index) => {
+                filenames.img.forEach(async (item) => {
                     await Models.ProductImages.create({
                         img: item.filename,
                         productId: product.id
-                    })
-                        .then(() => { console.log(true) })
-                        .catch((err) => { console.log(err) })
+                    }).then(() => { console.log(true) })
+                    .catch((err) => { console.log(err) })
                 })
             }
             return Response.Created('Surat goýuldy!', [])
@@ -686,6 +715,32 @@ class ProductService {
             })
             if (subcategories.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', subcategories)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
+    async allSubcategoryFeaturesService(q) {
+        try {
+            const featureIds = await Models.SubcategoryFeatures.findAll({
+                attributes: ['featureId'],
+                where: { subcategoryId: q.subcategoryId }
+            }).catch((err) => console.log(err))
+            if (featureIds.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
+            let result = []
+            for (const item of featureIds) {
+                const feature = await Models.Features.findAll({
+                    where: { isActive: true, id: item.featureId },
+                    attributes: ['tm_name', 'ru_name', 'en_name'],
+                    include: {
+                        model: Models.FeatureDescriptions,
+                        where: { isActive: true },
+                        attributes: ['id', 'desc']
+                    }
+                })
+                result.push(...feature)
+            }
+            return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }

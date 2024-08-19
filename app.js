@@ -11,94 +11,95 @@ const fs = require("fs");
 const os = require("os");
 const cluster = require("cluster");
 
-if (cluster.isMaster) {
-  const numCPUs = os.cpus().length;
-  console.log(`Master process is running with PID: ${process.pid}`);
-  console.log(`Forking for ${numCPUs} CPUs`);
+// if (cluster.isMaster) {
+//   const numCPUs = os.cpus().length;
+//   console.log(`Master process is running with PID: ${process.pid}`);
+//   console.log(`Forking for ${numCPUs} CPUs`);
 
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
+//   for (let i = 0; i < numCPUs; i++) {
+//     cluster.fork();
+//   }
 
-  cluster.on("exit", (worker, code, signal) => {
-    console.log(`Worker ${worker.process.pid} died`);
-    console.log("Starting a new worker");
-    cluster.fork();
-  });
-} else {
-  require("./ioredis");
-  require("dotenv").config();
-  const app = express();
-  const port = process.env.PORT || 8081;
-  const ip = "localhost";
+//   cluster.on("exit", (worker, code, signal) => {
+//     console.log(`Worker ${worker.process.pid} died`);
+//     console.log("Starting a new worker");
+//     cluster.fork();
+//   });
+// } else {
 
-  const server = http.createServer(app);
-  const io = require("socket.io")(server);
+// }
+require("./ioredis");
+require("dotenv").config();
+const app = express();
+const port = process.env.PORT || 8081;
+const ip = "localhost";
 
-  // Socket test...
-  app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/public/index.html");
-  });
+const server = http.createServer(app);
+const io = require("socket.io")(server);
 
-  io.on("connection", (socket) => {
-    console.log(`new client socket id ==> ${socket.id}`);
-    app.set("socketio", socket);
-  });
+// Socket test...
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
 
-  require("./config/models");
-  const database = require("./config/database");
-  const router = require("./routers/index.router");
+io.on("connection", (socket) => {
+  console.log(`new client socket id ==> ${socket.id}`);
+  app.set("socketio", socket);
+});
 
-  app.disable("x-powered-by");
-  app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }));
-  app.use(helmet());
+require("./config/models");
+const database = require("./config/database");
+const router = require("./routers/index.router");
 
-  let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
-  app.use(morgan("common", { stream: accessLogStream }));
-  app.use(morgan("dev"));
+app.disable("x-powered-by");
+app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }));
+app.use(helmet());
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use("/uploads", express.static("public"));
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: true,
-      cookie: { maxAge: 86400000 },
-    })
-  );
+let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
+app.use(morgan("common", { stream: accessLogStream }));
+app.use(morgan("dev"));
 
-  const options = {
-    definition: {
-      openapi: "3.0.0",
-      info: {
-        title: "Library API",
-        version: "1.0.0",
-        description: "Swagger JavaScript document",
-      },
-      servers: [
-        {
-          url: `http://216.250.11.197:${port}`,
-        },
-      ],
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static("public"));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 86400000 },
+  })
+);
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Library API",
+      version: "1.0.0",
+      description: "Swagger JavaScript document",
     },
-    apis: ["./routers/api.documents.js"],
-  };
-  const specs = swaggerJsDoc(options);
+    servers: [
+      {
+        url: `http://216.250.11.197:${port}`,
+      },
+    ],
+  },
+  apis: ["./routers/api.documents.js"],
+};
+const specs = swaggerJsDoc(options);
 
-  app.use("/api", router);
-  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
-  app.all("*", (req, res) => { return res.status(404).sendFile(`${path.join(__dirname + "/public/404.html")}`) });
+app.use("/api", router);
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+app.all("*", (req, res) => { return res.status(404).sendFile(`${path.join(__dirname + "/public/404.html")}`) });
 
-  server.listen(port, async () => {
-    try {
-      await database.authenticate();
-      await database.sync({});
-      console.log("Database connected...");
-      console.log(`Server is running: http://${ip}:${port}`);
-    } catch (error) {
-      throw error;
-    }
-  });
-}
+server.listen(port, async () => {
+  try {
+    await database.authenticate();
+    await database.sync({});
+    console.log("Database connected...");
+    console.log(`Server is running: http://${ip}:${port}`);
+  } catch (error) {
+    throw error;
+  }
+});

@@ -118,7 +118,7 @@ class SellerService {
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
             let whereState = {}
             whereState.userId = seller.userId
-            if (q.type) whereState.type = q.type
+            whereState.type = 'profile'
             const banners = await Models.Banners.findAndCountAll({
                 where: whereState,
                 attributes: ['id', 'tm_img', 'ru_img', 'en_img', 'url', 'type', 'sort_order']

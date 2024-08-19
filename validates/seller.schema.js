@@ -77,8 +77,7 @@ const sellerSchema = {
     }),
 
     allBanners: Joi.object({
-        sellerId: Joi.number().positive().required(),
-        type: Joi.string().valid('home', 'product', 'profile', 'ad', 'category', 'etc').optional()
+        sellerId: Joi.number().positive().required()
     })
 }
 

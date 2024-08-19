@@ -22,7 +22,7 @@ module.exports = (dest) => {
         storage: multer.diskStorage({
             destination: (req, file, cb) => { cb(null, path.resolve(__dirname, '..', 'public', dest)) },
             filename: (req, file, cb) => {
-                cb(null, `${uuid.v4()}-${file.originalname}`)
+                cb(null, `${uuid.v4()}`)
             }
         }),
         fileFilter: multerFilter
