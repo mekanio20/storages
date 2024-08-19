@@ -32,17 +32,18 @@ class BannerService {
         try {
             const group = await Models.Groups.findOne({ attributes: ['name'], where: { id: user.group } })
             if (group.name === 'SELLERS') {
+                body.type = 'profile'
                 const seller = await Models.Sellers.findOne({
                     attributes: ['subscriptionId'],
                     where: {
                         userId: user.id,
                         isVerified: true
                     }
-                })
+                }).catch((err) => console.log(err))
                 const limit = await Models.Subscriptions.findOne({
                     attributes: ['seller_banner_limit'],
                     where: { id: seller.subscriptionId }
-                })
+                }).catch((err) => console.log(err))
                 const bannerCount = await Models.Banners.count({ where: { userId: user.id } })
                 console.log('seller banner limit -> ', limit.seller_banner_limit);
                 console.log('banner count -> ', bannerCount);
