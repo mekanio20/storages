@@ -45,15 +45,6 @@ class productController {
         }
     }
 
-    async addOffer(req, res) {
-        try {
-            const data = await productService.addOfferService(req.body, req.user.id)
-            return res.status(data.status).json(data)
-        } catch (error) {
-            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
-        }
-    }
-
     // PUT
     async updateProduct(req, res) {
         try {

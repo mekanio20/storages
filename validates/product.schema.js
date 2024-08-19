@@ -3,10 +3,10 @@ const Joi = require('joi')
 const productSchema = {
     // POST
     addProduct: Joi.object({
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
+        tm_name: Joi.string().min(3).max(100).required(),
         ru_name: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).optional(),
         en_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
-        tm_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý\s]+$/).required(),
+        tm_desc: Joi.string().min(3).max(100).required(),
         ru_desc: Joi.string().min(3).max(100).regex(/^[\u0400-\u04FF0-9]+$/).optional(),
         en_desc: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9]/).optional(),
         barcode: Joi.number().positive().required(),
@@ -43,13 +43,7 @@ const productSchema = {
         isPublic: Joi.boolean().required()
     }),
 
-    addOffer: Joi.object({
-        currency: Joi.string().valid('manat', 'goterim').required(),
-        discount: Joi.number().positive().required(),
-        productId: Joi.number().positive().required()
-    }),
-
-    allProduct: Joi.object({
+    allProducts: Joi.object({
         subcategoryId: Joi.number().positive().optional(),
         brandId: Joi.number().positive().optional(),
         gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').optional(),
@@ -57,7 +51,7 @@ const productSchema = {
         limit: Joi.number().positive().optional(),
         start_price: Joi.number().positive().optional(),
         end_price: Joi.number().positive().optional(),
-        sort: Joi.string().valid('id', 'sale_price').optional(),
+        sort: Joi.string().valid('id', 'final_price').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
         isActive: Joi.string().valid('all').optional()
     }),
@@ -74,6 +68,8 @@ const productSchema = {
         quantity: Joi.number().positive().default(0),
         org_price: Joi.number().positive().optional(),
         sale_price: Joi.number().positive().optional(),
+        dis_price: Joi.number().positive().optional(),
+        dis_type: Joi.string().valid('manat', 'goterim').optional(),
         gender: Joi.string().valid('male', 'fmale', 'male-child', 'fmale-child', 'non-gender').default('non-gender'),
         subcategoryId: Joi.number().positive().optional(),
         brandId: Joi.number().positive().optional()
@@ -89,6 +85,13 @@ const productSchema = {
         page: Joi.number().positive().optional(),
         limit: Joi.number().positive().optional(),
         id: Joi.number().positive().required()
+    }),
+    offerProduct: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        sort: Joi.string().valid('id', 'dis_price').optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        dis_type: Joi.string().valid('manat', 'goterim').optional()
     }),
     allSubcategoryFeatures: Joi.object({
         subcategoryId: Joi.number().positive().required()

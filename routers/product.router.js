@@ -35,14 +35,9 @@ router.post('/add/coupon',
     validationMiddleware(productSchema.addCoupon, 'body'),
     productController.addCoupon)
 
-router.post('/add/offer',
-    authMiddleware, accessMiddleware(false),
-    validationMiddleware(productSchema.addOffer, 'body'),
-    productController.addOffer)
-
 // GET
 router.get('/all',
-    validationMiddleware(productSchema.allProduct, 'query'),
+    validationMiddleware(productSchema.allProducts, 'query'),
     productController.allProduct)
 
 router.get('/search',
@@ -50,7 +45,7 @@ router.get('/search',
     productController.searchProduct)
 
 router.get('/offers',
-    validationMiddleware(baseSchema.queryControl, 'query'),
+    validationMiddleware(productSchema.offerProduct, 'query'),
     productController.offerProduct)
 
 router.get('/top/selling',
@@ -78,7 +73,7 @@ router.get('/subcategories',
     productController.allSubcategory)
 
 router.get('/subcategory/features',
-    validationMiddleware(productSchema.allSubcategoryFeatures, 'query'),
+    validationMiddleware(baseSchema.idControl, 'query'),
     productController.allSubcategoryFeatures)
 
 router.get('/brands',

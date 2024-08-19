@@ -161,20 +161,15 @@ class SellerService {
                         include: {
                             model: Models.Products,
                             where: { isActive: true, sellerId: seller },
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                             include: [
                                 {
                                     model: Models.ProductImages,
                                     where: { isActive: true }, required: false,
-                                    attributes: { exclude: ['productId', 'isActive', 'createdAt', 'updatedAt'] },
-                                },
-                                {
-                                    model: Models.Offers,
-                                    where: { isActive: true }, required: false,
-                                    attributes: ['id', 'discount', 'currency']
+                                    attributes: ['id', 'img'],
                                 }
-                            ],
-                        },
+                            ]
+                        }
                     },
                     {
                         model: Models.Customers,
@@ -206,20 +201,15 @@ class SellerService {
                         include: {
                             model: Models.Products,
                             where: { isActive: true, sellerId: seller },
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'sale_price'],
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                             include: [
                                 {
                                     model: Models.ProductImages,
                                     where: { isActive: true }, required: false,
-                                    attributes: { exclude: ['productId', 'isActive', 'createdAt', 'updatedAt'] },
-                                },
-                                {
-                                    model: Models.Offers,
-                                    where: { isActive: true }, required: false,
-                                    attributes: ['id', 'discount']
+                                    attributes: ['id', 'img'],
                                 }
                             ]
-                        },
+                        }
                     },
                     {
                         model: Models.Customers,
@@ -241,8 +231,7 @@ class SellerService {
                 attributes: ['id'],
                 include: {
                     model: Models.Customers,
-                    attributes: ['id', 'img', 'fullname'],
-                    order: [['id', 'DESC']]
+                    attributes: ['id', 'img', 'fullname']
                 },
                 order: [['id', 'desc']]
             }).catch((err) => { console.log(err) })
@@ -259,6 +248,8 @@ class SellerService {
             let limit = q.limit || 10
             let offset = page * limit - limit
             let order = q.order || 'desc'
+            let whereState = {}
+            if (q.subcategoryId) whereState.subcategoryId = q.subcategoryId
             const topProducts = await Models.OrderItems.findAll({
                 attributes: [
                     [Sequelize.fn('COUNT', Sequelize.col('productId')), 'salesCount']
@@ -266,6 +257,7 @@ class SellerService {
                 include: [
                     {
                         model: Models.Products,
+                        where: whereState,
                         attributes: ['id'],
                         include: [
                             {
@@ -277,8 +269,9 @@ class SellerService {
                 ],
                 group: ['product.id', 'product.seller.id'],
                 limit: Number(limit),
-                offset: Number(offset)
-            })
+                offset: Number(offset),
+                order: [['salesCount', order]]
+            }).catch((err) => console.log(err))
             const sellerSalesCounts = []
             topProducts.forEach((detail) => {
                 const sellerId = detail.dataValues.product.seller.id
@@ -345,7 +338,7 @@ class SellerService {
             if (q.gender) whereState.gender = q.gender
             const products = await Models.Products.findAndCountAll({
                 where: whereState,
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'subcategoryId'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price', 'subcategoryId'],
                 include: [
                     {
                         model: Models.Sellers,
@@ -354,11 +347,6 @@ class SellerService {
                     {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
-                        where: { isActive: true }, required: false
-                    },
-                    {
-                        model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency'],
                         where: { isActive: true }, required: false
                     }
                 ],
@@ -372,7 +360,7 @@ class SellerService {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
                     attributes: ['id', 'img']
-                })
+                }).catch((err) => console.log(err))
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await fetchReviewService(item.id)
                 result.rows.push({
@@ -415,9 +403,9 @@ class SellerService {
             for (const key in query) { if (query[key]) { obj[key] = await query[key] } }
             obj.isActive = true
             if (q.isActive == 'all') { delete obj.isActive }
-            obj.sale_price = { [Op.between]: [start_price, end_price] }
+            obj.final_price = { [Op.between]: [start_price, end_price] }
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 where: { [Op.and]: obj },
                 include: [
                     {
@@ -433,15 +421,11 @@ class SellerService {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
                         where: { isActive: true }, required: false
-                    },
-                    {
-                        model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency'],
-                        where: { isActive: true }, required: false
                     }
                 ],
                 limit: Number(limit),
-                offset: Number(offset)
+                offset: Number(offset),
+                order: [[sort, order]]
             }).catch((err) => { console.log(err) })
             const result = { count: 0, rows: [] }
             result.count = await products.count
@@ -449,7 +433,7 @@ class SellerService {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
                     attributes: ['id', 'img']
-                })
+                }).catch((err) => console.log(err))
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await fetchReviewService(item.id)
                 result.rows.push({
@@ -460,10 +444,10 @@ class SellerService {
                 })
             })).catch((err) => { console.log(err) })
             if (order === 'desc') {
-                if (sort === 'sale_price') result.rows.sort((a, b) => Number(b.sale_price) - Number(a.sale_price))
+                if (sort === 'final_price') result.rows.sort((a, b) => Number(b.final_price) - Number(a.final_price))
                 else result.rows.sort((a, b) => Number(b.id) - Number(a.id))
             } else {
-                if (sort === 'sale_price') result.rows.sort((a, b) => Number(a.sale_price) - Number(b.sale_price))
+                if (sort === 'final_price') result.rows.sort((a, b) => Number(a.final_price) - Number(b.final_price))
                 else result.rows.sort((a, b) => Number(a.id) - Number(b.id))
             }
             return Response.Success('Üstünlikli!', result)
@@ -493,7 +477,7 @@ class SellerService {
                 },
                 include: {
                     model: Models.Products,
-                    attributes: ['sale_price'],
+                    attributes: ['final_price'],
                     where: { sellerId: seller }
                 }
             }).catch((err) => { console.log(err) })
@@ -503,20 +487,20 @@ class SellerService {
             console.log(JSON.stringify(oldStatistic, null, 2))
             let oldTotalMoney = 0
             oldStatistic.rows.forEach((item) => {
-                oldTotalMoney += Number(item.quantity) * Number(item.product.sale_price)
+                oldTotalMoney += Number(item.quantity) * Number(item.product.final_price)
             })
             const statistic = await Models.OrderItems.findAndCountAll({
                 attributes: ['quantity'],
                 where: { status: 'completed' },
                 include: {
                     model: Models.Products,
-                    attributes: ['sale_price'],
+                    attributes: ['final_price'],
                     where: { sellerId: seller },
                 }
             }).catch((err) => { console.log(err) })
             let totalMoney = 0
             statistic.rows.forEach((item) => {
-                totalMoney += Number(item.quantity) * Number(item.product.sale_price)
+                totalMoney += Number(item.quantity) * Number(item.product.final_price)
             })
             let prosent = Number(totalMoney) - Number(oldTotalMoney)
             prosent = prosent / Number(oldTotalMoney)

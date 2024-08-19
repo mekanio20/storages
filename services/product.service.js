@@ -72,6 +72,7 @@ class ProductService {
                 dis_price: body.dis_price,
                 final_price: final_price,
                 dis_type: body.dis_type || 'manat',
+                model_code: body.model_code || Date.now(),
                 gender: body.gender,
                 subcategoryId: body.subcategoryId,
                 brandId: body.brandId,
@@ -218,27 +219,6 @@ class ProductService {
         }
     }
 
-    async addOfferService(body, userId) {
-        try {
-            const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
-            const _seller = await Models.Products.findOne({ where: { id: productId, sellerId: seller } })
-            if (!_seller) { return Response.Forbidden('Rugsat edilmedi!', []) }
-            const [offer, created] = await Models.Offers.findOrCreate({
-                where: { productId: body.productId },
-                defaults: {
-                    currency: body.currency,
-                    discount: body.discount,
-                    productId: body.productId
-                }
-            })
-            if (created === false) { return Response.BadRequest('Arzanladyş goýulan!', []) }
-            return Response.Success('Arzanladyş goşuldy!', offer)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
-        }
-    }
-
     // PUT
     async updateProductService(userId, body) {
         try {
@@ -277,7 +257,7 @@ class ProductService {
             if (q.isActive == 'all') { delete obj.isActive }
             obj.sale_price = { [Op.between]: [start_price, end_price] }
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 where: { [Op.and]: obj },
                 include: [
                     {
@@ -293,11 +273,6 @@ class ProductService {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
                         where: { isActive: true }, required: false
-                    },
-                    {
-                        model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency'],
-                        where: { isActive: true }, required: false
                     }
                 ],
                 limit: Number(limit),
@@ -310,7 +285,19 @@ class ProductService {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
                     attributes: ['id', 'img']
-                })
+                }).catch((err) => console.log(err))
+                // const features = await Models.ProductFeatures.findAll({
+                //     where: { productId: item.id, isActive: true },
+                //     attributes: [],
+                //     include: {
+                //         model: Models.FeatureDescriptions,
+                //         attributes: ['id', 'desc'],
+                //         include: {
+                //             model: Models.Features,
+                //             attributes: ['id', 'tm_name', 'ru_name', 'en_name']
+                //         }
+                //     }
+                // }).catch((err) => console.log(err))
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 result.rows.push({
@@ -318,13 +305,14 @@ class ProductService {
                     images: images,
                     comment: comment,
                     rating: rating.detail.rating,
+                    // features:  features
                 })
             }))
             if (order === 'desc') {
-                if (sort === 'sale_price') { result.rows.sort((a, b) => Number(b.sale_price) - Number(a.sale_price)) }
+                if (sort === 'final_price') { result.rows.sort((a, b) => Number(b.final_price) - Number(a.final_price)) }
                 else { result.rows.sort((a, b) => Number(b.id) - Number(a.id)) }
             } else {
-                if (sort === 'sale_price') { result.rows.sort((a, b) => Number(a.sale_price) - Number(b.sale_price)) }
+                if (sort === 'final_price') { result.rows.sort((a, b) => Number(a.final_price) - Number(b.final_price)) }
                 else { result.rows.sort((a, b) => Number(a.id) - Number(b.id)) }
             }
             return Response.Success('Üstünlikli!', result)
@@ -352,7 +340,7 @@ class ProductService {
             }
             if (q.sellerId) whereState.sellerId = q.sellerId
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 where: { [Op.or]: search, [Op.and]: whereState },
                 include: [
                     {
@@ -368,16 +356,11 @@ class ProductService {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
                         where: { isActive: true }, required: false
-                    },
-                    {
-                        model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency'],
-                        where: { isActive: true }, required: false
                     }
                 ],
                 limit: Number(limit),
                 offset: Number(offset)
-            })
+            }).catch((err) => console.log(err))
             const result = { count: 0, rows: [] }
             result.count = products.count
             await Promise.all(products.rows.map(async (item) => {
@@ -393,7 +376,7 @@ class ProductService {
                     comment: comment,
                     rating: rating.detail.rating,
                 })
-            }))
+            })).catch((err) => { console.log(err) })
             return Response.Success('Gözleg netijesi', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
@@ -405,10 +388,13 @@ class ProductService {
             let page = q.page || 1
             let limit = q.limit || 10
             let offset = page * limit - limit
+            let sort = q.sort || 'id'
             let order = q.order || 'asc'
+            let whereState = { isActive: true }
+            if (q.dis_type) whereState.dis_type = q.dis_type
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
-                where: { isActive: true },
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                where: whereState,
                 include: [
                     {
                         model: Models.Sellers,
@@ -423,15 +409,11 @@ class ProductService {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
                         where: { isActive: true }, required: false
-                    },
-                    {
-                        model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency'],
-                        where: { isActive: true }
                     }
                 ],
                 limit: Number(limit),
                 offset: Number(offset),
+                order: [[sort, order]]
             }).catch((err) => { console.log(err) })
             const result = { count: 0, rows: [] }
             result.count = await products.count
@@ -439,7 +421,7 @@ class ProductService {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
                     attributes: ['id', 'img']
-                })
+                }).catch((err) => { console.log(err) })
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 result.rows.push({
@@ -449,8 +431,8 @@ class ProductService {
                     rating: rating.detail.rating
                 })
             })).catch((err) => { console.log(err) })
-            if (order === 'desc') result.rows.sort((a, b) => Number(b.offer.discount) - Number(a.offer.discount))
-            else result.rows.sort((a, b) => Number(a.offer.discount) - Number(b.offer.discount))
+            if (order === 'desc') result.rows.sort((a, b) => Number(b.dis_price) - Number(a.dis_price))
+            else result.rows.sort((a, b) => Number(a.dis_price) - Number(b.dis_price))
             return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
@@ -477,7 +459,7 @@ class ProductService {
             for (let item of selling_products) {
                 let product = await Models.Products.findOne({
                     where: { id: item.productId, isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                     include: [
                         {
                             model: Models.Sellers,
@@ -491,11 +473,6 @@ class ProductService {
                         {
                             model: Models.Brands,
                             attributes: ['id', 'name', 'img', 'slug'],
-                            where: { isActive: true }, required: false
-                        },
-                        {
-                            model: Models.Offers,
-                            attributes: ['id', 'discount', 'currency'],
                             where: { isActive: true }, required: false
                         }
                     ]
@@ -545,7 +522,7 @@ class ProductService {
             for (let item of top_liked) {
                 let product = await Models.Products.findOne({
                     where: { id: item.productId, isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                     include: [
                         {
                             model: Models.Sellers,
@@ -560,11 +537,6 @@ class ProductService {
                             model: Models.Brands,
                             attributes: ['id', 'name', 'img', 'slug'],
                             where: { isActive: true }, required: false
-                        },
-                        {
-                            model: Models.Offers,
-                            attributes: ['id', 'discount', 'currency'],
-                            where: { isActive: true }, required: false
                         }
                     ]
                 }).catch((err) => console.log(err))
@@ -575,7 +547,7 @@ class ProductService {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
                     attributes: ['id', 'img']
-                })
+                }).catch((err) => console.log(err))
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 result.push({
@@ -584,7 +556,7 @@ class ProductService {
                     comment: comment,
                     rating: rating.detail.rating
                 })
-            }))
+            })).catch((err) => console.log(err))
             if (order === 'desc') result.sort((a, b) => Number(b.totalLiked) - Number(a.totalLiked))
             else result.sort((a, b) => Number(a.totalLiked) - Number(b.totalLiked))
             return Response.Success('Üstünlikli!', result)
@@ -602,7 +574,7 @@ class ProductService {
             let order = q.order || 'desc'
             let products = await Models.Products.findAll({
                 where: { isActive: true },
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 include: [
                     {
                         model: Models.Sellers,
@@ -617,11 +589,6 @@ class ProductService {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
                         where: { isActive: true }, required: false
-                    },
-                    {
-                        model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency'],
-                        where: { isActive: true }, required: false
                     }
                 ],
                 limit: Number(limit),
@@ -631,7 +598,7 @@ class ProductService {
                 const images = await Models.ProductImages.findAndCountAll({
                     where: { productId: item.id, isActive: true },
                     attributes: ['id', 'img']
-                })
+                }).catch((err) => console.log(err))
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 result.push({
@@ -640,7 +607,7 @@ class ProductService {
                     comment: comment,
                     rating: rating.detail.rating
                 })
-            }))
+            })).catch((err) => console.log(err))
             if (order === 'desc') result.sort((a, b) => Number(b.rating) - Number(a.rating))
             else result.sort((a, b) => Number(a.rating) - Number(b.rating))
             return Response.Success('Üstünlikli!', result)
@@ -651,18 +618,15 @@ class ProductService {
 
     async fetchProductService(slug) {
         try {
-            const product = await Models.Products.findOne({
+            let result = []
+            const product = await Models.Products.findOne({ where: { slug: slug, isActive: true }, attributes: ['model_code'] })
+            const products = await Models.Products.findAll({
                 attributes: { exclude: ['subcategoryId', 'brandId', 'sellerId'] },
-                where: { slug: slug, isActive: true },
+                where: { model_code: product.model_code, isActive: true },
                 include: [
                     {
                         model: Models.Sellers,
                         attributes: ['id', 'name', 'logo', 'isVerified']
-                    },
-                    {
-                        model: Models.Offers,
-                        attributes: ['id', 'discount', 'currency'],
-                        where: { isActive: true }, required: false
                     },
                     {
                         model: Models.Subcategories,
@@ -674,21 +638,36 @@ class ProductService {
                         attributes: ['id', 'name', 'img', 'slug'],
                         where: { isActive: true }, required: false,
                     },
-                ],
+                ]
             }).catch((err) => console.log(err))
-            const images = await Models.ProductImages.findAndCountAll({
-                where: { productId: product.id, isActive: true },
-                attributes: ['id', 'img']
-            }).catch((err) => console.log(err))
-            const rating = await this.fetchReviewService(product.id)
-            const comment = await allCommentService({ productId: product.id })
-            const response = {
-                ...product.dataValues,
-                images: images,
-                rating: rating.detail.rating,
-                reviews: comment.detail
-            }
-            return Response.Success('Üstünlikli!', response)
+            await Promise.all(products.map(async (item) => {
+                const images = await Models.ProductImages.findAndCountAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: ['id', 'img']
+                }).catch((err) => console.log(err))
+                const rating = await this.fetchReviewService(item.id)
+                const comment = await allCommentService({ productId: item.id })
+                const features = await Models.ProductFeatures.findAll({
+                    where: { productId: item.id, isActive: true },
+                    attributes: [],
+                    include: {
+                        model: Models.FeatureDescriptions,
+                        attributes: ['id', 'desc'],
+                        include: {
+                            model: Models.Features,
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name']
+                        }
+                    }
+                }).catch((err) => console.log(err))
+                result.push({
+                    ...item.dataValues,
+                    images: images,
+                    comment: comment,
+                    rating: rating.detail.rating,
+                    features: features
+                })
+            })).catch((err) => console.log(err))
+            return Response.Success('Üstünlikli!', result)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
@@ -724,7 +703,7 @@ class ProductService {
         try {
             const featureIds = await Models.SubcategoryFeatures.findAll({
                 attributes: ['featureId'],
-                where: { subcategoryId: q.subcategoryId }
+                where: { subcategoryId: q.id }
             }).catch((err) => console.log(err))
             if (featureIds.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             let result = []
@@ -788,7 +767,7 @@ class ProductService {
                 limit: Number(limit),
                 offset: Number(offset),
                 order: [['id', 'DESC']]
-            })
+            }).catch((err) => console.log(err))
             if (likes.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
             return Response.Success('Üstünlikli!', likes)
         } catch (error) {
