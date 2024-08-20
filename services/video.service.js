@@ -41,30 +41,18 @@ class VideoService {
         }
     }
     // GET
-    async getVideoService(id) {
+    async getVideoDataService(id) {
         try {
-            const video = await Models.Videos.findOne({
-                attributes: { exclude: ['sellerId', 'createdAt', 'updatedAt'] },
+            const videoData = await Models.Videos.findOne({
                 where: { id: Number(id), isActive: true },
-                include: [
-                    {
-                        model: Models.Sellers,
-                        attributes: ['id', 'name', 'logo']
-                    },
-                    {
-                        model: Models.VideoTags,
-                        attributes: ['id'],
-                        include: [
-                            {
-                                model: Models.Tags,
-                                attributes: ['id', 'name']
-                            }
-                        ]
-                    }
-                ]
-            })
-            if (!video) { return Response.BadRequest('Wideo tapylmady!', []) }
-            return Response.Success('Üstünlikli!', video)
+                attributes: ['id', 'desc'],
+                include: {
+                    model: Models.Sellers,
+                    attributes: ['id', 'name', 'logo']
+                }
+            }).catch((err) => console.log(err))
+            if (!videoData) { return Response.BadRequest('Wideo tapylmady!', []) }
+            return Response.Success('Üstünlikli!', videoData)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }

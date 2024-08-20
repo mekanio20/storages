@@ -398,9 +398,9 @@ class AdminService {
             ]).then(() => { console.log('Followers created') }).catch((err) => { console.log(err) })
 
             await Models.Videos.bulkCreate([
-                { thumbnail: 'ff8fbd1f-46ae-40b6-b5c7-8937339a2f46-semseddin.png', video: '65b5711c-2f95-4e79-82d6-5e2e00bdfd9d-semseddin.mp4', desc: 'Shemseddin arabaya bin!', isActive: true },
-                { thumbnail: '7000845a-ef51-4f70-b46a-537b8b32facc-ronaldo.png', video: '7000845a-ef51-4f70-b46a-537b8b32facc-ronaldo.mp4', desc: 'Ronalda gaharjan yigit', isActive: true },
-                { thumbnail: '6fbfcd05-c272-462d-9500-b5c2291560e3-sakar.png', video: '6fbfcd05-c272-462d-9500-b5c2291560e3-sakar.mp4', desc: 'Ysnat ishgar', isActive: true },
+                { thumbnail: 'ff8fbd1f-46ae-40b6-b5c7-8937339a2f46-semseddin.png', video: '65b5711c-2f95-4e79-82d6-5e2e00bdfd9d-semseddin.mp4', desc: 'Shemseddin arabaya bin!', isActive: true, sellerId: 1 },
+                { thumbnail: '7000845a-ef51-4f70-b46a-537b8b32facc-ronaldo.png', video: '7000845a-ef51-4f70-b46a-537b8b32facc-ronaldo.mp4', desc: 'Ronalda gaharjan yigit', isActive: true, sellerId: 2 },
+                { thumbnail: '6fbfcd05-c272-462d-9500-b5c2291560e3-sakar.png', video: '6fbfcd05-c272-462d-9500-b5c2291560e3-sakar.mp4', desc: 'Ysnat ishgar', isActive: true, sellerId: 3 },
             ]).then(() => { console.log('Videos created') }).catch((err) => { console.log(err) })
 
             await Models.GroupPermissions.bulkCreate([

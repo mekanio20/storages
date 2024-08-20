@@ -18,11 +18,15 @@ router.post('/add',
 
 // GET
 router.get('/random',
-    authMiddleware,
+    // authMiddleware,
     videoController.getRandomId)
 
+router.get('/data/:id',
+    valdidationMiddleware(baseSchema.idControl, 'params'),
+    videoController.getVideoData)
+
 router.get('/:id',
-    authMiddleware, accessMiddleware(true),
+    // authMiddleware, accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     videoController.getVideo)
 
