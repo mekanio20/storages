@@ -328,6 +328,11 @@ class AdminService {
                 { productId: 4, featureDescriptionId: 6 }
             ]).then(() => { console.log('Product Features created') }).catch((err) => { console.log(err) })
 
+            await Models.Comments.bulkCreate([
+                { comment: 'Eýýý muň ysyneý gaty gowy ekena gyşda sepinaýsen muny göni däli guş bolýan duz ursun.', customerId: 1, productId: 1 },
+                { comment: 'Gaty gowy ysy bar tüweleme Ärime aldym gaty begendi. Size maslahadym alyň şu atyry herkimi begendiriň.', customerId: 2, productId: 1 },
+            ]).then(() => { console.log('Comments created') }).catch((err) => { console.log(err) })
+
             await Models.ProductReviews.bulkCreate([
                 { star: 3, productId: 4, customerId: 1 },
                 { star: 2, productId: 4, customerId: 2 },
@@ -335,6 +340,12 @@ class AdminService {
                 { star: 5, productId: 2, customerId: 2 },
                 { star: 5, productId: 2, customerId: 1 }
             ]).then(() => { console.log('Product Reviews created') }).catch((err) => { console.log(err) })
+
+            await Models.ProductReviewImages.bulkCreate([
+                { img: 'test1.jpg', customerId: 2, commentId: 2 },
+                { img: 'test2.jpg', customerId: 2, commentId: 2 },
+                { img: 'test3.jpg', customerId: 2, commentId: 2 }
+            ]).then(() => { console.log('Product Review Images created') }).catch((err) => { console.log(err) })
 
             await Models.Orders.bulkCreate([
                 { fullname: 'Mekan', phone: '63755727', address: 'Anew 27', order_id: '30-11-2023qwer7926', status: 'completed', payment: 'cash', amount: 3, time: '30-12-2023 18:15', note: 'caltrak getirayin...', customerId: 1, productId: 1 },
@@ -361,13 +372,16 @@ class AdminService {
             ]).then(() => { console.log('Addresses created') }).catch((err) => { console.log(err) })
 
             await Models.Coupons.bulkCreate([
-                { tm_name: 'boss', ru_name: 'босс', en_name: 'boss', tm_desc: 'desc boss', ru_name: 'босс', en_name: 'desc boss', img: 'test1.jpg', conditions: 'on-register', limit: 10, start_date: '2023-12-21', end_date: '2023-12-22', isPublic: true },
-                { tm_name: 'al', ru_name: 'босс', en_name: 'al', tm_desc: 'desc al', ru_name: 'босс', en_name: 'desc al', img: 'test2.jpg', conditions: 'on-follow', limit: 10, start_date: '2023-12-21', end_date: '2023-12-30', isPublic: false }
+                { tm_name: 'boss', ru_name: 'босс', en_name: 'boss', tm_desc: 'desc boss', ru_name: 'босс', en_name: 'desc boss', img: 'test1.jpg', conditions: 'on-register', limit: 10, start_date: new Date('2023-08-20'), end_date: new Date('2024-08-20'), isPublic: true, userId: 3 },
+                { tm_name: 'al', ru_name: 'босс', en_name: 'al', tm_desc: 'desc al', ru_name: 'босс', en_name: 'desc al', img: 'test2.jpg', conditions: 'on-follow', limit: 10, start_date: new Date('2023-08-20'), end_date: new Date('2024-08-20'), isPublic: false, userId: 10 }
             ]).then(() => { console.log('Coupons created') }).catch((err) => { console.log(err) })
 
             await Models.Banners.bulkCreate([
-                { tm_img: 'test1.jpg', url: 'http://1.1.1.1', type: 'home', sort_order: 1, start_date: new Date(), end_date: new Date(), userId: 1 },
-                { tm_img: 'test2.jpg', url: 'http://1.1.1.2', type: 'home', sort_order: 2, start_date: new Date(), end_date: new Date(), userId: 1 },
+                { tm_img: 'test1.jpg', url: 'http://1.1.1.1', type: 'ad', sort_order: 1, start_date: new Date('2023-08-20'), end_date: new Date('2024-08-20'), userId: 1 },
+                { tm_img: 'test2.jpg', url: 'http://1.1.1.2', type: 'home', sort_order: 1, start_date: new Date('2023-08-20'), end_date: new Date('2024-08-20'), userId: 1 },
+                { tm_img: 'test3.jpg', url: 'http://1.1.1.3', type: 'category', sort_order: 1, start_date: new Date('2023-08-20'), end_date: new Date('2024-08-20'), userId: 1 },
+                { tm_img: 'test4.jpg', url: 'http://1.1.1.4', type: 'product', sort_order: 1, start_date: new Date('2023-08-20'), end_date: new Date('2024-08-20'), userId: 1 },
+                { tm_img: 'test5.jpg', url: 'http://1.1.1.5', type: 'profile', sort_order: 1, start_date: new Date('2023-08-20'), end_date: new Date('2024-08-20'), userId: 3 },
             ]).then(() => { console.log('Banner created') }).catch((err) => { console.log(err) })
 
             await Models.Notifications.bulkCreate([
@@ -382,6 +396,12 @@ class AdminService {
                 { customerId: 1, sellerId: 2 },
                 { customerId: 2, sellerId: 2 }
             ]).then(() => { console.log('Followers created') }).catch((err) => { console.log(err) })
+
+            await Models.Videos.bulkCreate([
+                { thumbnail: 'ff8fbd1f-46ae-40b6-b5c7-8937339a2f46-semseddin.png', video: '65b5711c-2f95-4e79-82d6-5e2e00bdfd9d-semseddin.mp4', desc: 'Shemseddin arabaya bin!', isActive: true },
+                { thumbnail: '7000845a-ef51-4f70-b46a-537b8b32facc-ronaldo.png', video: '7000845a-ef51-4f70-b46a-537b8b32facc-ronaldo.mp4', desc: 'Ronalda gaharjan yigit', isActive: true },
+                { thumbnail: '6fbfcd05-c272-462d-9500-b5c2291560e3-sakar.png', video: '6fbfcd05-c272-462d-9500-b5c2291560e3-sakar.mp4', desc: 'Ysnat ishgar', isActive: true },
+            ]).then(() => { console.log('Videos created') }).catch((err) => { console.log(err) })
 
             await Models.GroupPermissions.bulkCreate([
                 // ADMIN ROUTERS
