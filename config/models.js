@@ -71,6 +71,7 @@ const Orders = database.define('orders', {
 const OrderItems = database.define('order_items', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
     quantity: { type: DataTypes.SMALLINT, defaultValue: 1 },
+    total_price: { type: DataTypes.INTEGER, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
 })
 

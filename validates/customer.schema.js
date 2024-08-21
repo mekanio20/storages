@@ -19,8 +19,7 @@ const customerSchema = {
         status: Joi.string().valid('pending', 'accepted', 'ondelivery', 'completed', 'cancelled').optional()
     }),
     editOrder: Joi.object({
-        id: Joi.number().positive().required(),
-        status: Joi.string().valid('cancelled').optional()
+        id: Joi.number().positive().required()
     })
 }
 

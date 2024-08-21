@@ -27,7 +27,6 @@ router.get('/top',
     sellerController.topSellers)
 
 router.get('/all',
-    // authMiddleware, accessMiddleware(false),
     validationMiddleware(sellerSchema.allSeller, 'query'),
     sellerController.allSeller)
 
@@ -67,7 +66,6 @@ router.get('/statistic',
     sellerController.sellerStatistic)
 
 router.get('/videos',
-    // authMiddleware,  accessMiddleware(false),
     validationMiddleware(sellerSchema.sellerVideos, 'query'),
     sellerController.sellerVideos)
 

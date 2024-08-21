@@ -152,17 +152,23 @@ class UserService {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
-            const basket = await Models.Baskets.findAll({ where: { customerId: customer, isActive: true } })
-            if (basket.length === 0) { return Response.BadRequest('Haryt tapylmady!', []) }
-            const orders = await Models.Orders.findOne({
-                where: {
-                    customerId: customer,
-                    status: {
-                        [Op.notIn]: ['completed', 'cancelled']
-                    }
+            const basket = await Models.Baskets.findAll({
+                where: { customerId: customer, isActive: true },
+                include: {
+                    model: Models.Products,
+                    attributes: ['final_price']
                 }
             }).catch((err) => console.log(err))
-            if (orders) { return Response.Forbidden('Sargydyňyz tamamlanandan ýa-da goýbolsun edeniňizden soňra sargyt edip bilersiňiz!', []) }
+            if (basket.length === 0) { return Response.BadRequest('Haryt tapylmady!', []) }
+            // const orders = await Models.Orders.findOne({
+            //     where: {
+            //         customerId: customer,
+            //         status: {
+            //             [Op.notIn]: ['completed', 'cancelled']
+            //         }
+            //     }
+            // }).catch((err) => console.log(err))
+            // if (orders) { return Response.Forbidden('Sargydyňyz tamamlanandan ýa-da goýbolsun edeniňizden soňra sargyt edip bilersiňiz!', []) }
             let order_id = ''
             let today = new Date()
             const numbers = '0123456789'
@@ -182,9 +188,11 @@ class UserService {
             const order = await Models.Orders.create(body)
             if (!order) { return Response.BadRequest('Ýalňyşlyk ýüze çykdy!', []) }
             basket.forEach(async (item) => {
+                const totalPrice = Number(item.quantity) * Number(item.product.final_price)
                 await Models.OrderItems.create({
                     orderId: order.id,
                     quantity: item.quantity,
+                    total_price: totalPrice,
                     productId: item.productId
                 }).then(() => console.log(true))
                 item.isActive = false

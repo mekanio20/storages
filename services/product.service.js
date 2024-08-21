@@ -267,7 +267,7 @@ class ProductService {
             const subqueryIds = (subquery).map(item => item.id)
 
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 where: {
                     [Op.and]: obj,
                     [Op.or]: [
@@ -342,9 +342,27 @@ class ProductService {
                 ]
             }
             if (q.sellerId) whereState.sellerId = q.sellerId
+
+            const subquery = await Models.Products.findAll({
+                attributes: [
+                  [Sequelize.fn('DISTINCT', Sequelize.col('model_code')), 'model_code'],
+                  [Sequelize.fn('MIN', Sequelize.col('id')), 'id']
+                ],
+                group: ['model_code'],
+                raw: true
+            }).catch((err) => console.log(err))
+            const subqueryIds = (subquery).map(item => item.id)
+
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
-                where: { [Op.or]: search, [Op.and]: whereState },
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                where: {
+                    [Op.or]: search,
+                    [Op.and]: whereState,
+                    [Op.or]: [
+                        { id: { [Op.in]: subqueryIds } },
+                        { model_code: { [Op.notIn]: subquery.map(item => item.model_code) } }
+                    ]
+                },
                 include: [
                     {
                         model: Models.Sellers,
@@ -396,9 +414,26 @@ class ProductService {
             let whereState = { isActive: true }
             if (q.dis_type) whereState.dis_type = q.dis_type
             if (q.sellerId) whereState.sellerId = q.sellerId
+
+            const subquery = await Models.Products.findAll({
+                attributes: [
+                  [Sequelize.fn('DISTINCT', Sequelize.col('model_code')), 'model_code'],
+                  [Sequelize.fn('MIN', Sequelize.col('id')), 'id']
+                ],
+                group: ['model_code'],
+                raw: true
+            }).catch((err) => console.log(err))
+            const subqueryIds = (subquery).map(item => item.id)
+
             const products = await Models.Products.findAndCountAll({
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
-                where: whereState,
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                where: {
+                    [Op.and]: whereState,
+                    [Op.or]: [
+                        { id: { [Op.in]: subqueryIds } },
+                        { model_code: { [Op.notIn]: subquery.map(item => item.model_code) } }
+                    ]
+                },
                 include: [
                     {
                         model: Models.Sellers,
@@ -463,7 +498,7 @@ class ProductService {
             for (let item of selling_products) {
                 let product = await Models.Products.findOne({
                     where: { id: item.productId, isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                     include: [
                         {
                             model: Models.Sellers,
@@ -526,7 +561,7 @@ class ProductService {
             for (let item of top_liked) {
                 let product = await Models.Products.findOne({
                     where: { id: item.productId, isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                     include: [
                         {
                             model: Models.Sellers,
@@ -578,7 +613,7 @@ class ProductService {
             let order = q.order || 'desc'
             let products = await Models.Products.findAll({
                 where: { isActive: true },
-                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 include: [
                     {
                         model: Models.Sellers,

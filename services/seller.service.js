@@ -161,7 +161,7 @@ class SellerService {
                         include: {
                             model: Models.Products,
                             where: { isActive: true, sellerId: seller },
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                             include: [
                                 {
                                     model: Models.ProductImages,
@@ -180,6 +180,28 @@ class SellerService {
                 order: [[sort, order]]
             }).catch((err) => console.log(err))
             if (detailedOrders.length === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
+            for (const item of detailedOrders) {
+                for (const order of item.order_items) {
+                    const _features = await Models.ProductFeatures.findAll({
+                        where: { productId: order.product.id, isActive: true },
+                        attributes: [],
+                        include: {
+                            model: Models.FeatureDescriptions,
+                            attributes: ['id', 'desc'],
+                            include: {
+                                model: Models.Features,
+                                attributes: ['id', 'name']
+                            }
+                        }
+                    }).catch((err) => console.log(err))
+                    const features = await _features.map(item => ({
+                        id: item.feature_description.id,
+                        name: item.feature_description.feature.name,
+                        desc: item.feature_description.desc
+                    }))
+                    order.dataValues.product.dataValues.feature = features
+                }
+            }
             return Response.Success('Üstünlikli!', detailedOrders)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
@@ -190,7 +212,7 @@ class SellerService {
         try {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
-            const order = await Models.Orders.findOne({
+            const detailedOrders = await Models.Orders.findOne({
                 attributes: { exclude: ['createdAt', 'updatedAt', 'customerId', 'productId'] },
                 where: { id: Number(id) },
                 include: [
@@ -201,7 +223,7 @@ class SellerService {
                         include: {
                             model: Models.Products,
                             where: { isActive: true, sellerId: seller },
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                            attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                             include: [
                                 {
                                     model: Models.ProductImages,
@@ -217,8 +239,28 @@ class SellerService {
                     }
                 ],
             }).catch((err) => { console.log(err) })
-            if (!order) { return Response.NotFound('Sargyt tapylmady!', []) }
-            return Response.Success('Üstünlikli!', order)
+            if (!detailedOrders) { return Response.NotFound('Sargyt tapylmady!', []) }
+            for (const order of detailedOrders.order_items) {
+                const _features = await Models.ProductFeatures.findAll({
+                    where: { productId: order.product.id, isActive: true },
+                    attributes: [],
+                    include: {
+                        model: Models.FeatureDescriptions,
+                        attributes: ['id', 'desc'],
+                        include: {
+                            model: Models.Features,
+                            attributes: ['id', 'name']
+                        }
+                    }
+                }).catch((err) => console.log(err))
+                const features = await _features.map(item => ({
+                    id: item.feature_description.id,
+                    name: item.feature_description.feature.name,
+                    desc: item.feature_description.desc
+                }))
+                order.dataValues.product.dataValues.feature = features
+            }
+            return Response.Success('Üstünlikli!', detailedOrders)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
@@ -560,7 +602,7 @@ class SellerService {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
             const order = await Models.Orders.findOne({
-                attributes: ['id', 'status'],
+                attributes: ['id', 'status', 'createdAt'],
                 where: { id: body.orderId },
                 include: {
                     model: Models.OrderItems,
@@ -575,6 +617,12 @@ class SellerService {
                 }
             }).catch((err) => console.log(err))
             if (!order) { return Response.Forbidden('Rugsat edilmedi!', {}) }
+            const now = new Date()
+            const timeDiff = now - order.createdAt
+            const diffInMinutes = Math.floor(timeDiff / 1000 / 60)
+            if (diffInMinutes < 2) {
+                return Response.Forbidden('2 minutdan soňra täzeden synanyşyň!', {})
+            }
             order.status = body.status
             await order.save()
             return Response.Success('Sargydyň ýagdaýy täzelendi!', { id: order.id, status: order.status })

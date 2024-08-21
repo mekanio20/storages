@@ -67,7 +67,7 @@ class CustomerService {
                 include: {
                     model: Models.Products,
                     where: { isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 },
                 limit: Number(limit),
                 offset: Number(offset)
@@ -191,7 +191,7 @@ class CustomerService {
                         model: Models.Products,
                         require: true,
                         where: { isActive: true },
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                         include: [
                             {
                                 model: Models.ProductImages,
@@ -288,7 +288,7 @@ class CustomerService {
             const order = await Models.Orders.findOne({ where: { id: body.id, customerId: customer } })
             if (!order) { return Response.Unauthorized('Sargyt tapylmady!', []) }
             if (order.status !== "pending") { return Response.BadRequest('Sargydy goýbolsun edip bolmaýar!', []) }
-            order.status = body.status
+            order.status ='cancelled'
             await order.save()
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
