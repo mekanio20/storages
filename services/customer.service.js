@@ -119,6 +119,24 @@ class CustomerService {
             }).catch((err) => { console.log(err) })
             if (basket.length === 0) { return Response.NotFound('Haryt ýok!', []) }
             for (const item of basket) {
+                const _features = await Models.ProductFeatures.findAll({
+                    where: { productId: item.product.id, isActive: true },
+                    attributes: [],
+                    include: {
+                        model: Models.FeatureDescriptions,
+                        attributes: ['id', 'desc'],
+                        include: {
+                            model: Models.Features,
+                            attributes: ['id', 'name']
+                        }
+                    }
+                }).catch((err) => console.log(err))
+                const features = await _features.map(item => ({
+                    id: item.feature_description.id,
+                    name: item.feature_description.feature.name,
+                    desc: item.feature_description.desc
+                }))
+                item.product.dataValues.features = features
                 const productQuantity = item.product.quantity
                 if (item.quantity > productQuantity) {
                     item.quantity = productQuantity
@@ -158,9 +176,6 @@ class CustomerService {
 
     async customerOrdersService(userId, q) {
         try {
-            // let page = q.page || 1
-            // let limit = q.limit || 10
-            // let offset = page * limit - limit
             let whereState = {}
             if (q.status) whereState.status = q.status
             const customer = await Verification.isCustomer(userId)
@@ -170,8 +185,7 @@ class CustomerService {
                 attributes: { exclude: ['customerId', 'createdAt', 'updatedAt']},
                 where: whereState,
                 include: {
-                    model: Models.OrderItems,
-                    required: true,
+                    model: Models.OrderItems, required: true,
                     attributes: ['id', 'quantity'],
                     include: {
                         model: Models.Products,
@@ -193,6 +207,28 @@ class CustomerService {
                 }
             }).catch((err) => { console.log(err) })
             if (orders.length === 0) { return Response.NotFound('Sargyt ýok!', []) }
+            for (const item of orders) {
+                for (const order of item.order_items) {
+                    const _features = await Models.ProductFeatures.findAll({
+                        where: { productId: order.product.id, isActive: true },
+                        attributes: [],
+                        include: {
+                            model: Models.FeatureDescriptions,
+                            attributes: ['id', 'desc'],
+                            include: {
+                                model: Models.Features,
+                                attributes: ['id', 'name']
+                            }
+                        }
+                    }).catch((err) => console.log(err))
+                    const features = await _features.map(item => ({
+                        id: item.feature_description.id,
+                        name: item.feature_description.feature.name,
+                        desc: item.feature_description.desc
+                    }))
+                    order.dataValues.product.dataValues.feature = features
+                }
+            }
             return Response.Success('Üstünlikli!', orders)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
