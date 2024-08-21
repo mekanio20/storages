@@ -27,7 +27,6 @@ router.get('/favorite',
 
 router.get('/basket',
     authMiddleware, accessMiddleware(false),
-    valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.customerBasket)
 
 router.get('/followed',

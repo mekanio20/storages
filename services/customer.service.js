@@ -92,42 +92,39 @@ class CustomerService {
         }
     }
 
-    async customerBasketService(userId, q) {
+    async customerBasketService(userId) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
             const basket = await Models.Baskets.findAll({
-                where: {
-                    isActive: true,
-                    customerId: customer
+                where: { isActive: true, customerId: customer },
+                attributes: ['id', 'quantity'],
+                include: {
+                    model: Models.Products,
+                    where: { isActive: true },
+                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price', 'sellerId'],
+                    include: [
+                        {
+                            model: Models.Sellers,
+                            attributes: ['logo', 'name'],
+                        },
+                        {
+                            model: Models.ProductImages,
+                            where: { isActive: true }, required: false,
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
+                        },
+                    ]
                 },
-                attributes: { exclude: ['customerId', 'productId', 'createdAt', 'updatedAt'] },
-                include: [
-                    {
-                        model: Models.Products,
-                        where: { isActive: true },
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
-                        include: [
-                            {
-                                model: Models.Sellers,
-                                attributes: ['logo', 'name'],
-                            },
-                            {
-                                model: Models.ProductImages,
-                                where: { isActive: true }, required: false,
-                                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
-                            }
-                        ]
-                    }
-                ],
-                limit: Number(limit),
-                offset: Number(offset),
                 order: [['id', 'desc']]
             }).catch((err) => { console.log(err) })
             if (basket.length === 0) { return Response.NotFound('Haryt ýok!', []) }
+            for (const item of basket) {
+                const productQuantity = item.product.quantity
+                if (item.quantity > productQuantity) {
+                    item.quantity = productQuantity
+                    await item.save()
+                }
+            }
             return Response.Success('Sebedim', basket)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }

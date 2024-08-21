@@ -38,9 +38,7 @@ const adminSchema = {
 
     addFeature: Joi.object({
         id: Joi.number().positive().optional(),
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).optional(),
-        en_name: Joi.string().min(3).max(100).optional(),
+        name: Joi.string().min(3).max(100).optional(),
         isActive: Joi.boolean().optional()
     }),
 

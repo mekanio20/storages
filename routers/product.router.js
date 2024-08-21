@@ -85,7 +85,9 @@ router.get('/likes',
     validationMiddleware(productSchema.productLikes, 'query'),
     productController.productLikes)
 
-router.get('/:slug', productController.fetchProduct)
+router.get('/:id',
+    validationMiddleware(baseSchema.idControl, 'params'),
+    productController.fetchProduct)
 
 // PUT
 router.put('/update',

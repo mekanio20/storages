@@ -266,9 +266,9 @@ class AdminService {
             ]).then(() => { console.log('Categories created') }).catch((err) => { console.log(err) })
 
             await Models.Features.bulkCreate([
-                { tm_name: 'renk', ru_name: 'цвет', en_name: 'color', userId: 1 },
-                { tm_name: 'olceg', ru_name: 'измерение', en_name: 'dimension', userId: 2 },
-                { tm_name: 'model', ru_name: 'модель', en_name: 'model', userId: 2 },
+                { name: 'renk', userId: 1 },
+                { name: 'olceg', userId: 2 },
+                { name: 'model', userId: 2 },
             ]).then(() => { console.log('Features created') }).catch((err) => { console.log(err) })
 
             await Models.FeatureDescriptions.bulkCreate([

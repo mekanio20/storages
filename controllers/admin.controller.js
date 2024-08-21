@@ -81,7 +81,7 @@ class AdminController {
         try {
             const body = req.body
             body.userId = req.user.id
-            const isExist = { tm_name: body.tm_name }
+            const isExist = { name: body.name }
             const data = await new baseService(Models.Features).addService(isExist, body)
             return res.status(data.status).json(data)
         } catch (error) {

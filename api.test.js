@@ -9,7 +9,6 @@ const urls = [
     `${activeIp}product/all`,
     `${activeIp}product/search?name=alma`,
     `${activeIp}product/offers`,
-    `${activeIp}product/offers`,
     `${activeIp}product/top/selling`,
     `${activeIp}product/top/liked`,
     `${activeIp}product/top/rated`,

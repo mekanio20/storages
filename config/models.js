@@ -129,7 +129,7 @@ const Products = database.define('products', {
     tm_desc: { type: DataTypes.STRING, allowNull: true },
     ru_desc: { type: DataTypes.STRING, allowNull: true },
     en_desc: { type: DataTypes.STRING, allowNull: true },
-    slug: { type: DataTypes.STRING(100), allowNull: false, unique: true },
+    slug: { type: DataTypes.STRING(100), allowNull: false },
     barcode: { type: DataTypes.STRING(50), allowNull: false, unique: true },
     stock_code: { type: DataTypes.STRING(50), allowNull: false, unique: true },
     model_code: { type: DataTypes.STRING(50), allowNull: false },
@@ -250,9 +250,7 @@ const Subcategories = database.define('subcategories', {
 
 const Features = database.define('features', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: false, unique: true },
-    tm_name: { type: DataTypes.STRING(100), allowNull: false },
-    ru_name: { type: DataTypes.STRING(100), allowNull: true },
-    en_name: { type: DataTypes.STRING(100), allowNull: true },
+    name: { type: DataTypes.STRING(100), allowNull: false },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }

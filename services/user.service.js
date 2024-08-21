@@ -122,6 +122,7 @@ class UserService {
             if (isNaN(customer)) { return customer }
             const product = await Models.Products.findOne({ where: { id: body.productId, isActive: true } })
             if (!product) { return Response.BadRequest('Haryt tapylmady!', []) }
+            if (body.quantity > product.quantity) { return Response.BadRequest('Haryt sany az mukdarda!', []) }
             const [basket, created] = await Models.Baskets.findOrCreate({
                 where: {
                     productId: body.productId,
@@ -140,7 +141,8 @@ class UserService {
                     { where: { customerId: basket.customerId, productId: basket.productId } })
                     .catch((err) => { console.log(err) })
             }
-            return Response.Created('Harydyňyz sebede goşuldy!', basket)
+            const quantity = await Models.Baskets.count({ where: { customerId: customer, isActive: true } })
+            return Response.Created('Harydyňyz sebede goşuldy!', { quantity: quantity })
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
@@ -160,7 +162,7 @@ class UserService {
                     }
                 }
             }).catch((err) => console.log(err))
-            if (orders) { return Response.Forbidden('Sargydyňyz tamamlanandan soňra sargyt edip bilersiňiz!', []) }
+            if (orders) { return Response.Forbidden('Sargydyňyz tamamlanandan ýa-da goýbolsun edeniňizden soňra sargyt edip bilersiňiz!', []) }
             let order_id = ''
             let today = new Date()
             const numbers = '0123456789'

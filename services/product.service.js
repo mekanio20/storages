@@ -16,7 +16,6 @@ class ProductService {
             const _product = await Models.Products.findOne({
                 where: {
                     [Op.or]: [
-                        { slug: slug },
                         { barcode: body.barcode },
                         { stock_code: body.stock_code }
                     ]
@@ -255,10 +254,27 @@ class ProductService {
             for (const key in query) { if (query[key]) { obj[key] = await query[key] } }
             obj.isActive = true
             if (q.isActive == 'all') { delete obj.isActive }
-            obj.sale_price = { [Op.between]: [start_price, end_price] }
+            obj.final_price = { [Op.between]: [start_price, end_price] }
+
+            const subquery = await Models.Products.findAll({
+                attributes: [
+                  [Sequelize.fn('DISTINCT', Sequelize.col('model_code')), 'model_code'],
+                  [Sequelize.fn('MIN', Sequelize.col('id')), 'id']
+                ],
+                group: ['model_code'],
+                raw: true
+            }).catch((err) => console.log(err))
+            const subqueryIds = (subquery).map(item => item.id)
+
             const products = await Models.Products.findAndCountAll({
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
-                where: { [Op.and]: obj },
+                where: {
+                    [Op.and]: obj,
+                    [Op.or]: [
+                        { id: { [Op.in]: subqueryIds } },
+                        { model_code: { [Op.notIn]: subquery.map(item => item.model_code) } }
+                    ]
+                },
                 include: [
                     {
                         model: Models.Sellers,
@@ -286,26 +302,13 @@ class ProductService {
                     where: { productId: item.id, isActive: true },
                     attributes: ['id', 'img']
                 }).catch((err) => console.log(err))
-                // const features = await Models.ProductFeatures.findAll({
-                //     where: { productId: item.id, isActive: true },
-                //     attributes: [],
-                //     include: {
-                //         model: Models.FeatureDescriptions,
-                //         attributes: ['id', 'desc'],
-                //         include: {
-                //             model: Models.Features,
-                //             attributes: ['id', 'tm_name', 'ru_name', 'en_name']
-                //         }
-                //     }
-                // }).catch((err) => console.log(err))
                 const comment = await Models.Comments.count({ where: { productId: item.id } })
                 const rating = await this.fetchReviewService(item.id)
                 result.rows.push({
                     ...item.dataValues,
                     images: images,
                     comment: comment,
-                    rating: rating.detail.rating,
-                    // features:  features
+                    rating: rating.detail.rating
                 })
             }))
             if (order === 'desc') {
@@ -392,6 +395,7 @@ class ProductService {
             let order = q.order || 'asc'
             let whereState = { isActive: true }
             if (q.dis_type) whereState.dis_type = q.dis_type
+            if (q.sellerId) whereState.sellerId = q.sellerId
             const products = await Models.Products.findAndCountAll({
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 where: whereState,
@@ -616,26 +620,21 @@ class ProductService {
         }
     }
 
-    async fetchProductService(slug) {
+    async fetchProductService(id) {
         try {
             let result = []
-            const product = await Models.Products.findOne({ where: { slug: slug, isActive: true }, attributes: ['model_code'] })
+            const product = await Models.Products.findOne({ where: { id: id, isActive: true }, attributes: ['model_code'] })
             const products = await Models.Products.findAll({
-                attributes: { exclude: ['subcategoryId', 'brandId', 'sellerId'] },
                 where: { model_code: product.model_code, isActive: true },
+                attributes: { exclude: ['couponId', 'createdAt', 'updatedAt', 'isActive', 'org_price', 'stock_code', 'brandId', 'sellerId'] },
                 include: [
                     {
                         model: Models.Sellers,
                         attributes: ['id', 'name', 'logo', 'isVerified']
                     },
                     {
-                        model: Models.Subcategories,
-                        attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                        where: { isActive: true }, required: false
-                    },
-                    {
                         model: Models.Brands,
-                        attributes: ['id', 'name', 'img', 'slug'],
+                        attributes: ['id', 'name', 'img'],
                         where: { isActive: true }, required: false,
                     },
                 ]
@@ -647,7 +646,7 @@ class ProductService {
                 }).catch((err) => console.log(err))
                 const rating = await this.fetchReviewService(item.id)
                 const comment = await allCommentService({ productId: item.id })
-                const features = await Models.ProductFeatures.findAll({
+                const _features = await Models.ProductFeatures.findAll({
                     where: { productId: item.id, isActive: true },
                     attributes: [],
                     include: {
@@ -655,14 +654,20 @@ class ProductService {
                         attributes: ['id', 'desc'],
                         include: {
                             model: Models.Features,
-                            attributes: ['id', 'tm_name', 'ru_name', 'en_name']
+                            attributes: ['id', 'name']
                         }
                     }
                 }).catch((err) => console.log(err))
+                const features = await _features.map(item => ({
+                    id: item.feature_description.id,
+                    name: item.feature_description.feature.name,
+                    desc: item.feature_description.desc
+                }))
+
                 result.push({
                     ...item.dataValues,
                     images: images,
-                    comment: comment,
+                    comment: comment.detail,
                     rating: rating.detail.rating,
                     features: features
                 })
@@ -710,7 +715,7 @@ class ProductService {
             for (const item of featureIds) {
                 const feature = await Models.Features.findAll({
                     where: { isActive: true, id: item.featureId },
-                    attributes: ['tm_name', 'ru_name', 'en_name'],
+                    attributes: ['name'],
                     include: {
                         model: Models.FeatureDescriptions,
                         where: { isActive: true },

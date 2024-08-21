@@ -91,7 +91,8 @@ const productSchema = {
         limit: Joi.number().positive().optional(),
         sort: Joi.string().valid('id', 'dis_price').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
-        dis_type: Joi.string().valid('manat', 'goterim').optional()
+        dis_type: Joi.string().valid('manat', 'goterim').optional(),
+        sellerId: Joi.number().positive().optional()
     }),
     allSubcategoryFeatures: Joi.object({
         subcategoryId: Joi.number().positive().required()
