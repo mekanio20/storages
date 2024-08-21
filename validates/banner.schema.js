@@ -17,8 +17,8 @@ const bannerSchema = {
         type: Joi.string().valid('ad', 'home', 'category', 'product', 'profile').required(),
         size: Joi.string().valid('small', 'medium', 'large').optional(),
         sort_order: Joi.number().positive().required(),
-        start_date: Joi.date().required(),
-        end_date: Joi.date().required()
+        start_date: Joi.date().optional(),
+        end_date: Joi.date().optional()
     })
 }
 

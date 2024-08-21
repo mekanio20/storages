@@ -121,7 +121,7 @@ class SellerService {
             whereState.type = 'profile'
             const banners = await Models.Banners.findAndCountAll({
                 where: whereState,
-                attributes: ['id', 'tm_img', 'ru_img', 'en_img', 'url', 'type', 'sort_order']
+                attributes: { exclude: ['userId'] }
             }).catch((err) => console.log(err))
             if (banners.count === 0) { return Response.NotFound('Banner ýok!', []) }
             return Response.Success('Üstünlikli!', banners)

@@ -31,6 +31,8 @@ class BannerService {
     async addBannerService(body, user, filenames) {
         try {
             const group = await Models.Groups.findOne({ attributes: ['name'], where: { id: user.group } })
+            const start_date = body.start_date || new Date()
+            const end_date = body.end_date || start_date.setFullYear(now.getFullYear() + 1)
             if (group.name === 'SELLERS') {
                 body.type = 'profile'
                 const seller = await Models.Sellers.findOne({
@@ -58,8 +60,8 @@ class BannerService {
                 url: body.url,
                 type: body.type,
                 sort_order: body.sort_order,
-                start_date: body.start_date,
-                end_date: body.end_date,
+                start_date: start_date,
+                end_date: end_date,
                 userId: user.id
             }).catch((err) => console.log(err))
             return Response.Created('Banner döredildi!', banner)
