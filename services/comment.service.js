@@ -67,12 +67,14 @@ class CommentService {
             let offset = page * limit - limit
             let sort = q.sort || 'id'
             let order = q.order || 'desc'
+            let sellerQuery = {}
             let whereState = {}
             for (let item in q) {
                 if (q.productId || q.isActive) {
                     whereState[item] = q[item]
                 }
             }
+            if (q.sellerId) sellerQuery.sellerId = q.sellerId
             const comments = await Models.Comments.findAndCountAll({
                 where: whereState,
                 attributes: ['id', 'comment', 'createdAt'],
@@ -83,6 +85,7 @@ class CommentService {
                     },
                     {
                         model: Models.Products,
+                        where: sellerQuery,
                         attributes: ['id', 'tm_name'],
                         // where: { isActive: true }, required: false
                     },

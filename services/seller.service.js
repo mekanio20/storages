@@ -502,57 +502,27 @@ class SellerService {
         try {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
-            let year = new Date().getFullYear()
-            let month = new Date().getMonth() - 1
-            if (month === 0) {
-                month = 12
-                year -= 1
-            }
-            let oldMonth_ = new Date(`2024-02-01`)
-            let _oldMonth = new Date(`2024-02-31`)
-            const oldStatistic = await Models.OrderItems.findAndCountAll({
-                attributes: ['quantity', 'createdAt'],
-                where: {
-                    createdAt: {
-                        [Op.between]: [oldMonth_, _oldMonth]
-                    }
-                },
-                include: {
-                    model: Models.Products,
-                    attributes: ['final_price'],
-                    where: { sellerId: seller }
-                }
-            }).catch((err) => { console.log(err) })
-            if (oldStatistic.count === 0) {
-
-            }
-            console.log(JSON.stringify(oldStatistic, null, 2))
-            let oldTotalMoney = 0
-            oldStatistic.rows.forEach((item) => {
-                oldTotalMoney += Number(item.quantity) * Number(item.product.final_price)
-            })
             const statistic = await Models.OrderItems.findAndCountAll({
-                attributes: ['quantity'],
-                where: { status: 'completed' },
+                attributes: ['quantity', 'total_price'],
                 include: {
-                    model: Models.Products,
-                    attributes: ['final_price'],
-                    where: { sellerId: seller },
+                    model: Models.Orders,
+                    attributes: ['status'],
+                    where: { status: 'completed' }
                 }
             }).catch((err) => { console.log(err) })
+
             let totalMoney = 0
-            statistic.rows.forEach((item) => {
-                totalMoney += Number(item.quantity) * Number(item.product.final_price)
+            statistic.rows.forEach(item => {
+              const quantity = item.quantity
+              const finalPrice = item.total_price
+              totalMoney += quantity * finalPrice
             })
-            let prosent = Number(totalMoney) - Number(oldTotalMoney)
-            prosent = prosent / Number(oldTotalMoney)
-            prosent = prosent * 100
+            
             const _statistic = {
-                oldTotalMoney: oldTotalMoney,
                 totalMoney: totalMoney,
-                prosent: prosent.toFixed(1),
                 orders: statistic.count
             }
+
             return Response.Success('Üstünlikli!', _statistic)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
@@ -565,7 +535,7 @@ class SellerService {
             let limit = query.limit || 10
             let offset = page * limit - limit
             const videos = await Models.Videos.findAndCountAll({
-                attributes: ['id', 'thumbnail'],
+                attributes: ['id', 'video', 'thumbnail', 'desc'],
                 where: {
                     sellerId: Number(query.sellerId),
                     isActive: true

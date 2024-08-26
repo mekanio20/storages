@@ -76,7 +76,7 @@ class CustomerService {
             const result = { count: 0, rows: [] }
             result.count = products.count
             await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ where: { productId: item.product.id } })
+                const images = await Models.ProductImages.findAndCountAll({ attributes: ['id', 'img'], where: { productId: item.product.id } })
                 const rating = await fetchReviewService(item.product.id)
                 const comment = await allCommentService({ productId: item.product.id })
                 result.rows.push({
@@ -111,7 +111,7 @@ class CustomerService {
                         {
                             model: Models.ProductImages,
                             where: { isActive: true }, required: false,
-                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] },
+                            attributes: ['id', 'img'],
                         },
                     ]
                 },
@@ -196,7 +196,7 @@ class CustomerService {
                             {
                                 model: Models.ProductImages,
                                 where: { isActive: true }, required: false,
-                                attributes: { exclude: ['isActive', 'productId', 'createdAt', 'updatedAt'] },
+                                attributes: ['id', 'img'],
                             },
                             {
                                 model: Models.Sellers,

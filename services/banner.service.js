@@ -31,8 +31,9 @@ class BannerService {
     async addBannerService(body, user, filenames) {
         try {
             const group = await Models.Groups.findOne({ attributes: ['name'], where: { id: user.group } })
-            const start_date = body.start_date || new Date()
-            const end_date = body.end_date || start_date.setFullYear(now.getFullYear() + 1)
+            const start_date = body?.start_date || new Date()
+            let end_date = body?.end_date || new Date().setFullYear(new Date().getFullYear() + 1)
+            if (start_date && !end_date) { end_date = start_date.setFullYear(new Date().getFullYear() + 1) }
             if (group.name === 'SELLERS') {
                 body.type = 'profile'
                 const seller = await Models.Sellers.findOne({
@@ -57,14 +58,14 @@ class BannerService {
                 tm_img: filenames.tm_img[0].filename,
                 ru_img: filenames.ru_img ? filenames.ru_img[0].filename : null,
                 en_img: filenames.en_img ? filenames.en_img[0].filename : null,
-                url: body.url,
+                url: body?.url || null,
                 type: body.type,
                 sort_order: body.sort_order,
                 start_date: start_date,
                 end_date: end_date,
                 userId: user.id
             }).catch((err) => console.log(err))
-            return Response.Created('Banner döredildi!', banner)
+            return Response.Created('Banner döredildi!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }

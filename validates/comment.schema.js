@@ -12,6 +12,7 @@ const commentSchema = {
         limit: Joi.number().positive().optional(),
         sort: Joi.string().valid('id', 'comment').optional(),
         order: Joi.string().valid('asc', 'desc').optional(),
+        sellerId: Joi.number().positive().optional(),
         productId: Joi.number().positive().optional(),
         isActive: Joi.boolean().optional()
     })

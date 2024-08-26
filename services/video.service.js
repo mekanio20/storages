@@ -26,7 +26,7 @@ class VideoService {
                 thumbnail: `${video.filename.split('.')[0]}.png`,
                 sellerId: seller
             }).catch((err) => { console.log(err) })
-            if (body?.tags.length) {
+            if (body?.tags?.length) {
                 for (let i = 0; i < body.tags.length; i++) {
                     const [tag, _] = await Models.Tags.findOrCreate({
                         where: { name: body.tags[i] },

@@ -13,7 +13,7 @@ const bannerSchema = {
     }),
     // POST
     addBanner: Joi.object({
-        url: Joi.string().uri({ scheme: ['http', 'https'] }).required(),
+        url: Joi.string().uri({ scheme: ['http', 'https'] }).optional(),
         type: Joi.string().valid('ad', 'home', 'category', 'product', 'profile').required(),
         size: Joi.string().valid('small', 'medium', 'large').optional(),
         sort_order: Joi.number().positive().required(),
