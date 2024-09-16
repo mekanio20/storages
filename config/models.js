@@ -22,7 +22,7 @@ const Customers = database.define('customers', {
     img: { type: DataTypes.STRING(100), defaultValue: 'profile.jpg' },
     fullname: { type: DataTypes.STRING(40), allowNull: false },
     gender: { type: DataTypes.ENUM({ values: ['male', 'fmale'] }), allowNull: false },
-    email: { type: DataTypes.STRING(50), allowNull: false, validate: { isEmail: true } },
+    email: { type: DataTypes.STRING(50), allowNull: true, validate: { isEmail: true } },
     createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.NOW }
 })
