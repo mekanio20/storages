@@ -4,8 +4,7 @@ const customerSchema = {
     // POST
     customerRegister: Joi.object({
         fullname: Joi.string().min(3).max(30).required(),
-        gender: Joi.string().valid('male', 'fmale').required(),
-        email: Joi.string().email().optional()
+        gender: Joi.string().valid('male', 'fmale').required()
     }),
     customerEditProfile: Joi.object({
         fullname: Joi.string().min(3).max(30).optional(),
