@@ -23,6 +23,7 @@ class CustomerService {
                     userId: userId
                 }
             }).catch(((err) => { console.log(err) }))
+            console.log(JSON.stringify(customer, null, 2));
             if (created == false) { return Response.Forbidden('Müşteri hasaba alnan!', []) }
             await Models.Users.update({ isCustomer: true, isSeller: false, isStaff: false }, { where: { id: userId } })
             return Response.Created('Müşteri hasaba alyndy!', customer)
