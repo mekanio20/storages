@@ -9,18 +9,16 @@ class CustomerService {
     // POST
     async customerRegisterService(body, userId, img) {
         try {
-            const { fullname, gender, email } = body
+            const { fullname, gender } = body
             const [customer, created] = await Models.Customers.findOrCreate({
                 where: {
                     [Op.or]: {
-                        email: email,
                         userId: userId
                     }
                 },
                 defaults: {
                     fullname: fullname,
                     gender: gender,
-                    email: email,
                     img: img?.filename || null,
                     userId: userId
                 }
