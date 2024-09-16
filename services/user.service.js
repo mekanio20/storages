@@ -309,9 +309,6 @@ class UserService {
             await Models.Users.update({ isActive: false },
                 { where: { id: userDto.id, groupId: userDto.group } })
                 .catch((err) => { console.log(err) })
-            console.log(userDto.id)
-            await Models.Customers.destroy({ where: { userId: userDto.id } })
-                .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
