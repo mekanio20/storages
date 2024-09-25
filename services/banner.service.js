@@ -60,6 +60,7 @@ class BannerService {
                 en_img: filenames.en_img ? filenames.en_img[0].filename : null,
                 url: body?.url || null,
                 type: body.type,
+                size: body.size,
                 sort_order: body.sort_order,
                 start_date: start_date,
                 end_date: end_date,

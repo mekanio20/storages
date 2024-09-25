@@ -15,7 +15,7 @@ router.post('/add',
     ]),
     validationMiddleware(productSchema.addProduct, 'body'),
     productController.addProduct)
-
+// features: [1,2,3]
 router.post('/add/image',
     authMiddleware, accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
