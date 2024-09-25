@@ -88,6 +88,15 @@ class VideoController {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
         }
     }
+    // DELETE
+    async deleteVideo(req, res) {
+        try {
+            const data = await videoService.deleteVideoService(req.params.id, req.user.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
 }
 
 module.exports = new VideoController()

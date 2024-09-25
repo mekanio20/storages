@@ -57,6 +57,20 @@ class VideoService {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
     }
+    // DELETE
+    async deleteVideoService(id, userId) {
+        try {
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) { return seller }
+            const videoData = await Models.Videos.destroy({
+                where: { id: Number(id), sellerId: seller }
+            }).catch((err) => console.log(err))
+            if (!videoData) { return Response.BadRequest('Wideo tapylmady!', []) }
+            return Response.Success('Üstünlikli!', videoData)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
 }
 
 module.exports = new VideoService()

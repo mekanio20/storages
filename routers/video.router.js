@@ -27,5 +27,10 @@ router.get('/:id',
     valdidationMiddleware(baseSchema.idControl, 'params'),
     videoController.getVideo)
 
+// DELETE
+router.delete('/:id',
+    authMiddleware, accessMiddleware(false),
+    valdidationMiddleware(baseSchema.idControl, 'params'),
+    videoController.deleteVideo)
 
 module.exports = router
