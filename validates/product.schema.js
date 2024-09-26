@@ -20,7 +20,7 @@ const productSchema = {
         subcategoryId: Joi.number().positive().required(),
         brandId: Joi.number().positive().required(),
         model_code: Joi.number().positive().optional(),
-        features: Joi.array().items(Joi.number().positive().required()).required()
+        features: Joi.array().items(Joi.number().positive().required()).optional()
     }),
 
     addProductReview: Joi.object({

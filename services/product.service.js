@@ -77,12 +77,14 @@ class ProductService {
                 brandId: body.brandId,
                 sellerId: seller
             }).catch((err) => { console.log(err) })
-            for (let item of body.features) {
-                await Models.ProductFeatures.create({
-                    productId: product.id,
-                    featureDescriptionId: item
-                }).then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
+            if (body?.features) {
+                for (let item of body.features) {
+                    await Models.ProductFeatures.create({
+                        productId: product.id,
+                        featureDescriptionId: item
+                    }).then(() => { console.log(true) })
+                    .catch((err) => { console.log(err) })
+                }
             }
             if (filenames.img) {
                 filenames.img.forEach(async (item, index) => {
