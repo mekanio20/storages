@@ -336,6 +336,19 @@ class ProductService {
         }
     }
 
+    async allCouponsService() {
+        try {
+            const data = await Models.Coupons.findAll({
+                include: {
+                    model: Models.CouponItem
+                }
+            })
+            return Response.Success('Üstünlikli!', data)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
     async searchProductService(q) {
         try {
             let page = q.page || 1

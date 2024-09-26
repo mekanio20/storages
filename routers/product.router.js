@@ -40,6 +40,8 @@ router.get('/all',
     validationMiddleware(productSchema.allProducts, 'query'),
     productController.allProduct)
 
+router.get('/coupons', productController.allCoupons)
+
 router.get('/search',
     validationMiddleware(productSchema.searchProduct, 'query'),
     productController.searchProduct)

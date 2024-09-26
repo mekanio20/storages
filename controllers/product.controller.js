@@ -65,6 +65,15 @@ class productController {
         }
     }
 
+    async allCoupons(req, res) {
+        try {
+            const data = await productService.allCouponsService()
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+
     async searchProduct(req, res) {
         try {
             const data = await productService.searchProductService(req.query)
