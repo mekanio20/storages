@@ -228,7 +228,17 @@ class ProductService {
             if (isNaN(seller)) { return seller }
             const isProduct = await Models.Products.findOne({ where: { id: body.productId, sellerId: seller }, attributes: ['id'] })
             if (!isProduct) { return Response.Forbidden('Bu haryt size degişli däl!', []) }
+            let final_price = body.sale_price
+            if (body.dis_price > 0) {
+                if (body?.dis_type === 'goterim') {
+                    let discount_amount = (body.sale_price * body.dis_price) / 100
+                    final_price = body.sale_price - discount_amount
+                } else {
+                    final_price -= body.dis_price
+                }
+            }
             for (const item in body) { if (item && item !== 'productId') { obj[item] = body[item] } }
+            obj.final_price = final_price
             await Models.Products.update(obj, { where: { id: isProduct.id } })
                 .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
