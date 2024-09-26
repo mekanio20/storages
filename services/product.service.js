@@ -673,7 +673,7 @@ class ProductService {
             const product = await Models.Products.findOne({ where: { id: id, isActive: true }, attributes: ['model_code'] })
             const products = await Models.Products.findAll({
                 where: { model_code: product.model_code, isActive: true },
-                attributes: { exclude: ['couponId', 'createdAt', 'updatedAt', 'isActive', 'org_price', 'stock_code', 'brandId', 'sellerId'] },
+                attributes: { exclude: ['couponId', 'createdAt', 'updatedAt', 'isActive', 'brandId', 'sellerId'] },
                 include: [
                     {
                         model: Models.Sellers,
