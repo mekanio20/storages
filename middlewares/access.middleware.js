@@ -9,7 +9,6 @@ module.exports = (params) => {
                 req.originalUrl.pop()
                 req.originalUrl = req.originalUrl.join('/')
             }
-            console.log(req.originalUrl);
             const permission = await GroupPermissions.findOne({
                 where: {
                     method: req.method,

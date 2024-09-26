@@ -29,7 +29,7 @@ router.get('/:id',
 
 // DELETE
 router.delete('/:id',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware, accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     videoController.deleteVideo)
 
