@@ -9,7 +9,8 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCT_REVIEW).fields([
         { name: "review", maxCount: 3 }
     ]),
@@ -22,13 +23,15 @@ router.get('/all',
     commentController.allComment)
 
 router.get('/seller',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(commentSchema.allComment, 'query'),
     commentController.sellerComment)
 
 // DELETE
 router.delete('/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     commentController.deleteComment)
 

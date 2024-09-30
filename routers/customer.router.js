@@ -9,70 +9,83 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/register',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.CUSTOMER_PATH).single('img'),
     valdidationMiddleware(customerSchema.customerRegister, 'body'),
     customerController.customerRegister)
 
 // GET
 router.get('/all',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.allCustomer)
 
 router.get('/favorite',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.customerfavorite)
 
 router.get('/basket',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     customerController.customerBasket)
 
 router.get('/followed',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(baseSchema.queryControl, 'query'),
     customerController.customerFollowed)
 
 router.get('/orders',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(customerSchema.customerOrders, 'query'),
     customerController.customerOrders)
 
 router.get('/profile',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     customerController.customerProfile)
 
 // PUT
 router.put('/edit',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.CUSTOMER_PATH).single('img'),
     valdidationMiddleware(customerSchema.customerEditProfile, 'body'),
     customerController.customerEditProfile)
 
 router.put('/edit/basket',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(customerSchema.editBasket, 'body'),
     customerController.customerEditBasket)
 
 router.put('/edit/order',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(customerSchema.editOrder, 'body'),
     customerController.customerEditOrder)
 
 // DELETE
 router.delete('/delete/basket/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     customerController.customerDeleteBasket)
 
 router.delete('/delete/follow/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     customerController.customerDeleteFollow)
     
 router.delete('/delete/like/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     customerController.customerDeleteLike)
 

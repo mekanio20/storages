@@ -9,7 +9,8 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.BANNERS_PATH).fields([
         { name: "tm_img", maxCount: 1 },
         { name: "ru_img", maxCount: 1 },
@@ -25,7 +26,8 @@ router.get('/all',
 
 // DELETE
 router.delete('/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     validationMiddleware(baseSchema.idControl, 'params'),
     bannerController.deleteBanner)
 

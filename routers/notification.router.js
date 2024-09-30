@@ -8,25 +8,29 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(notificationSchema.addNotification, 'body'),
     notificationController.addNotification)
 
 // GET
 router.get('/all',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(baseSchema.queryControl, 'query'),
     notificationController.allNotification)
 
 // PUT
 router.put('/update',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(notificationSchema.updateNotification, 'body'),
     notificationController.updateNotification)
 
 // DELETE
 router.delete('/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     notificationController.deleteNotification)
 

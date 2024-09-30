@@ -8,25 +8,29 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(addressSchema.addAddress, 'body'),
     addressController.addAddress)
 
 // GET
 router.get('/all',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     addressController.allAddress)
 
 // PUT
 router.put('/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     valdidationMiddleware(addressSchema.addAddress, 'body'),
     addressController.updateAddress)
 
 // DELETE
 router.delete('/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     addressController.deleteAddress)
 

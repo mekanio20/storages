@@ -52,45 +52,53 @@ router.post('/reset/subscription', // seller login ucin
 // ---------
 
 router.post('/add/like',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(baseSchema.idControl, 'body'),
     userController.addLike)
 
 router.post('/add/order',
     limitterMiddleware(null, 5),
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(userSchema.addOrder, 'body'),
     userController.addOrder)
 
 router.post('/add/basket',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(userSchema.addBasket, 'body'),
     userController.addBasket)
 
 router.post('/add/follower/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     userController.addFollower)
 
 router.post('/add/message',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     fileMiddleware(process.env.MESSAGE_FILES).single('file'),
     valdidationMiddleware(userSchema.addMessage, 'body'),
     userController.addMessage)
 
 // GET
 router.get('/all',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     valdidationMiddleware(baseSchema.queryControl, 'query'),
     userController.allUsers)
 
 router.get('/messages/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     userController.allMessages)
 
 router.get('/logout',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     userController.userLogout)
 
 module.exports = router

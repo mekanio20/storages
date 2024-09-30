@@ -10,7 +10,8 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     videoMiddleware(process.env.VIDEO_PATH).single('video'),
     valdidationMiddleware(videoSchema.addVideo, 'body'),
     videoLimitMiddleware,
@@ -29,7 +30,8 @@ router.get('/:id',
 
 // DELETE
 router.delete('/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     valdidationMiddleware(baseSchema.idControl, 'params'),
     videoController.deleteVideo)
 

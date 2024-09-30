@@ -9,7 +9,8 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/register',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.SELLERS_PATH).fields([
         { name: "logo", maxCount: 1 },
         { name: "bg_img", maxCount: 1 }
@@ -19,7 +20,8 @@ router.post('/register',
 
 // GET
 router.get('/',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     sellerController.fetchSeller)
 
 router.get('/top',
@@ -35,12 +37,14 @@ router.get('/banners',
     sellerController.allBanners)
 
 router.get('/orders',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     validationMiddleware(sellerSchema.allOrders, 'query'),
     sellerController.allOrders)
 
 router.get('/order/detail/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     validationMiddleware(baseSchema.idControl, 'params'),
     sellerController.orderDetail)
 
@@ -62,7 +66,8 @@ router.get('/products',
     sellerController.sellerProducts)
 
 router.get('/statistic',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     sellerController.sellerStatistic)
 
 router.get('/videos',
@@ -71,7 +76,8 @@ router.get('/videos',
 
 // PUT
 router.put('/update',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.SELLERS_PATH).fields([
         { name: "logo", maxCount: 1 },
         { name: "bg_img", maxCount: 1 }
@@ -80,13 +86,15 @@ router.put('/update',
     sellerController.updateSellerProfile)
 
 router.put('/update/status',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     validationMiddleware(sellerSchema.updateOrderStatus, 'body'),
     sellerController.updateOrderStatus)
 
 // DELETE
 router.delete('/delete',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     sellerController.deleteSeller)
 
 module.exports = router

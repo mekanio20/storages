@@ -9,7 +9,8 @@ const baseSchema = require('../validates/base.schema')
 
 // POST
 router.post('/add',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
         { name: "img", maxCount: 10 }
     ]),
@@ -17,7 +18,8 @@ router.post('/add',
     productController.addProduct)
 
 router.post('/add/image',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).fields([
         { name: 'img', maxCount: 10 }
     ]),
@@ -25,12 +27,14 @@ router.post('/add/image',
     productController.addProductImage)
 
 router.post('/add/review',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     validationMiddleware(productSchema.addProductReview, 'body'),
     productController.addProductReview)
 
 router.post('/add/coupon',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     imagesMiddleware(process.env.PRODUCTS_PATH).single('img'),
     validationMiddleware(productSchema.addCoupon, 'body'),
     productController.addCoupon)
@@ -83,7 +87,8 @@ router.get('/brands',
     productController.allBrands)
 
 router.get('/likes',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     validationMiddleware(productSchema.productLikes, 'query'),
     productController.productLikes)
 
@@ -93,18 +98,21 @@ router.get('/:id',
 
 // PUT
 router.put('/update',
-    authMiddleware, accessMiddleware(false),
+    authMiddleware,
+    // accessMiddleware(false),
     validationMiddleware(productSchema.updateProduct, 'body'),
     productController.updateProduct)
 
 // DELETE
 router.delete('/image/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     validationMiddleware(baseSchema.idControl, 'params'),
     productController.deleteProductImage)
 
 router.delete('/:id',
-    authMiddleware, accessMiddleware(true),
+    authMiddleware,
+    // accessMiddleware(true),
     validationMiddleware(baseSchema.idControl, 'params'),
     productController.deleteProduct)
 
