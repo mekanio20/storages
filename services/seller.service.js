@@ -504,26 +504,102 @@ class SellerService {
             if (isNaN(seller)) { return seller }
             const statistic = await Models.OrderItems.findAndCountAll({
                 attributes: ['quantity', 'total_price'],
-                include: {
-                    model: Models.Orders,
-                    attributes: ['status'],
-                    where: { status: 'completed' }
-                }
+                include: [
+                    {
+                        model: Models.Orders,
+                        attributes: ['status'],
+                        required: true,
+                        where: { status: 'completed' }
+                    },
+                    {
+                        model: Models.Products,
+                        attributes: ['sellerId'],
+                        required: true,
+                        where: { sellerId: seller }
+                    }
+                ]
             }).catch((err) => { console.log(err) })
-
             let totalMoney = 0
             statistic.rows.forEach(item => {
               const quantity = item.quantity
               const finalPrice = item.total_price
               totalMoney += quantity * finalPrice
             })
-            
+            const kar = await this.calculateProfitDifference(seller)
             const _statistic = {
                 totalMoney: totalMoney,
-                orders: statistic.count
+                orders: statistic.count,
+                currentMonthProfit: kar.c_profit,
+                lastMonthProfit: kar.l_profit,
+                differencePercentage: kar.differencePercentage
             }
-
             return Response.Success('Üstünlikli!', _statistic)
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error, detail: [] }
+        }
+    }
+
+    async calculateProfitDifference(seller) {
+        try {
+            const now = new Date();
+            const currentMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+            const previousMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+            const previousMonthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0, 23, 59, 59));
+            const lastMonthProfit = await Models.OrderItems.findAll({
+                where: {
+                    createdAt: {
+                      [Op.between]: [previousMonthStart, previousMonthEnd],
+                    },
+                },
+                attributes: ['total_price'],
+                include: [
+                    {
+                        model: Models.Orders,
+                        attributes: ['status'],
+                        required: true,
+                        where: { status: 'completed' }
+                    },
+                    {
+                        model: Models.Products,
+                        attributes: ['sellerId'],
+                        required: true,
+                        where: { sellerId: seller }
+                    }
+                ]
+            })
+            const l_profit = lastMonthProfit.reduce((acc, item) => {
+                return acc + item.total_price
+            }, 0)
+            const currentMonthProfit = await Models.OrderItems.findAll({
+                where: {
+                  createdAt: {
+                    [Op.gte]: currentMonthStart,
+                  },
+                },
+                attributes: ['total_price'],
+                include: [
+                    {
+                        model: Models.Orders,
+                        attributes: ['status'],
+                        required: true,
+                        where: { status: 'completed' }
+                    },
+                    {
+                        model: Models.Products,
+                        attributes: ['sellerId'],
+                        required: true,
+                        where: { sellerId: seller }
+                    }
+                ]
+            })
+            const c_profit = currentMonthProfit.reduce((acc, item) => {
+                return acc + item.total_price
+            }, 0)
+            if (!l_profit) {
+                return { c_profit, l_profit, differencePercentage: null }
+            }
+            const differencePercentage = ((c_profit - l_profit) / l_profit) * 100;
+            return { c_profit, l_profit, differencePercentage }
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
         }
