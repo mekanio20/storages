@@ -520,6 +520,7 @@ class ProductService {
                 limit: Number(limit),
                 offset: Number(offset)
             }).catch((err) => console.log(err))
+            console.log('selling products', JSON.stringify(selling_products, null, 2));
             for (let item of selling_products) {
                 let product = await Models.Products.findOne({
                     where: { id: item.productId, isActive: true },
