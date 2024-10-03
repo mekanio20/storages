@@ -70,6 +70,11 @@ router.get('/statistic',
     // accessMiddleware(false),
     sellerController.sellerStatistic)
 
+router.get('/revenues',
+    authMiddleware,
+    // accessMiddleware(false),
+    sellerController.sellerRevenues)
+
 router.get('/videos',
     validationMiddleware(sellerSchema.sellerVideos, 'query'),
     sellerController.sellerVideos)

@@ -117,6 +117,15 @@ class SellerController {
         }
     }
 
+    async sellerRevenues(req, res) {
+        try {
+            const data = await sellerService.sellerRevenuesService(req.user.id)
+            return res.status(data.status).json(data)
+        } catch (error) {
+            return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
+        }
+    }
+
     async sellerVideos(req, res) {
         try {
             const data = await sellerService.sellerVideosService(req.query)
