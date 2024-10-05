@@ -507,7 +507,7 @@ class SellerService {
     
             // Fetch statistics for the seller
             const { count: orders, rows } = await Models.OrderItems.findAndCountAll({
-                attributes: ['quantity', 'total_price'],
+                attributes: ['total_price'],
                 include: [
                     { model: Models.Orders, attributes: ['status'], where: { status: 'completed' }, required: true },
                     { model: Models.Products, attributes: ['sellerId'], where: { sellerId: seller }, required: true }
@@ -515,13 +515,13 @@ class SellerService {
             })
     
             // Calculate total money
-            const totalMoney = rows.reduce((sum, item) => sum + (item.quantity * item.total_price), 0)
+            const totalMoney = rows.reduce((sum, item) => sum + item.total_price, 0)
     
             // Calculate profit difference
             const { c_profit, l_profit, differencePercentage } = await this.calculateProfitDifference(seller)
     
             // Compile statistics
-            const _statistic = {
+            const statistic = {
                 totalMoney,
                 orders,
                 currentMonthProfit: c_profit,
@@ -529,7 +529,7 @@ class SellerService {
                 differencePercentage
             }
     
-            return Response.Success('Üstünlikli!', _statistic)
+            return Response.Success('Üstünlikli!', statistic)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, detail: error.stack };
         }
@@ -559,7 +559,7 @@ class SellerService {
             const c_profit = await fetchProfit(currentMonthStart, new Date())
     
             // Calculate profit difference percentage
-            const differencePercentage = l_profit ? ((c_profit - l_profit) / l_profit) * 100 : null
+            const differencePercentage = l_profit ? ((c_profit - l_profit) / l_profit) * 100 : 0
     
             return { c_profit, l_profit, differencePercentage }
 
@@ -580,22 +580,20 @@ class SellerService {
 
             // Fetch order items related to seller with completed orders
             const filteredOrderItems = await Models.OrderItems.findAll({
+                attributes: ['id'],
                 include: [
                     { model: Models.Orders, attributes: ['status'], where: { status: 'completed' }, required: true },
                     { model: Models.Products, attributes: ['sellerId', 'org_price'], where: { sellerId: seller }, required: true }
                 ],
                 raw: true
             })
-    
-            const orderIds = filteredOrderItems.map(item => item.orderId)
-            const productIds = filteredOrderItems.map(item => item.productId)
+            const orderItemsIds = filteredOrderItems.map(item => item.id)
     
             // Function to fetch total sales and profit for a given date range
             const getSalesData = async (startDate, endDate) => {
                 return Models.OrderItems.findAll({
                     where: {
-                        orderId: { [Op.in]: orderIds },
-                        productId: { [Op.in]: productIds },
+                        id: { [Op.in]: orderItemsIds },
                         createdAt: { [Op.between]: [startDate, endDate] }
                     },
                     attributes: [
@@ -618,8 +616,7 @@ class SellerService {
             // Fetch last five months sales data
             const salesData = await Models.OrderItems.findAll({
                 where: {
-                    orderId: { [Op.in]: orderIds },
-                    productId: { [Op.in]: productIds },
+                    id: { [Op.in]: orderItemsIds },
                     createdAt: { [Op.between]: [lastFiveMonths[4].monthStart, lastFiveMonths[0].monthEnd] }
                 },
                 attributes: [
@@ -635,7 +632,7 @@ class SellerService {
                 const found = salesData.find(sale => moment(sale.month).format('MMM') === month.monthName)
                 return {
                     month: month.monthName,
-                    totalSales: found?.totalSales || "0"
+                    totalSales: Number(found?.totalSales) || 0
                 }
             })
     
@@ -643,8 +640,7 @@ class SellerService {
             const profitData = await Models.OrderItems.findAll({
                 include: { model: Models.Products, attributes: ['org_price'] },
                 where: {
-                    orderId: { [Op.in]: orderIds },
-                    productId: { [Op.in]: productIds },
+                    id: { [Op.in]: orderItemsIds },
                     createdAt: { [Op.between]: [lastFiveMonths[4].monthStart, lastFiveMonths[0].monthEnd] }
                 },
                 attributes: ['quantity', 'createdAt'],
@@ -653,7 +649,7 @@ class SellerService {
     
             const profitWithTotal = profitData.map(item => ({
                 month: item.createdAt,
-                totalSales: (item['product.org_price'] * item.quantity).toString()
+                totalSales: (item['product.org_price'] * item.quantity)
             }))
     
             // Format profit data
@@ -661,15 +657,16 @@ class SellerService {
                 const found = profitWithTotal.find(sale => moment(sale.month).format('MMM') === month.monthName)
                 return {
                     month: month.monthName,
-                    totalSales: found?.totalSales || "0"
+                    totalSales: found?.totalSales || 0
                 }
             })
     
             // Fetch current month profit
             const currentMonthProfit = await Models.OrderItems.findAll({
                 where: {
-                    orderId: { [Op.in]: orderIds },
-                    productId: { [Op.in]: productIds },
+                    // orderId: { [Op.in]: orderIds },
+                    // productId: { [Op.in]: productIds },
+                    id: { [Op.in]: orderItemsIds },
                     createdAt: { [Op.between]: [currentMonthStart, currentMonthEnd] }
                 },
                 include: { model: Models.Products, attributes: ['org_price'] },
@@ -681,8 +678,8 @@ class SellerService {
                 total + (item['product.org_price'] * item.quantity), 0)
     
             // Add current month data to the start of the lists
-            formattedSales.unshift({ month: currentMonth, totalSales: currentMonthSales[0]?.totalSales || "0" })
-            formattedProfits.unshift({ month: currentMonth, totalSales: currentProfitTotal.toString() })
+            formattedSales.unshift({ month: currentMonth, totalSales: currentMonthSales[0]?.totalSales || 0 })
+            formattedProfits.unshift({ month: currentMonth, totalSales: currentProfitTotal })
     
             // Final result
             const result = {
