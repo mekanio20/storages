@@ -503,294 +503,200 @@ class SellerService {
     async sellerStatisticService(userId) {
         try {
             const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
-            const statistic = await Models.OrderItems.findAndCountAll({
+            if (isNaN(seller)) return seller
+    
+            // Fetch statistics for the seller
+            const { count: orders, rows } = await Models.OrderItems.findAndCountAll({
                 attributes: ['quantity', 'total_price'],
                 include: [
-                    {
-                        model: Models.Orders,
-                        attributes: ['status'],
-                        required: true,
-                        where: { status: 'completed' }
-                    },
-                    {
-                        model: Models.Products,
-                        attributes: ['sellerId'],
-                        required: true,
-                        where: { sellerId: seller }
-                    }
+                    { model: Models.Orders, attributes: ['status'], where: { status: 'completed' }, required: true },
+                    { model: Models.Products, attributes: ['sellerId'], where: { sellerId: seller }, required: true }
                 ]
-            }).catch((err) => { console.log(err) })
-            let totalMoney = 0
-            statistic.rows.forEach(item => {
-              const quantity = item.quantity
-              const finalPrice = item.total_price
-              totalMoney += quantity * finalPrice
             })
-            const kar = await this.calculateProfitDifference(seller)
+    
+            // Calculate total money
+            const totalMoney = rows.reduce((sum, item) => sum + (item.quantity * item.total_price), 0)
+    
+            // Calculate profit difference
+            const { c_profit, l_profit, differencePercentage } = await this.calculateProfitDifference(seller)
+    
+            // Compile statistics
             const _statistic = {
-                totalMoney: totalMoney,
-                orders: statistic.count,
-                currentMonthProfit: kar.c_profit,
-                lastMonthProfit: kar.l_profit,
-                differencePercentage: kar.differencePercentage
+                totalMoney,
+                orders,
+                currentMonthProfit: c_profit,
+                lastMonthProfit: l_profit,
+                differencePercentage
             }
+    
             return Response.Success('Üstünlikli!', _statistic)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
-        }
-    }
-
-    async sellerRevenuesService(userId) {
-        try {
-            const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
-
-            const currentMonthStart = moment().startOf('month').toDate()
-            const currentMonthEnd = moment().endOf('month').toDate()
-            const currentMonth = moment().tz('Asia/Ashgabat').add(1, 'months').format('MMM')
-
-            const filteredOrderItems = await Models.OrderItems.findAll({
-                include: [
-                  {
-                    model: Models.Orders,
-                    attributes: ['status'],
-                    required: true,
-                    where: { status: 'completed' }
-                  },
-                  {
-                    model: Models.Products,
-                    attributes: ['sellerId', 'org_price'],
-                    required: true,
-                    where: { sellerId: seller }
-                  }
-                ],
-                raw: true
-            })
-
-            const orderIds = filteredOrderItems.map(item => item.orderId)
-            const productIds = filteredOrderItems.map(item => item.productId)
-
-            const totalSalesAndProfit = await Models.OrderItems.findAll({
-                where: {
-                    orderId: {
-                        [Op.in]: orderIds
-                    },
-                    productId: {
-                        [Op.in]: productIds
-                    },
-                    createdAt: {
-                        [Op.between]: [currentMonthStart, currentMonthEnd]
-                    }
-                },
-                attributes: [
-                    [Sequelize.literal('SUM(total_price)'), 'totalSales'],
-                ],
-                raw: true
-            });
-
-            // ############
-
-            const lastFiveMonths = []
-            for (let i = 0; i < 5; i++) {
-                lastFiveMonths.push({
-                    monthStart: moment().subtract(i, 'months').startOf('month').toDate(),
-                    monthEnd: moment().subtract(i, 'months').endOf('month').toDate(),
-                    monthName: moment().subtract(i, 'months').format('MMM')
-                })
-            }
-
-            const salesData = await Models.OrderItems.findAll({
-                where: {
-                    orderId: {
-                        [Op.in]: orderIds
-                    },
-                    productId: {
-                        [Op.in]: productIds
-                    },
-                    createdAt: {
-                        [Op.between]: [lastFiveMonths[4].monthStart, lastFiveMonths[0].monthEnd]
-                    }
-                },
-                attributes: [
-                    [Sequelize.fn('date_trunc', 'month', Sequelize.col('createdAt')), 'month'],
-                    [Sequelize.fn('SUM', Sequelize.literal('total_price')), 'totalSales'], 
-                ],
-                group: ['month'],
-                raw: true
-            })
-
-            const formattedSales = lastFiveMonths.map(month => {
-                const foundMonth = salesData.find(sale => moment(sale.month).format('MMM') === month.monthName)
-                return foundMonth
-                  ? {
-                      month: month.monthName,
-                      totalSales: foundMonth.totalSales || "0",
-                    }
-                  : {
-                      month: month.monthName,
-                      totalSales: "0",
-                    }
-            })
-
-            // profit
-            const _salesData = await Models.OrderItems.findAll({
-                attributes: ['quantity', 'createdAt'],
-                include: {
-                    model: Models.Products,
-                    attributes: ['org_price']
-                },
-                where: {
-                    orderId: {
-                        [Op.in]: orderIds
-                    },
-                    productId: {
-                        [Op.in]: productIds
-                    },
-                    createdAt: {
-                        [Op.between]: [lastFiveMonths[4].monthStart, lastFiveMonths[0].monthEnd]
-                    }
-                },
-                raw: true
-            })
-
-            const salesWithTotal = _salesData.map(item => {
-                const totalSales = item['product.org_price'] * item.quantity
-                return {
-                  month: item.createdAt,
-                  totalSales: totalSales.toString()
-                }
-            })
-
-            const _formattedSales = lastFiveMonths.map(month => {
-                const foundMonth = salesWithTotal.find(sale => moment(sale.month).format('MMM') === month.monthName)
-                return foundMonth
-                  ? {
-                      month: month.monthName,
-                      totalSales: foundMonth.totalSales || "0",
-                    }
-                  : {
-                      month: month.monthName,
-                      totalSales: "0",
-                    }
-            })
-
-            const currentTotalSalesAndProfit = await Models.OrderItems.findAll({
-                where: {
-                    orderId: {
-                        [Op.in]: orderIds
-                    },
-                    productId: {
-                        [Op.in]: productIds
-                    },
-                    createdAt: {
-                        [Op.between]: [currentMonthStart, currentMonthEnd]
-                    }
-                },
-                include: {
-                    model: Models.Products,
-                    attributes: ['org_price']
-                },
-                attributes: ['quantity', 'createdAt'],
-                raw: true
-            })
-
-            const currentSalesWithTotal = currentTotalSalesAndProfit.map(item => {
-                const totalSales = item['product.org_price'] * item.quantity
-                return {
-                    month: item.createdAt,
-                    totalSales: totalSales?.toString()
-                }
-            })
-
-            const _currentSalesWithTotal = {
-                month: currentMonth,
-                totalSales: currentSalesWithTotal?.totalSales || "0"
-            }
-            const currentMonthSales = {
-                month: currentMonth,
-                totalSales: totalSalesAndProfit[0]?.totalSales || "0"
-            }
-            _formattedSales.unshift(_currentSalesWithTotal)
-            formattedSales.unshift(currentMonthSales)
-
-            const results = {
-                sales: formattedSales,
-                profits: _formattedSales
-            }
-
-            return Response.Success('Üstünlikli!', results)
-        } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, detail: error.stack };
         }
     }
 
     async calculateProfitDifference(seller) {
         try {
-            const now = new Date();
-            const currentMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-            const previousMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
-            const previousMonthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0, 23, 59, 59));
-            const lastMonthProfit = await Models.OrderItems.findAll({
-                where: {
-                    createdAt: {
-                      [Op.between]: [previousMonthStart, previousMonthEnd],
-                    },
-                },
-                attributes: ['total_price'],
-                include: [
-                    {
-                        model: Models.Orders,
-                        attributes: ['status'],
-                        required: true,
-                        where: { status: 'completed' }
-                    },
-                    {
-                        model: Models.Products,
-                        attributes: ['sellerId'],
-                        required: true,
-                        where: { sellerId: seller }
-                    }
-                ]
-            })
-            const currentMonthProfit = await Models.OrderItems.findAll({
-                where: {
-                  createdAt: {
-                    [Op.gte]: currentMonthStart,
-                  },
-                },
-                attributes: ['total_price'],
-                include: [
-                    {
-                        model: Models.Orders,
-                        attributes: ['status'],
-                        required: true,
-                        where: { status: 'completed' }
-                    },
-                    {
-                        model: Models.Products,
-                        attributes: ['sellerId'],
-                        required: true,
-                        where: { sellerId: seller }
-                    }
-                ]
-            })
-            const l_profit = lastMonthProfit.reduce((acc, item) => {
-                return acc + item.total_price
-            }, 0)
-            const c_profit = currentMonthProfit.reduce((acc, item) => {
-                return acc + item.total_price
-            }, 0)
-            if (!l_profit) {
-                return { c_profit, l_profit, differencePercentage: null }
+            const currentMonthStart = moment().startOf('month').toDate()
+            const previousMonthStart = moment().subtract(1, 'month').startOf('month').toDate()
+            const previousMonthEnd = moment().startOf('month').toDate()
+
+            // Helper function to fetch profit
+            const fetchProfit = async (start, end) => {
+                const results = await Models.OrderItems.findAll({
+                    where: { createdAt: { [Op.between]: [start, end] } },
+                    attributes: ['total_price'],
+                    include: [
+                        { model: Models.Orders, where: { status: 'completed' }, required: true },
+                        { model: Models.Products, where: { sellerId: seller }, required: true }
+                    ]
+                })
+                return results.reduce((total, item) => total + item.total_price, 0)
             }
-            const differencePercentage = ((c_profit - l_profit) / l_profit) * 100;
+    
+            // Calculate last and current month profits
+            const l_profit = await fetchProfit(previousMonthStart, previousMonthEnd)
+            const c_profit = await fetchProfit(currentMonthStart, new Date())
+    
+            // Calculate profit difference percentage
+            const differencePercentage = l_profit ? ((c_profit - l_profit) / l_profit) * 100 : null
+    
             return { c_profit, l_profit, differencePercentage }
+
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message, detail: error.stack };
         }
     }
+    
+    async sellerRevenuesService(userId) {
+        try {
+            const seller = await Verification.isSeller(userId)
+            if (isNaN(seller)) return seller
+    
+            // Get current month details
+            const currentMonthStart = moment().startOf('month').toDate()
+            const currentMonthEnd = moment().endOf('month').toDate()
+            const currentMonth = moment().tz('Asia/Ashgabat').add(1, 'months').format('MMM')
 
+            // Fetch order items related to seller with completed orders
+            const filteredOrderItems = await Models.OrderItems.findAll({
+                include: [
+                    { model: Models.Orders, attributes: ['status'], where: { status: 'completed' }, required: true },
+                    { model: Models.Products, attributes: ['sellerId', 'org_price'], where: { sellerId: seller }, required: true }
+                ],
+                raw: true
+            })
+    
+            const orderIds = filteredOrderItems.map(item => item.orderId)
+            const productIds = filteredOrderItems.map(item => item.productId)
+    
+            // Function to fetch total sales and profit for a given date range
+            const getSalesData = async (startDate, endDate) => {
+                return Models.OrderItems.findAll({
+                    where: {
+                        orderId: { [Op.in]: orderIds },
+                        productId: { [Op.in]: productIds },
+                        createdAt: { [Op.between]: [startDate, endDate] }
+                    },
+                    attributes: [
+                        [Sequelize.literal('SUM(total_price)'), 'totalSales']
+                    ],
+                    raw: true
+                })
+            }
+    
+            // Fetch current month sales
+            const currentMonthSales = await getSalesData(currentMonthStart, currentMonthEnd)
+    
+            // Prepare last five months' data
+            const lastFiveMonths = Array.from({ length: 5 }, (_, i) => ({
+                monthStart: moment().subtract(i, 'months').startOf('month').toDate(),
+                monthEnd: moment().subtract(i, 'months').endOf('month').toDate(),
+                monthName: moment().subtract(i, 'months').format('MMM')
+            }))
+    
+            // Fetch last five months sales data
+            const salesData = await Models.OrderItems.findAll({
+                where: {
+                    orderId: { [Op.in]: orderIds },
+                    productId: { [Op.in]: productIds },
+                    createdAt: { [Op.between]: [lastFiveMonths[4].monthStart, lastFiveMonths[0].monthEnd] }
+                },
+                attributes: [
+                    [Sequelize.fn('date_trunc', 'month', Sequelize.col('createdAt')), 'month'],
+                    [Sequelize.fn('SUM', Sequelize.literal('total_price')), 'totalSales']
+                ],
+                group: ['month'],
+                raw: true
+            })
+    
+            // Format sales for the last five months
+            const formattedSales = lastFiveMonths.map(month => {
+                const found = salesData.find(sale => moment(sale.month).format('MMM') === month.monthName)
+                return {
+                    month: month.monthName,
+                    totalSales: found?.totalSales || "0"
+                }
+            })
+    
+            // Fetch profit for each month (using product price and quantity)
+            const profitData = await Models.OrderItems.findAll({
+                include: { model: Models.Products, attributes: ['org_price'] },
+                where: {
+                    orderId: { [Op.in]: orderIds },
+                    productId: { [Op.in]: productIds },
+                    createdAt: { [Op.between]: [lastFiveMonths[4].monthStart, lastFiveMonths[0].monthEnd] }
+                },
+                attributes: ['quantity', 'createdAt'],
+                raw: true
+            })
+    
+            const profitWithTotal = profitData.map(item => ({
+                month: item.createdAt,
+                totalSales: (item['product.org_price'] * item.quantity).toString()
+            }))
+    
+            // Format profit data
+            const formattedProfits = lastFiveMonths.map(month => {
+                const found = profitWithTotal.find(sale => moment(sale.month).format('MMM') === month.monthName)
+                return {
+                    month: month.monthName,
+                    totalSales: found?.totalSales || "0"
+                }
+            })
+    
+            // Fetch current month profit
+            const currentMonthProfit = await Models.OrderItems.findAll({
+                where: {
+                    orderId: { [Op.in]: orderIds },
+                    productId: { [Op.in]: productIds },
+                    createdAt: { [Op.between]: [currentMonthStart, currentMonthEnd] }
+                },
+                include: { model: Models.Products, attributes: ['org_price'] },
+                attributes: ['quantity'],
+                raw: true
+            })
+    
+            const currentProfitTotal = currentMonthProfit.reduce((total, item) =>
+                total + (item['product.org_price'] * item.quantity), 0)
+    
+            // Add current month data to the start of the lists
+            formattedSales.unshift({ month: currentMonth, totalSales: currentMonthSales[0]?.totalSales || "0" })
+            formattedProfits.unshift({ month: currentMonth, totalSales: currentProfitTotal.toString() })
+    
+            // Final result
+            const result = {
+                sales: formattedSales,
+                profits: formattedProfits
+            }
+    
+            return Response.Success('Üstünlikli!', result)
+
+        } catch (error) {
+            throw { status: 500, type: 'error', msg: error.message, detail: error.stack }
+        }
+    }
+    
     async sellerVideosService(query) {
         try {
             let page = query.page || 1
