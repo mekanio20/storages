@@ -360,33 +360,16 @@ class ProductService {
                 search = [
                     { tm_name: { [Op.iLike]: `%${q.name}%` } },
                     { ru_name: { [Op.iLike]: `%${q.name}%` } },
-                    { en_name: { [Op.iLike]: `%${q.name}%` } },
-                    { tm_desc: { [Op.iLike]: `%${q.name}%` } },
-                    { ru_desc: { [Op.iLike]: `%${q.name}%` } },
-                    { en_desc: { [Op.iLike]: `%${q.name}%` } }
+                    { en_name: { [Op.iLike]: `%${q.name}%` } }
                 ]
             }
             if (q.sellerId) whereState.sellerId = q.sellerId
-
-            const subquery = await Models.Products.findAll({
-                attributes: [
-                  [Sequelize.fn('DISTINCT', Sequelize.col('model_code')), 'model_code'],
-                  [Sequelize.fn('MIN', Sequelize.col('id')), 'id']
-                ],
-                group: ['model_code'],
-                raw: true
-            }).catch((err) => console.log(err))
-            const subqueryIds = (subquery).map(item => item.id)
 
             const products = await Models.Products.findAndCountAll({
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                 where: {
                     [Op.or]: search,
-                    [Op.and]: whereState,
-                    [Op.or]: [
-                        { id: { [Op.in]: subqueryIds } },
-                        { model_code: { [Op.notIn]: subquery.map(item => item.model_code) } }
-                    ]
+                    [Op.and]: whereState
                 },
                 include: [
                     {
