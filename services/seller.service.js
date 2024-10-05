@@ -1,12 +1,12 @@
 const Verification = require('../helpers/verification.service')
 const Response = require('../helpers/response.service')
 const Models = require('../config/models')
+const { Op } = require('sequelize')
 const moment = require('moment')
 const moment_timezone = require('moment-timezone');
-const { Op } = require('sequelize')
-const { Sequelize } = require('../config/database')
 const { fetchReviewService } = require('./product.service')
 const { generateJwt } = require('../helpers/functions.service')
+const { Sequelize } = require('../config/database')
 
 class SellerService {
     // POST
@@ -18,16 +18,18 @@ class SellerService {
                     name: body.name,
                     main_number: body.main_number
                 }
-            }).catch((err) => { console.log(err) })
+            })
+            
             if (seller.length > 0) { return Response.Forbidden('Satyjy registrasiýa bolan!', []) }
             if (body.main_number === body.second_number) { return Response.BadRequest('Iki sany meňzeş nomer bolup bilmez!', []) }
+            
             const user = await Models.Users.findOne({ where: { id: Number(userId) } })
-                .catch((err) => { console.log(err) })
             user.isCustomer = false
             user.isSeller = true
             await user.save()
+
             const token = await generateJwt(user.id, 3)
-            const _seller = await Models.Sellers.create({
+            const newSeller = await Models.Sellers.create({
                 name: body.name,
                 store_number: body.store_number,
                 store_floor: body.store_floor,
@@ -42,12 +44,13 @@ class SellerService {
                 second_number: body.second_number,
                 userId: Number(userId),
                 categoryId: body.categoryId,
-                subscriptionId: body.subscriptionId
-            }).catch((err) => { console.log(err) })
-            _seller.dataValues.token = token
-            return Response.Created('Satyjy hasaba alyndy!', _seller)
+                subscriptionId: body.subscriptionId,
+            })
+            newSeller.dataValues.token = token
+
+            return Response.Created('Satyjy hasaba alyndy!', newSeller)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, msg_key: error.name, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, msg_key: error.name, detail: [] }
         }
     }
 
@@ -56,43 +59,43 @@ class SellerService {
         try {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
+
             const profile = await Models.Sellers.findOne({
                 where: { id: seller },
                 attributes: { exclude: ['userId', 'categoryId', 'deletedAt', 'updatedAt'] }
             })
             if (!profile) { return Response.NotFound('Satyjy tapylmady!', {}) }
+
             return Response.Success('Üstünlikli!', profile)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async allSellerService(q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let sort = q.sort || 'name'
-            let order = q.order || 'asc'
-            let search = []
-            let whereState = {}
-            let conditions = {}
-            let _conditions = {
-                isVerified: q.status || null,
-                store_number: q.store_number || null,
-                store_floor: q.store_floor || null,
-                categoryId: q.categoryId || null
+            const {
+                page = 1,
+                limit = 10,
+                sort = 'name',
+                order = 'asc',
+                name,
+                status,
+                store_number,
+                store_floor,
+                categoryId
+            } = q
+
+            const whereState = {
+                [Op.and]: [
+                    ...(status ? [{ isVerified: status }] : []),
+                    ...(store_number ? [{ store_number }] : []),
+                    ...(store_floor ? [{ store_floor }] : []),
+                    ...(categoryId ? [{ categoryId }] : []),
+                    ...(name ? [{ name: { [Op.iLike]: `%${name}%` } }] : [])
+                ]
             }
-            for (let i in _conditions) {
-                if (_conditions[i] !== null) {
-                    conditions[i] = _conditions[i]
-                }
-            }
-            whereState = { [Op.and]: conditions }
-            if (q.name) {
-                search = [{ name: { [Op.iLike]: `%${q.name}%` } }]
-                whereState = { [Op.and]: conditions, [Op.or]: search }
-            }
+
             const seller = await Models.Sellers.findAndCountAll({
                 where: whereState,
                 attributes: ['id', 'name', 'store_number', 'store_floor', 'logo', 'seller_type', 'sell_type'],
@@ -104,13 +107,14 @@ class SellerService {
                     }
                 ],
                 limit: Number(limit),
-                offset: Number(offset),
+                offset: (page - 1) * limit,
                 order: [[sort, order]]
-            }).catch((err) => console.log(err))
+            })
             if (seller.count === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
+
             return Response.Success('Üstünlikli!', seller)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
@@ -118,39 +122,43 @@ class SellerService {
         try {
             const seller = await Models.Sellers.findOne({ where: { id: q.sellerId }, attributes: ['userId'] })
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
-            let whereState = {}
-            whereState.userId = seller.userId
-            whereState.type = 'profile'
+
+            const whereState = { userId: seller.userId, type: 'profile' }
             const banners = await Models.Banners.findAndCountAll({
                 where: whereState,
                 attributes: { exclude: ['userId'] }
-            }).catch((err) => console.log(err))
+            })
             if (banners.count === 0) { return Response.NotFound('Banner ýok!', []) }
+
             return Response.Success('Üstünlikli!', banners)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async allOrdersService(q, userId) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let sort = q.sort || 'id'
-            let order = q.order || 'desc'
-            let whereState = {}
-            if (q.status) whereState.status = q.status
+            const {
+                page = 1,
+                limit = 10,
+                sort = 'id',
+                order = 'desc',
+                status
+            } = q
+    
             const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
+            if (isNaN(seller)) return seller
+    
+            const whereState = status ? { status } : {}
             const orders = await Models.Orders.findAll({
                 attributes: ['id'],
                 where: whereState,
                 limit: Number(limit),
-                offset: Number(offset),
+                offset: (page - 1) * limit,
                 order: [[sort, order]],
                 raw: true
-            }).catch((err) => console.log(err))
+            })
+    
             const orderIds = orders.map(order => order.id)
             const detailedOrders = await Models.Orders.findAll({
                 attributes: ['id', 'order_id', 'status', 'time'],
@@ -167,8 +175,9 @@ class SellerService {
                             include: [
                                 {
                                     model: Models.ProductImages,
-                                    where: { isActive: true }, required: false,
-                                    attributes: ['id', 'img'],
+                                    where: { isActive: true },
+                                    required: false,
+                                    attributes: ['id', 'img']
                                 }
                             ]
                         }
@@ -180,11 +189,12 @@ class SellerService {
                     }
                 ],
                 order: [[sort, order]]
-            }).catch((err) => console.log(err))
-            if (detailedOrders.length === 0) { return Response.NotFound('Sargyt edilen haryt yok!', []) }
-            for (const item of detailedOrders) {
-                for (const order of item.order_items) {
-                    const _features = await Models.ProductFeatures.findAll({
+            })
+            if (detailedOrders.length === 0) return Response.NotFound('Sargyt edilen haryt yok!', [])
+    
+            await Promise.all(detailedOrders.map(async item => {
+                await Promise.all(item.order_items.map(async order => {
+                    const features = await Models.ProductFeatures.findAll({
                         where: { productId: order.product.id, isActive: true },
                         attributes: [],
                         include: {
@@ -195,25 +205,26 @@ class SellerService {
                                 attributes: ['id', 'name']
                             }
                         }
-                    }).catch((err) => console.log(err))
-                    const features = await _features.map(item => ({
+                    })
+                    order.dataValues.product.dataValues.feature = features.map(item => ({
                         id: item.feature_description.id,
                         name: item.feature_description.feature.name,
                         desc: item.feature_description.desc
                     }))
-                    order.dataValues.product.dataValues.feature = features
-                }
-            }
+                }))
+            }))
+    
             return Response.Success('Üstünlikli!', detailedOrders)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
-
+    
     async orderDetailService(id, userId) {
         try {
             const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
+            if (isNaN(seller)) return seller
+    
             const detailedOrders = await Models.Orders.findOne({
                 attributes: { exclude: ['createdAt', 'updatedAt', 'customerId', 'productId'] },
                 where: { id: Number(id) },
@@ -229,7 +240,8 @@ class SellerService {
                             include: [
                                 {
                                     model: Models.ProductImages,
-                                    where: { isActive: true }, required: false,
+                                    where: { isActive: true },
+                                    required: false,
                                     attributes: ['id', 'img'],
                                 }
                             ]
@@ -239,11 +251,12 @@ class SellerService {
                         model: Models.Customers,
                         attributes: ['id', 'img', 'fullname']
                     }
-                ],
-            }).catch((err) => { console.log(err) })
-            if (!detailedOrders) { return Response.NotFound('Sargyt tapylmady!', []) }
-            for (const order of detailedOrders.order_items) {
-                const _features = await Models.ProductFeatures.findAll({
+                ]
+            })
+            if (!detailedOrders) return Response.NotFound('Sargyt tapylmady!', [])
+    
+            await Promise.all(detailedOrders.order_items.map(async order => {
+                const features = await Models.ProductFeatures.findAll({
                     where: { productId: order.product.id, isActive: true },
                     attributes: [],
                     include: {
@@ -254,23 +267,23 @@ class SellerService {
                             attributes: ['id', 'name']
                         }
                     }
-                }).catch((err) => console.log(err))
-                const features = await _features.map(item => ({
+                })
+                order.dataValues.product.dataValues.feature = features.map(item => ({
                     id: item.feature_description.id,
                     name: item.feature_description.feature.name,
                     desc: item.feature_description.desc
                 }))
-                order.dataValues.product.dataValues.feature = features
-            }
+            }))
+    
             return Response.Success('Üstünlikli!', detailedOrders)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
-
+    
     async sellerFollowersService(id) {
         try {
-            const followers = await Models.Followers.findAndCountAll({
+            const { count, rows: followers } = await Models.Followers.findAndCountAll({
                 where: { sellerId: Number(id) },
                 attributes: ['id'],
                 include: {
@@ -278,88 +291,80 @@ class SellerService {
                     attributes: ['id', 'img', 'fullname']
                 },
                 order: [['id', 'desc']]
-            }).catch((err) => { console.log(err) })
-            if (followers.count === 0) { return Response.NotFound('Yzarlaýan yok!', []) }
-            return Response.Success('Yzarlaýanlar!', followers)
+            })
+            if (count === 0) { return Response.NotFound('Yzarlaýan yok!', {}) }
+            return Response.Success('Yzarlaýanlar!', { count, followers })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] };
         }
-    }
+    }    
 
-    async topSellersSerive(q) {
+    async topSellersService(q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let order = q.order || 'desc'
-            let whereState = {}
-            if (q.subcategoryId) whereState.subcategoryId = q.subcategoryId
+            const {
+                page = 1,
+                limit = 10,
+                order = 'desc',
+                subcategoryId
+            } = q
+    
+            const whereState = subcategoryId ? { subcategoryId } : {}
+    
             const topProducts = await Models.OrderItems.findAll({
-                attributes: [
-                    [Sequelize.fn('COUNT', Sequelize.col('productId')), 'salesCount']
-                ],
-                include: [
-                    {
-                        model: Models.Products,
-                        where: whereState,
-                        attributes: ['id'],
-                        include: [
-                            {
-                                model: Models.Sellers,
-                                attributes: ['id', 'name', 'logo']
-                            }
-                        ]
+                attributes: [[Sequelize.fn('COUNT', Sequelize.col('productId')), 'salesCount']],
+                include: {
+                    model: Models.Products,
+                    where: whereState,
+                    attributes: ['id'],
+                    include: {
+                        model: Models.Sellers,
+                        attributes: ['id', 'name', 'logo']
                     }
-                ],
+                },
                 group: ['product.id', 'product.seller.id'],
                 limit: Number(limit),
-                offset: Number(offset),
+                offset: (page - 1) * limit,
                 order: [['salesCount', order]]
-            }).catch((err) => console.log(err))
-            const sellerSalesCounts = []
-            topProducts.forEach((detail) => {
-                const sellerId = detail.dataValues.product.seller.id
-                const sellerName = detail.dataValues.product.seller.name
-                const sellerImage = detail.dataValues.product.seller.logo
-                const salesCount = Number(detail.dataValues.salesCount)
-                const include = sellerSalesCounts.some(item => { return item.sellerId === sellerId })
-                if (!include) {
-                    sellerSalesCounts.push({
-                        sellerId: sellerId,
-                        sellerName: sellerName,
-                        sellerImage: sellerImage,
-                        salesCount: salesCount
-                    })
-                } else {
-                    sellerSalesCounts[sellerSalesCounts.length - 1].salesCount += salesCount
-                }
             })
-            if (order === 'desc') sellerSalesCounts.sort((a, b) => b.salesCount - a.salesCount)
-            else sellerSalesCounts.sort((a, b) => a.salesCount - b.salesCount)
-            return Response.Success('Üstünlikli!', sellerSalesCounts)
+    
+            const sellerSalesCounts = topProducts.reduce((acc, detail) => {
+                const { id: sellerId, name: sellerName, logo: sellerImage } = detail.product.seller
+                const salesCount = Number(detail.dataValues.salesCount)
+                
+                const existingSeller = acc.find(seller => seller.sellerId === sellerId)
+                if (existingSeller) { existingSeller.salesCount += salesCount }
+                else { acc.push({ sellerId, sellerName, sellerImage, salesCount }) }
+    
+                return acc
+            }, [])
+    
+            const sortedSellers = sellerSalesCounts.sort((a, b) => 
+                order === 'desc' ? b.salesCount - a.salesCount : a.salesCount - b.salesCount)
+    
+            return Response.Success('Üstünlikli!', sortedSellers)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
-    }
+    }    
 
     async profileSellerService(id, userId) {
         try {
-            let rating = 0
             const seller = await Models.Sellers.findOne({
                 attributes: { exclude: ['seller_type', 'userId', 'categoryId', 'subscriptionId', 'createdAt', 'updatedAt', 'deletedAt'] },
                 where: { id: Number(id) }
-            }).catch((err) => { console.log(err) })
+            })
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
             seller.dataValues.followers = await Models.Followers.count({ where: { sellerId: id } })
             seller.dataValues.products = await Models.Products.count({ where: { sellerId: id } })
+
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
             seller.dataValues.isFollow = await Models.Followers.findOne({ where: { customerId: customer, sellerId: id } }) ? true : false
-            const _seller = await Models.Products.findAll({ attributes: ['id'], where: { sellerId: id } })
-            for (let i = 0; i < _seller.length; i++) {
-                rating += await (await fetchReviewService(_seller[i].id)).detail.rating
-            }
-            seller.dataValues.rating = rating / _seller.length
+            
+            const sellerProducts = await Models.Products.findAll({ attributes: ['id'], where: { sellerId: id } })
+            const ratings = await Promise.all(sellerProducts.map(product => fetchReviewService(product.id)))
+            seller.dataValues.rating = ratings.reduce((sum, rating) => sum + rating.detail.rating, 0) / (ratings.length || 1)
+
             return Response.Success('Satyjy Maglumaty!', seller)
         } catch (error) {
             throw { status: 500, type: 'error', msg: error, detail: [] }
@@ -368,135 +373,156 @@ class SellerService {
 
     async sellerSubcategoriesService(q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let sort = q.sort || 'id'
-            let order = q.order || 'desc'
-            let start_price = Number(q.start_price) || 0
-            let end_price = Number(q.end_price) || 100000
-            let whereState = { isActive: true, sellerId: Number(q.sellerId) }
-            whereState.sale_price = { [Op.between]: [start_price, end_price] }
-            if (q.subcategoryId) whereState.subcategoryId = q.subcategoryId
-            if (q.brandId) whereState.brandId = q.brandId
-            if (q.gender) whereState.gender = q.gender
-            const products = await Models.Products.findAndCountAll({
+            const {
+                page = 1,
+                limit = 10,
+                start_price = 0,
+                end_price = 100000,
+                sort = 'id',
+                order = 'desc',
+                sellerId = 0,
+                subcategoryId = 0,
+                brandId = 0,
+                gender = ''
+            } = q
+    
+            const whereState = {
+                isActive: true,
+                sellerId: Number(sellerId),
+                sale_price: { [Op.between]: [Number(start_price), Number(end_price)] },
+                ...(subcategoryId && { subcategoryId }),
+                ...(brandId && { brandId }),
+                ...(gender && { gender })
+            }
+    
+            const { count, rows: products } = await Models.Products.findAndCountAll({
                 where: whereState,
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price', 'subcategoryId'],
                 include: [
-                    {
-                        model: Models.Sellers,
-                        attributes: [], required: true
-                    },
+                    { model: Models.Sellers, attributes: [], required: true },
                     {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
-                        where: { isActive: true }, required: false
+                        where: { isActive: true },
+                        required: false
                     }
                 ],
                 limit: Number(limit),
-                offset: Number(offset),
+                offset: (page - 1) * limit,
                 order: [[sort, order]]
-            }).catch((err) => console.log(err))
-            if (products.count === 0) { return Response.NotFound('Haryt ýok!', {}) }
-            const result = { count: products.count, rows: [] }
-            await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({
-                    where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'img']
-                }).catch((err) => console.log(err))
-                const comment = await Models.Comments.count({ where: { productId: item.id } })
-                const rating = await fetchReviewService(item.id)
-                result.rows.push({
+            })
+
+            if (count === 0) return Response.NotFound('Haryt ýok!', {})
+    
+            const rows = await Promise.all(products.map(async item => {
+                const [images, commentCount, rating] = await Promise.all([
+                    Models.ProductImages.findAndCountAll({
+                        where: { productId: item.id, isActive: true },
+                        attributes: ['id', 'img']
+                    }),
+                    Models.Comments.count({ where: { productId: item.id } }),
+                    fetchReviewService(item.id)
+                ])
+    
+                return {
                     ...item.dataValues,
-                    images: images,
-                    comment: comment,
-                    rating: rating.detail.rating,
-                })
-            })).catch((err) => { console.log(err) })
+                    images,
+                    comment: commentCount,
+                    rating: rating.detail.rating
+                }
+            }))
+    
             const subcategories = await Models.Subcategories.findAll({
                 where: { isActive: true },
                 attributes: { exclude: ['isActive', 'userId', 'categoryId', 'createdAt', 'updatedAt'] }
-            }).catch((err) => console.log(err))
+            })
+    
             const groupedProducts = subcategories.map(subcategory => ({
                 ...subcategory.toJSON(),
-                products: result.rows.filter(product => product.subcategoryId === subcategory.id)
+                products: rows.filter(product => product.subcategoryId === subcategory.id)
             })).filter(group => group.products.length > 0)
-            return Response.Success('Üstünlikli!', { count: result.count, rows: groupedProducts })
+    
+            return Response.Success('Üstünlikli!', { count, rows: groupedProducts })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
-    }
+    }  
 
     async sellerProductsService(q) {
         try {
-            let obj = {}
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let start_price = Number(q.start_price) || 0
-            let end_price = Number(q.end_price) || 100000
-            let sort = q.sort || 'id'
-            let order = q.order || 'desc'
-            let query = {
-                sellerId: q.sellerId || 0,
-                subcategoryId: q.subcategoryId || 0,
-                brandId: q.brandId || 0,
-                gender: q.gender || ''
+            const {
+                page = 1,
+                limit = 10,
+                start_price = 0,
+                end_price = 100000,
+                sort = 'id',
+                order = 'desc',
+                sellerId = 0,
+                subcategoryId = 0,
+                brandId = 0,
+                gender = '',
+                isActive = true
+            } = q
+    
+            const query = {
+                sellerId,
+                final_price: { [Op.between]: [Number(start_price), Number(end_price)] },
+                ...(isActive !== 'all' && { isActive }),
+                ...(subcategoryId && { subcategoryId }),
+                ...(brandId && { brandId }),
+                ...(gender && { gender })
             }
-            for (const key in query) { if (query[key]) { obj[key] = await query[key] } }
-            obj.isActive = true
-            if (q.isActive == 'all') { delete obj.isActive }
-            obj.final_price = { [Op.between]: [start_price, end_price] }
-            const products = await Models.Products.findAndCountAll({
+
+            const { count, rows: products } = await Models.Products.findAndCountAll({
                 attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'isActive', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
-                where: { [Op.and]: obj },
+                where: { [Op.and]: query },
                 include: [
-                    {
-                        model: Models.Sellers,
-                        attributes: []
-                    },
+                    { model: Models.Sellers, attributes: [] },
                     {
                         model: Models.Subcategories,
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug'],
-                        where: { isActive: true }, required: false
+                        where: { isActive: true },
+                        required: false
                     },
                     {
                         model: Models.Brands,
                         attributes: ['id', 'name', 'img', 'slug'],
-                        where: { isActive: true }, required: false
+                        where: { isActive: true },
+                        required: false
                     }
                 ],
                 limit: Number(limit),
-                offset: Number(offset),
+                offset: (page - 1) * limit,
                 order: [[sort, order]]
-            }).catch((err) => { console.log(err) })
-            const result = { count: 0, rows: [] }
-            result.count = await products.count
-            await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({
-                    where: { productId: item.id, isActive: true },
-                    attributes: ['id', 'img']
-                }).catch((err) => console.log(err))
-                const comment = await Models.Comments.count({ where: { productId: item.id } })
-                const rating = await fetchReviewService(item.id)
-                result.rows.push({
+            })
+    
+            const rows = await Promise.all(products.map(async item => {
+                const [images, commentCount, rating] = await Promise.all([
+                    Models.ProductImages.findAndCountAll({
+                        where: { productId: item.id, isActive: true },
+                        attributes: ['id', 'img']
+                    }),
+                    Models.Comments.count({ where: { productId: item.id } }),
+                    fetchReviewService(item.id)
+                ])
+    
+                return {
                     ...item.dataValues,
-                    images: images,
-                    comment: comment,
-                    rating: rating.detail.rating,
-                })
-            })).catch((err) => { console.log(err) })
-            if (order === 'desc') {
-                if (sort === 'final_price') result.rows.sort((a, b) => Number(b.final_price) - Number(a.final_price))
-                else result.rows.sort((a, b) => Number(b.id) - Number(a.id))
-            } else {
-                if (sort === 'final_price') result.rows.sort((a, b) => Number(a.final_price) - Number(b.final_price))
-                else result.rows.sort((a, b) => Number(a.id) - Number(b.id))
-            }
-            return Response.Success('Üstünlikli!', result)
+                    images,
+                    comment: commentCount,
+                    rating: rating.detail.rating
+                }
+            }))
+    
+            const sortedRows = rows.sort((a, b) => {
+                return order === 'desc' 
+                    ? Number(b[sort]) - Number(a[sort])
+                    : Number(a[sort]) - Number(b[sort])
+            })
+    
+            return Response.Success('Üstünlikli!', { count, rows: sortedRows })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
@@ -531,7 +557,7 @@ class SellerService {
     
             return Response.Success('Üstünlikli!', statistic)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, detail: error.stack };
+            throw { status: 500, type: 'error', msg: error.message, detail: error.stack }
         }
     }
 
@@ -562,9 +588,8 @@ class SellerService {
             const differencePercentage = l_profit ? ((c_profit - l_profit) / l_profit) * 100 : 0
     
             return { c_profit, l_profit, differencePercentage }
-
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error.message, detail: error.stack };
+            throw { status: 500, type: 'error', msg: error.message, detail: error.stack }
         }
     }
     
@@ -576,7 +601,7 @@ class SellerService {
             // Get current month details
             const currentMonthStart = moment().startOf('month').toDate()
             const currentMonthEnd = moment().endOf('month').toDate()
-            const currentMonth = moment().tz('Asia/Ashgabat').add(1, 'months').format('MMM')
+            const currentMonth = moment_timezone().tz('Asia/Ashgabat').add(1, 'months').format('MMM')
 
             // Fetch order items related to seller with completed orders
             const filteredOrderItems = await Models.OrderItems.findAll({
@@ -664,8 +689,6 @@ class SellerService {
             // Fetch current month profit
             const currentMonthProfit = await Models.OrderItems.findAll({
                 where: {
-                    // orderId: { [Op.in]: orderIds },
-                    // productId: { [Op.in]: productIds },
                     id: { [Op.in]: orderItemsIds },
                     createdAt: { [Op.between]: [currentMonthStart, currentMonthEnd] }
                 },
@@ -688,47 +711,49 @@ class SellerService {
             }
     
             return Response.Success('Üstünlikli!', result)
-
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message, detail: error.stack }
         }
     }
     
-    async sellerVideosService(query) {
+    async sellerVideosService(q) {
         try {
-            let page = query.page || 1
-            let limit = query.limit || 10
-            let offset = page * limit - limit
+            const { page = 1, limit = 10, sellerId } = q
+
             const videos = await Models.Videos.findAndCountAll({
                 attributes: ['id', 'video', 'thumbnail', 'desc'],
                 where: {
-                    sellerId: Number(query.sellerId),
+                    sellerId: Number(sellerId),
                     isActive: true
                 },
                 limit: Number(limit),
-                offset: Number(offset)
-            }).catch((err) => { console.log(err) })
+                offset: (page - 1) * limit
+            })
             if (videos.count === 0) { return Response.NotFound('Video yok!', []) }
+
             return Response.Success('Üstünlikli!', videos)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     // PUT
     async updateSellerProfileService(body, userId, files) {
         try {
-            let newObj = {}
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
+            
+            let newObj = {}
             for (const key in body) { if (body[key]) { newObj[key] = body[key] } }
+
             if (files?.logo) { newObj.logo = files.logo[0].filename }
             if (files?.bg_img) { newObj.bg_img = files.bg_img[0].filename }
+
             await Models.Sellers.update(newObj, { where: { id: seller } })
-                .catch((err) => { console.log(err) })
+
             return Response.Success('Satyjy maglumaty täzelendi!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
@@ -736,6 +761,7 @@ class SellerService {
         try {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
+
             const order = await Models.Orders.findOne({
                 attributes: ['id', 'status', 'createdAt'],
                 where: { id: body.orderId },
@@ -750,19 +776,22 @@ class SellerService {
                         where: { sellerId: seller, isActive: true }
                     }
                 }
-            }).catch((err) => console.log(err))
+            })
             if (!order) { return Response.Forbidden('Rugsat edilmedi!', {}) }
+
             const now = new Date()
             const timeDiff = now - order.createdAt
             const diffInMinutes = Math.floor(timeDiff / 1000 / 60)
             if (diffInMinutes < 2) {
                 return Response.Forbidden('2 minutdan soňra täzeden synanyşyň!', {})
             }
+
             order.status = body.status
             await order.save()
+
             return Response.Success('Sargydyň ýagdaýy täzelendi!', { id: order.id, status: order.status })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
@@ -771,12 +800,13 @@ class SellerService {
         try {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
+
             await Models.Sellers.destroy({ where: { id: seller } })
                 .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
+
             return Response.Success('Satyjy maglumaty pozuldy!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 }

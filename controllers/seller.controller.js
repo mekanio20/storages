@@ -83,7 +83,7 @@ class SellerController {
 
     async topSellers(req, res) {
         try {
-            const data = await sellerService.topSellersSerive(req.query)
+            const data = await sellerService.topSellersService(req.query)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })
