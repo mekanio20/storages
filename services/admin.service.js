@@ -12,39 +12,44 @@ class AdminService {
         try {
             const user = await Verification.isExists(body.phone)
             if (!user) { return Response.Unauthorized('Admin tapylmady!', []) }
+
             const hash = await bcrypt.compare(body.password, user.password)
             if (!hash) { return Response.Forbidden('Telefon nomeri ya-da parol nädogry!', []) }
+
             const token = await Functions.generateJwt(user.id, user.groupId)
             delete user.dataValues.password
             user.dataValues.token = token
+
             return Response.Success('Admin hasaba alyndy!', user)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
-    async addStaffService(userId) {
+    async addStaffService(id) {
         try {
             const groupId = await Models.Groups.findOne({ where: { name: 'STAFF' }, attributes: ['id'] })
             if (!groupId) { return Response.NotFound('Beýle grupba yok!', []) }
-            const staff = await Models.Users.findOne({ where: { id: Number(userId), isStaff: true } })
+
+            const staff = await Models.Users.findOne({ where: { id, isStaff: true } })
             if (staff.length > 0) { return Response.BadRequest('Admin döredilen!', []) }
-            await Models.Users.update({ isStaff: true, isCustomer: false, isSeller: false, groupId: groupId.id }, { where: { id: Number(userId) } })
-            const token = await Functions.generateJwt(userId, groupId.id)
+
+            await Models.Users.update({ isStaff: true, isCustomer: false, isSeller: false, groupId: groupId.id }, { where: { id } })
+                .then(() => console.log(true))
+            const token = await Functions.generateJwt(id, groupId.id)
             let response = await Response.Created('Admin hasaba alyndy!', [])
             response.token = token
             return response
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     // GET
     async allPermissionsService(q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
+            const { page = 1, limit = 10 } = q
+
             const permissions = await Models.GroupPermissions.findAndCountAll({
                 attributes: { exclude: ['groupId'] },
                 include: {
@@ -52,48 +57,58 @@ class AdminService {
                     attributes: ['id', 'name']
                 },
                 limit: Number(limit),
-                offset: Number(offset),
+                offset: (page - 1) * limit,
                 order: [['id', 'DESC']]
             })
-            if (permissions.length == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', permissions)
+
+            return permissions.count
+                ? Response.Success('Üstünlikli!', permissions)
+                : Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async allFeatureDescriptionsService(q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let order = q.order || 'desc'
-            let whereState = { isActive: true }
-            if (q.status === 'all') { whereState = {} }
-            if (q.featureId) { whereState.featureId = q.featureId }
+            const {
+                page = 1,
+                limit = 10,
+                order = 'desc',
+                status = true,
+                featureId
+            } = q
+
+            let whereState = {
+                ...(status !== 'all' && { status }),
+                ...(featureId && { featureId })
+            }
+
             const featureDescriptions = await Models.FeatureDescriptions.findAndCountAll({
                 where: whereState,
                 limit: Number(limit),
-                offset: Number(offset),
+                offset: (page - 1) * limit,
                 order: [['id', order]]
-            }).catch((err) => { console.log(err) })
-            if (featureDescriptions.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', featureDescriptions)
+            })
+
+            return featureDescriptions.count
+                ? Response.Success('Üstünlikli!', featureDescriptions)
+                : Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async allSubcategoryFeaturesService(q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let order = q.order || 'desc'
-            let whereState = { isActive: true }
-            if (q.status === 'all') { whereState = {} }
-            if (q.subcategoryId) { whereState.subcategoryId = q.subcategoryId }
-            const subcategory_features = await Models.SubcategoryFeatures.findAndCountAll({
+            const { page = 1, limit = 10, order = 'desc', status = true, subcategoryId } = q
+
+            const whereState = {
+                ...(status !== 'all' && { isActive }),
+                ...(subcategoryId && { subcategoryId })
+            }
+    
+            const subcategoryFeatures = await Models.SubcategoryFeatures.findAndCountAll({
                 attributes: ['id', 'isActive', 'createdAt', 'updatedAt'],
                 where: whereState,
                 include: [
@@ -108,26 +123,28 @@ class AdminService {
                         where: { isActive: true }
                     }
                 ],
-                limit: Number(limit),
-                offset: Number(offset),
+                limit,
+                offset: (page - 1) * limit,
                 order: [['id', order]]
-            }).catch((err) => { console.log(err) })
-            if (subcategory_features.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', subcategory_features)
+            })
+
+            return subcategoryFeatures.count
+                ? Response.Success('Üstünlikli!', subcategoryFeatures)
+                : Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
-    }
+    }    
 
     async allSystemsService() {
         try {
             const user_systems = await Models.Users.findAll({
                 attributes: ['device', [Sequelize.fn('COUNT', Sequelize.col('device')), 'count']],
                 group: ['device']
-            }).catch((err) => { console.log(err) })
+            })
             return Response.Success('Üstünlikli!', user_systems)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
@@ -139,75 +156,79 @@ class AdminService {
                   [Sequelize.fn('COUNT', Sequelize.col('id')), 'userCount']
                 ],
                 group: [Sequelize.fn('DATE', Sequelize.col('createdAt'))]
-              }).catch((err) => { console.log(err) })
+              })
             return Response.Success('Üstünlikli!', users)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     // UPDATE
     async updateUserService(body) {
         try {
-            const obj = {}
             const superadmin = await Models.Users.findOne({ where: { id: body.id, isSuperAdmin: true } })
             if (superadmin) { return Response.Forbidden('Rugsat edilmedi!', []) }
+
+            const obj = {}
             for (const item in body) {
                 if (item && item !== 'id' && item !== 'isSuperadmin') {
                     obj[item] = body[item]
                 }
             }
             await Models.Users.update(obj, { where: { id: Number(body.id) } })
-                .catch((err) => { console.log(err) })
+
             return Response.Success('Üstünlikli', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     // DELETE
     async deleteUserService(id) {
         try {
-            const superadmin = await Models.Users.findOne({ where: { id: id, isSuperAdmin: true } })
+            const superadmin = await Models.Users.findOne({ where: { id, isSuperAdmin: true } })
             if (superadmin) { return Response.Forbidden('Rugsat edilmedi!', []) }
-            await Models.Users.destroy({ where: { id: Number(id) } })
+
+            await Models.Users.destroy({ where: { id } })
                 .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
+                
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async deleteCustomerService(id) {
         try {
-            const customer = await Models.Customers.findOne({ where: { id: id } })
+            const customer = await Models.Customers.findOne({ where: { id } })
             if (!customer) { return Response.NotFound('Müşderi tapylmady!', []) }
+
             await Models.Users.update({ isCustomer: false }, { where: { id: customer.userId } })
                 .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
+    
             await Models.Customers.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
+
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async deleteSellerService(id) {
         try {
-            const seller = await Models.Sellers.findOne({ where: { id: id } })
+            const seller = await Models.Sellers.findOne({ where: { id } })
             if (!seller) { return Response.NotFound('Satyjy tapylmady!', []) }
+
             await Models.Users.update({ isSeller: false }, { where: { id: seller.userId } })
                 .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
-            await Models.Sellers.destroy({ where: { id: Number(id) } })
+
+            await Models.Sellers.destroy({ where: { id } })
                 .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
+
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
@@ -561,12 +582,10 @@ class AdminService {
             ]).then(() => { console.log('Permissions created') }).catch((err) => { console.log(err) })
 
             return Response.Created('Default maglumatlar döredildi!', [])
-
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
-
 }
 
 module.exports = new AdminService()

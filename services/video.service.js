@@ -8,53 +8,60 @@ class VideoService {
     // POST
     async addVideoService(body, video, userId) {
         try {
-            const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
+            const sellerId = await Verification.isSeller(userId)
+            if (isNaN(sellerId)) return sellerId
+    
             const videoPath = path.join(__dirname, `../public/videos/${video.filename}`)
+            const thumbnailFilename = `${video.filename.split('.')[0]}.png`
             const thumbnailPath = path.join(__dirname, '../public/thumbnails')
+    
             ffmpeg(videoPath)
-                .on('filenames', function (filenames) { console.log('Will generate ' + filenames.join(', ')) })
-                .on('end', function () { console.log('Screenshots taken') })
+                .on('filenames', filenames => console.log('Will generate ' + filenames.join(', ')))
+                .on('end', () => console.log('Screenshots taken'))
                 .screenshots({
                     count: 1,
                     folder: thumbnailPath,
-                    filename: `${video.filename.split('.')[0]}.png`
+                    filename: thumbnailFilename
                 })
-            const videos = await Models.Videos.create({
+    
+            const videoRecord = await Models.Videos.create({
                 desc: body.desc,
                 video: video.filename,
-                thumbnail: `${video.filename.split('.')[0]}.png`,
-                sellerId: seller
-            }).catch((err) => { console.log(err) })
+                thumbnail: thumbnailFilename,
+                sellerId
+            })
+    
             if (body?.tags?.length) {
-                for (let i = 0; i < body.tags.length; i++) {
-                    const [tag, _] = await Models.Tags.findOrCreate({
-                        where: { name: body.tags[i] },
-                        defaults: { name: body.tags[i] }
-                    }).catch((err) => { console.log(err) })
-                    if (tag?.id) { await Models.VideoTags.create({ videoId: videos.id, tagId: tag.id }) }
-                }
+                await Promise.all(body.tags.map(async tagName => {
+                    const [tag] = await Models.Tags.findOrCreate({ where: { name: tagName } })
+                    if (tag?.id) {
+                        await Models.VideoTags.create({ videoId: videoRecord.id, tagId: tag.id })
+                    }
+                }))
             }
+    
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
-    }
+    }    
     // GET
     async getVideoDataService(id) {
         try {
             const videoData = await Models.Videos.findOne({
-                where: { id: Number(id), isActive: true },
+                where: { id, isActive: true },
                 attributes: ['id', 'desc'],
                 include: {
                     model: Models.Sellers,
                     attributes: ['id', 'name', 'logo']
                 }
-            }).catch((err) => console.log(err))
-            if (!videoData) { return Response.BadRequest('Wideo tapylmady!', []) }
-            return Response.Success('Üstünlikli!', videoData)
+            })
+
+            return videoData
+                ? Response.Success('Üstünlikli!', videoData)
+                : Response.BadRequest('Wideo tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
     // DELETE
@@ -62,13 +69,14 @@ class VideoService {
         try {
             const seller = await Verification.isSeller(userId)
             if (isNaN(seller)) { return seller }
-            const videoData = await Models.Videos.destroy({
-                where: { id: Number(id), sellerId: seller }
-            }).catch((err) => console.log(err))
-            if (!videoData) { return Response.BadRequest('Wideo tapylmady!', []) }
-            return Response.Success('Üstünlikli!', videoData)
+
+            const videoData = await Models.Videos.destroy({ where: { id, sellerId: seller } })
+
+            return videoData
+                ? Response.Success('Üstünlikli!', videoData)
+                : Response.BadRequest('Wideo tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 }

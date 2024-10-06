@@ -833,8 +833,8 @@ class ProductService {
     
     async allSubcategoryService(q) {
         try {
-            const { page = 1, limit = 10, status } = q
-            const whereState = status === 'all' ? {} : { isActive: true }
+            const { page = 1, limit = 10, status = true } = q
+            const whereState = { ...(status !== 'all' && { isActive }) }
     
             const subcategories = await Models.Categories.findAndCountAll({
                 where: whereState,
@@ -848,9 +848,10 @@ class ProductService {
                 offset: (page - 1) * limit,
                 order: [['id', 'DESC']]
             })
-            if (subcategories.count === 0) return Response.NotFound('Maglumat tapylmady!', [])
-            
-            return Response.Success('Üstünlikli!', subcategories)
+
+            return subcategories.count
+                ? Response.Success('Üstünlikli!', subcategories)
+                : Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
@@ -928,9 +929,10 @@ class ProductService {
                 offset:(page - 1) * limit,
                 order: [['id', 'DESC']]
             })
-            if (likes.count === 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-    
-            return Response.Success('Üstünlikli!', likes)
+            
+            return likes.count
+                ? Response.Success('Üstünlikli!', likes)
+                : Response.NotFound('Maglumat tapylmady!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message || error, detail: [] };
         }

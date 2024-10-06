@@ -3,181 +3,164 @@ const Response = require('../helpers/response.service')
 const Models = require('../config/models')
 
 class CommentService {
-
     // POST
     async addCommentService(body, filenames, userId) {
         try {
             const customer = await Verification.isCustomer(userId)
-            if (isNaN(customer)) { return customer }
+            if (isNaN(customer)) return customer
+    
             const order = await Models.OrderItems.findOne({
-                where: {
-                    productId: body.productId
-                },
+                where: { productId: body.productId },
                 include: {
                     model: Models.Orders,
                     attributes: ['id', 'customerId', 'status'],
-                    where: {
-                        customerId: customer,
-                        status: 'completed'
-                    }
+                    where: { customerId: customer, status: 'completed' }
                 }
-            }).catch((err) => console.log(err))
-            if (!order) { return Response.Forbidden('Harydy sargyt etmediniz!', []) }
+            })
+            if (!order) return Response.Forbidden('Harydy sargyt etmediniz!', [])
+    
             const [comment, created] = await Models.Comments.findOrCreate({
-                where: {
-                    customerId: customer,
-                    productId: body.productId
-                },
-                defaults: {
-                    customerId: customer,
-                    productId: body.productId,
-                    comment: body.comment
-                }
-            }).catch((err) => console.log(err))
-            if (created == false) {
+                where: { customerId: customer, productId: body.productId },
+                defaults: { customerId: customer, productId: body.productId, comment: body.comment }
+            })
+    
+            if (!created) {
                 comment.comment = body.comment
                 await comment.save()
             }
+    
             if (filenames?.review) {
-                console.log(filenames.review);
-                const imgs = await Models.ProductReviewImages.count({ where: { commentId: comment.id, customerId: customer } })
-                if (imgs > 3) { return Response.Created('Teswir goyuldy! Surat limidi doldy!', []) }
-                else {
-                    filenames.review.forEach(async (item) => {
-                        await Models.ProductReviewImages.create({
-                            img: item.filename,
-                            commentId: comment.id,
-                            customerId: customer
-                        }).then(() => { console.log(true) })
-                        .catch((err) => { console.log(err) })
-                    })
-                }
+                const imgsCount = await Models.ProductReviewImages.count({ where: { commentId: comment.id, customerId: customer } })
+                if (imgsCount > 3) return Response.Created('Teswir goyuldy! Surat limidi doldy!', [])
+    
+                await Promise.all(filenames.review.map(item => 
+                    Models.ProductReviewImages.create({
+                        img: item.filename,
+                        commentId: comment.id,
+                        customerId: customer
+                    }).then(console.log(true))
+                ))
             }
+    
             return Response.Created('Teswir goyuldy!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
-
     // GET
     async allCommentService(q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let sort = q.sort || 'id'
-            let order = q.order || 'desc'
-            let sellerQuery = {}
-            let whereState = {}
-            for (let item in q) {
-                if (q.productId || q.isActive) {
-                    whereState[item] = q[item]
-                }
+            const {
+                page = 1,
+                limit = 10,
+                sort = 'id',
+                order = 'desc',
+                productId,
+                isActive,
+                sellerId
+            } = q
+    
+            const whereClause = {
+                ...(productId && { productId }),
+                ...(isActive && { isActive }),
             }
-            if (q.sellerId) sellerQuery.sellerId = q.sellerId
+            const sellerClause = sellerId ? { sellerId } : {}
+    
             const comments = await Models.Comments.findAndCountAll({
-                where: whereState,
+                where: whereClause,
                 attributes: ['id', 'comment', 'createdAt'],
                 include: [
-                    {
-                        model: Models.Customers,
-                        attributes: ['id', 'fullname', 'img']
-                    },
-                    {
-                        model: Models.Products,
-                        where: sellerQuery,
-                        attributes: ['id', 'tm_name'],
-                        // where: { isActive: true }, required: false
-                    },
-                    {
-                        model: Models.ProductReviewImages,
-                        attributes: ['id', 'img'],
-                        where: { isActive: true }, required: false,
-                    }
+                    { model: Models.Customers, attributes: ['id', 'fullname', 'img'] },
+                    { model: Models.Products, where: sellerClause, attributes: ['id', 'tm_name'] },
+                    { model: Models.ProductReviewImages, attributes: ['id', 'img'], where: { isActive: true }, required: false },
                 ],
-                limit: Number(limit),
-                offset: Number(offset),
+                limit,
+                offset: (page - 1) * limit,
                 order: [[sort, order]]
-            }).catch((err) => console.log(err))
-            const result = { count: 0, rows: [] }
-            result.count = comments.count
-            await Promise.all(comments.rows.map(async (item) => {
-                const star = await Models.ProductReviews.findOne({ where: { productId: item.product.id } })
-                result.rows.push({
-                    ...item.dataValues,
-                    star: star.star
-                })
+            })
+    
+            const rowsWithStars = await Promise.all(comments.rows.map(async (comment) => {
+                const { id: productId } = comment.product || {}
+                const starData = await Models.ProductReviews.findOne({ where: { productId } })
+                return {
+                    ...comment.dataValues,
+                    star: starData ? starData.star : 0,
+                }
             }))
-            return Response.Success('Üstünlikli!', result)
+    
+            return Response.Success('Üstünlikli!', { count: comments.count, rows: rowsWithStars })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
-    }
-
+    } 
     async sellerCommentService(userId, q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let order = q.order || 'desc'
-            let sort = q.sort || 'id'
-            let whereState = {}
-            for (let item in q) {
-                if (q.productId || q.isActive) {
-                    whereState[item] = q[item]
-                }
+            const {
+                page = 1,
+                limit = 10,
+                order = 'desc',
+                sort = 'id',
+                productId,
+                isActive
+            } = q
+    
+            const whereClause = {
+                ...(productId && { productId }),
+                ...(isActive && { isActive }),
             }
-            const seller = await Verification.isSeller(userId)
-            if (isNaN(seller)) { return seller }
+    
+            const sellerId = await Verification.isSeller(userId)
+            if (isNaN(sellerId)) return sellerId
+    
             const comments = await Models.Comments.findAll({
-                where: whereState,
+                where: whereClause,
                 attributes: ['id', 'comment'],
                 include: [
-                    {
-                        model: Models.Customers,
-                        attributes: ['id', 'fullname']
-                    },
+                    { model: Models.Customers, attributes: ['id', 'fullname'] },
                     {
                         model: Models.Products,
                         attributes: ['id', 'tm_name'],
-                        where: { sellerId: seller }, required: true,
+                        where: { sellerId },
+                        required: true,
                         include: {
                             model: Models.ProductImages,
                             attributes: ['id', 'img'],
-                            where: { isActive: true }, required: false,
+                            where: { isActive: true },
+                            required: false,
                         }
                     }
                 ],
-                limit: Number(limit),
-                offset: Number(offset),
+                limit,
+                offset: (page - 1) * limit,
                 order: [[sort, order]]
-            }).catch((err) => console.log(err))
-            const result = { count: 0, rows: [] }
-            result.count = comments.length
-            result.rows = comments
-            return Response.Success('Üstünlikli!', result)
+            })
+    
+            return Response.Success('Üstünlikli!', { count: comments.length, rows: comments })
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
-    }
-
+    }    
     // DELETE
     async deleteCommentService(id, user) {
         try {
             if (user.group == 1) {
-                await Models.Comments.destroy({ where: { id: Number(id) } })
+                await Models.Comments.destroy({ where: { id } })
                     .then(() => { console.log(true) })
                 return Response.Success('Üstünlikli!', [])
             }
+
             const customer = await Verification.isCustomer(user.id)
             if (isNaN(customer)) { return customer }
+
             const comment = await Models.Comments.findOne({ where: { customerId: customer } })
             if (!comment) { return Response.Forbidden('Rugsat edilmedi!', []) }
-            await Models.Comments.destroy({ where: { id: Number(id) } })
+
+            await Models.Comments.destroy({ where: { id } })
                 .then(() => { console.log(true) })
+                
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 }

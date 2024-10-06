@@ -8,31 +8,26 @@ class BaseService {
             if (!created) { return Response.BadRequest('Maglumat eýýäm döredilen!', data) }
             return Response.Created('Maglumat döredildi!', data)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
-    async getService(query) {
+    async getService(q) {
         try {
-            let page = query.page || 1
-            let limit = query.limit || 10
-            let offset = page * limit - limit
-            let sort = query.sort || 'id'
-            let order = query.order || 'asc'
-            let status = query.status || true
-            let whereState = { isActive: status }
-            if (status === 'all') { whereState = {} }
+            const { page = 1, limit = 10, sort = 'id', order = 'asc', status = true } = q
+            const whereCondition = status === 'all' ? {} : { isActive: status }
             const data = await this.Model.findAndCountAll({
-                where: whereState,
+                where: whereCondition,
                 limit: Number(limit),
-                offset: Number(offset),
+                offset: (page - 1) * limit,
                 order: [[sort, order]]
-            }).catch((err) => { console.log(err) })
-            if (data.count == 0) { return Response.NotFound('Maglumat tapylmady!', []) }
-            return Response.Success('Üstünlikli!', data)
+            })
+            return data.count
+                ? Response.Success('Successful!', data)
+                : Response.NotFound('No data found!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
-    }
+    }    
     async updateService(body) {
         try {
             const obj = {}
@@ -42,20 +37,19 @@ class BaseService {
                 }
             }
             await this.Model.update(obj, { where: { id: Number(body.id) } })
-                .catch((err) => { console.log(err) })
+                .then(() => console.log(true))
             return Response.Success('Üstünlikli', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
     async deleteService(id) {
         try {
             await this.Model.destroy({ where: { id: Number(id) } })
                 .then(() => { console.log(true) })
-                .catch((err) => { console.log(err) })
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 }

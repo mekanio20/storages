@@ -64,9 +64,10 @@ class SellerService {
                 where: { id: seller },
                 attributes: { exclude: ['userId', 'categoryId', 'deletedAt', 'updatedAt'] }
             })
-            if (!profile) { return Response.NotFound('Satyjy tapylmady!', {}) }
 
-            return Response.Success('Üstünlikli!', profile)
+            return profile
+                ? Response.Success('Üstünlikli!', profile)
+                : Response.NotFound('Satyjy tapylmady!', {})
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
@@ -110,9 +111,10 @@ class SellerService {
                 offset: (page - 1) * limit,
                 order: [[sort, order]]
             })
-            if (seller.count === 0) { return Response.NotFound('Satyjy tapylmady!', []) }
 
-            return Response.Success('Üstünlikli!', seller)
+            return seller.count
+                ? Response.Success('Üstünlikli!', seller)
+                : Response.NotFound('Satyjy tapylmady!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
@@ -128,9 +130,10 @@ class SellerService {
                 where: whereState,
                 attributes: { exclude: ['userId'] }
             })
-            if (banners.count === 0) { return Response.NotFound('Banner ýok!', []) }
 
-            return Response.Success('Üstünlikli!', banners)
+            return banners.count
+                ? Response.Success('Üstünlikli!', banners)
+                : Response.NotFound('Banner ýok!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
@@ -292,8 +295,10 @@ class SellerService {
                 },
                 order: [['id', 'desc']]
             })
-            if (count === 0) { return Response.NotFound('Yzarlaýan yok!', {}) }
-            return Response.Success('Yzarlaýanlar!', { count, followers })
+
+            return count
+                ? Response.Success('Yzarlaýanlar!', { count, followers })
+                : Response.NotFound('Yzarlaýan yok!', {})
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message || error, detail: [] };
         }
@@ -380,9 +385,9 @@ class SellerService {
                 end_price = 100000,
                 sort = 'id',
                 order = 'desc',
-                sellerId = 0,
-                subcategoryId = 0,
-                brandId = 0,
+                sellerId,
+                subcategoryId,
+                brandId,
                 gender = ''
             } = q
     
@@ -729,9 +734,10 @@ class SellerService {
                 limit: Number(limit),
                 offset: (page - 1) * limit
             })
-            if (videos.count === 0) { return Response.NotFound('Video yok!', []) }
-
-            return Response.Success('Üstünlikli!', videos)
+            
+            return videos.count
+                ? Response.Success('Üstünlikli!', videos)
+                : Response.NotFound('Video yok!', [])
         } catch (error) {
             throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }

@@ -16,7 +16,7 @@ class NotificationService {
             }
             return Response.Success("", [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 }

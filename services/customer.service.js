@@ -13,114 +13,136 @@ class CustomerService {
             const [customer, created] = await Models.Customers.findOrCreate({
                 where: {
                     [Op.or]: {
-                        userId: userId
+                        userId
                     }
                 },
                 defaults: {
-                    fullname: fullname,
-                    gender: gender,
+                    fullname,
+                    gender,
                     img: img?.filename || null,
-                    userId: userId
+                    userId
                 }
-            }).catch(((err) => { console.log(err) }))
-            console.log(JSON.stringify(customer, null, 2));
+            })
             if (created == false) { return Response.Forbidden('Müşteri hasaba alnan!', []) }
+
             await Models.Users.update({ isCustomer: true, isSeller: false, isStaff: false }, { where: { id: userId } })
+
             return Response.Created('Müşteri hasaba alyndy!', customer)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     // GET
     async allCustomerService(q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            let sort = q.sort || 'id'
-            let order = q.order || 'desc'
+            const {
+                page = 1,
+                limit = 10,
+                sort = 'id',
+                order = 'desc'
+            } = q
+    
             const customers = await Models.Customers.findAndCountAll({
                 attributes: { exclude: ['userId'] },
-                limit: Number(limit),
-                offset: Number(offset),
+                limit,
+                offset: (page - 1) * limit,
                 order: [[sort, order]]
-            }).catch((err) => console.log(err))
-            if (customers.count == 0) { return Response.NotFound('Ulanyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', customers)
+            })
+    
+            return customers.count
+                ? Response.Success('Üstünlikli!', customers)
+                : Response.NotFound('Ulanyjy tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] };
         }
-    }
+    }    
 
     async customerFavoriteService(userId, q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            const customer = await Verification.isCustomer(userId)
-            if (isNaN(customer)) { return customer }
+            const { page = 1, limit = 10 } = q
+    
+            const customerId = await Verification.isCustomer(userId)
+            if (isNaN(customerId)) return customerId
+    
             const products = await Models.Likes.findAndCountAll({
                 attributes: ['id'],
-                where: { customerId: customer },
+                where: { customerId },
                 include: {
                     model: Models.Products,
                     where: { isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
+                    attributes: [
+                        'id', 'tm_name', 'ru_name', 'en_name', 'slug', 
+                        'gender', 'quantity', 'sale_price', 'dis_price', 
+                        'dis_type', 'final_price'
+                    ],
                 },
-                limit: Number(limit),
-                offset: Number(offset)
-            }).catch((err) => { console.log(err) })
+                limit,
+                offset: (page - 1) * limit
+            })
             if (products.count === 0) { return Response.NotFound('Halanýan haryt ýok!', []) }
-            const result = { count: 0, rows: [] }
-            result.count = products.count
-            await Promise.all(products.rows.map(async (item) => {
-                const images = await Models.ProductImages.findAndCountAll({ attributes: ['id', 'img'], where: { productId: item.product.id } })
-                const rating = await fetchReviewService(item.product.id)
-                const comment = await allCommentService({ productId: item.product.id })
-                result.rows.push({
-                    ...item.dataValues,
-                    images: images,
-                    rating: rating.detail.rating,
-                    comment: comment.detail.count
-                })
-            })).catch((err) => { console.log(err) })
+    
+            const result = {
+                count: products.count,
+                rows: await Promise.all(products.rows.map(async (item) => {
+                    const images = await Models.ProductImages.findAndCountAll({ 
+                        attributes: ['id', 'img'], 
+                        where: { productId: item.product.id } 
+                    })
+                    const rating = await fetchReviewService(item.product.id)
+                    const comment = await allCommentService({ productId: item.product.id })
+    
+                    return {
+                        ...item.dataValues,
+                        images,
+                        rating: rating.detail.rating,
+                        comment: comment.detail.count
+                    }
+                }))
+            }
+    
             return Response.Success('Halaýan harytlarym', result)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async customerBasketService(userId) {
         try {
-            const customer = await Verification.isCustomer(userId)
-            if (isNaN(customer)) { return customer }
-            const basket = await Models.Baskets.findAll({
-                where: { isActive: true, customerId: customer },
+            const customerId = await Verification.isCustomer(userId)
+            if (isNaN(customerId)) return customerId
+    
+            const baskets = await Models.Baskets.findAll({
+                where: { isActive: true, customerId },
                 attributes: ['id', 'quantity'],
                 include: {
                     model: Models.Products,
                     where: { isActive: true },
-                    attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price', 'sellerId'],
+                    attributes: [
+                        'id', 'tm_name', 'ru_name', 'en_name', 'slug', 
+                        'gender', 'quantity', 'sale_price', 
+                        'dis_price', 'dis_type', 'final_price', 'sellerId'
+                    ],
                     include: [
                         {
                             model: Models.Sellers,
-                            attributes: ['logo', 'name'],
+                            attributes: ['logo', 'name']
                         },
                         {
                             model: Models.ProductImages,
-                            where: { isActive: true }, required: false,
+                            where: { isActive: true },
                             attributes: ['id', 'img'],
-                        },
+                            required: false
+                        }
                     ]
                 },
                 order: [['id', 'desc']]
-            }).catch((err) => { console.log(err) })
-            if (basket.length === 0) { return Response.NotFound('Haryt ýok!', []) }
-            for (const item of basket) {
-                const _features = await Models.ProductFeatures.findAll({
+            })
+            if (baskets.length === 0) { return Response.NotFound('Haryt ýok!', []) }
+    
+            await Promise.all(baskets.map(async (item) => {
+                const features = await Models.ProductFeatures.findAll({
                     where: { productId: item.product.id, isActive: true },
-                    attributes: [],
                     include: {
                         model: Models.FeatureDescriptions,
                         attributes: ['id', 'desc'],
@@ -129,72 +151,77 @@ class CustomerService {
                             attributes: ['id', 'name']
                         }
                     }
-                }).catch((err) => console.log(err))
-                const features = await _features.map(item => ({
-                    id: item.feature_description.id,
-                    name: item.feature_description.feature.name,
-                    desc: item.feature_description.desc
+                })
+    
+                item.product.dataValues.features = features.map(feature => ({
+                    id: feature.feature_description.id,
+                    name: feature.feature_description.feature.name,
+                    desc: feature.feature_description.desc
                 }))
-                item.product.dataValues.features = features
-                const productQuantity = item.product.quantity
-                if (item.quantity > productQuantity) {
-                    item.quantity = productQuantity
+    
+                if (item.quantity > item.product.quantity) {
+                    item.quantity = item.product.quantity
                     await item.save()
                 }
-            }
-            return Response.Success('Sebedim', basket)
+            }))
+    
+            return Response.Success('Sebedim', baskets)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async customerFollowedService(userId, q) {
         try {
-            let page = q.page || 1
-            let limit = q.limit || 10
-            let offset = page * limit - limit
-            const customer = await Verification.isCustomer(userId)
-            if (isNaN(customer)) { return customer }
+            const { page = 1, limit = 10 } = q
+
+            const customerId = await Verification.isCustomer(userId)
+            if (isNaN(customerId)) return customerId
+    
             const followed = await Models.Followers.findAndCountAll({
-                where: { customerId: customer },
+                where: { customerId },
                 attributes: ['id'],
                 include: {
                     model: Models.Sellers,
                     attributes: ['id', 'name', 'logo']
                 },
-                limit: Number(limit),
-                offset: Number(offset),
+                limit,
+                offset: (page - 1) * limit,
                 order: [['id', 'desc']]
             })
-            if (followed.count === 0) { return Response.NotFound('Yzarlanýan satyjy ýok!', []) }
-            return Response.Success('Yzarlanýanlar', followed)
+    
+            return followed.count
+                ? Response.Success('Yzarlanýanlar', followed)
+                : Response.NotFound('Yzarlanýan satyjy ýok!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
     async customerOrdersService(userId, q) {
         try {
-            let whereState = {}
-            if (q.status) whereState.status = q.status
-            const customer = await Verification.isCustomer(userId)
-            if (isNaN(customer)) { return customer }
-            whereState.customerId = customer
+            const customerId = await Verification.isCustomer(userId)
+            if (isNaN(customerId)) return customerId
+    
+            const whereState = { customerId, ...(q.status && { status: q.status }) }
+    
             const orders = await Models.Orders.findAll({
-                attributes: { exclude: ['customerId', 'createdAt', 'updatedAt']},
+                attributes: { exclude: ['customerId', 'createdAt', 'updatedAt'] },
                 where: whereState,
                 include: {
-                    model: Models.OrderItems, required: true,
+                    model: Models.OrderItems,
+                    required: true,
                     attributes: ['id', 'quantity'],
                     include: {
                         model: Models.Products,
-                        require: true,
+                        required: true,
                         where: { isActive: true },
                         attributes: ['id', 'tm_name', 'ru_name', 'en_name', 'slug', 'gender', 'quantity', 'sale_price', 'dis_price', 'dis_type', 'final_price'],
                         include: [
                             {
                                 model: Models.ProductImages,
-                                where: { isActive: true }, required: false,
+                                where: { isActive: true },
+                                required: false,
                                 attributes: ['id', 'img'],
                             },
                             {
@@ -204,12 +231,13 @@ class CustomerService {
                         ]
                     }
                 }
-            }).catch((err) => { console.log(err) })
-            if (orders.length === 0) { return Response.NotFound('Sargyt ýok!', []) }
-            for (const item of orders) {
-                for (const order of item.order_items) {
-                    const _features = await Models.ProductFeatures.findAll({
-                        where: { productId: order.product.id, isActive: true },
+            })
+            if (orders.length === 0) return Response.NotFound('Sargyt ýok!', [])
+    
+            await Promise.all(orders.map(async (order) => {
+                await Promise.all(order.order_items.map(async (orderItem) => {
+                    const features = await Models.ProductFeatures.findAll({
+                        where: { productId: orderItem.product.id, isActive: true },
                         attributes: [],
                         include: {
                             model: Models.FeatureDescriptions,
@@ -219,18 +247,18 @@ class CustomerService {
                                 attributes: ['id', 'name']
                             }
                         }
-                    }).catch((err) => console.log(err))
-                    const features = await _features.map(item => ({
+                    })
+                    orderItem.dataValues.product.dataValues.feature = features.map(item => ({
                         id: item.feature_description.id,
                         name: item.feature_description.feature.name,
                         desc: item.feature_description.desc
                     }))
-                    order.dataValues.product.dataValues.feature = features
-                }
-            }
+                }))
+            }))
+    
             return Response.Success('Üstünlikli!', orders)
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 
@@ -238,6 +266,7 @@ class CustomerService {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
+
             const user = await Models.Users.findOne({
                 where: { id: userId },
                 attributes: ['id', 'phone'],
@@ -246,52 +275,60 @@ class CustomerService {
                     attributes: ['id', 'img', 'fullname', 'email']
                 }
             })
-            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', user)
+
+            return user
+                ? Response.Success('Üstünlikli!', user)
+                : Response.Unauthorized('Ulanyjy tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
     // PUT
     async customerEditProfileService(userId, body, img) {
         try {
-            const customer = await Verification.isCustomer(userId)
-            if (isNaN(customer)) { return customer }
-            const obj = {}
-            for (const item in body) { if (item) { obj[item] = body[item] } }
-            if (img?.filename) obj.img = img.filename
-            const user = await Models.Customers.update(obj, { where: { id: customer } })
-                .catch((err) => console.log(err))
-            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', [])
+            const customerId = await Verification.isCustomer(userId)
+            if (isNaN(customerId)) return customerId
+    
+            const updates = { ...body, ...(img?.filename && { img: img.filename }) }
+            const updatedUser = await Models.Customers.update(updates, { where: { id: customerId } })
+    
+            return updatedUser[0]
+                ? Response.Success('Üstünlikli!', [])
+                : Response.Unauthorized('Ulanyjy tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] };
         }
     }
+    
     async customerEditBasketService(userId, body) {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
+
             const user = await Models.Baskets.update({ quantity: body.quantity }, { where: { id: body.id, customerId: customer } })
-                .catch((err) => console.log(err))
-            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', [])
+
+            return user[0]
+                ? Response.Success('Üstünlikli!', [])
+                : Response.Unauthorized('Ulanyjy tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
     async customerEditOrderService(userId, body) {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
+
             const order = await Models.Orders.findOne({ where: { id: body.id, customerId: customer } })
             if (!order) { return Response.Unauthorized('Sargyt tapylmady!', []) }
             if (order.status !== "pending") { return Response.BadRequest('Sargydy goýbolsun edip bolmaýar!', []) }
+
             order.status ='cancelled'
             await order.save()
+
             return Response.Success('Üstünlikli!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
     // DELETE
@@ -299,36 +336,42 @@ class CustomerService {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
-            const user = await Models.Baskets.destroy({ where: { id: id, customerId: customer } })
-                .catch((err) => console.log(err))
-            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', [])
+
+            const user = await Models.Baskets.destroy({ where: { id, customerId: customer } })
+
+            return user
+                ? Response.Success('Üstünlikli!', [])
+                : Response.Unauthorized('Ulanyjy tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
     async customerDeleteFollowService(userId, id) {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
+
             const user = await Models.Followers.destroy({ where: { sellerId: id, customerId: customer } })
-                .catch((err) => console.log(err))
-            if (!user) { return Response.Unauthorized('Satyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', [])
+
+            return user
+                ? Response.Success('Üstünlikli!', [])
+                : Response.Unauthorized('Satyjy tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
     async customerDeleteLikeService(userId, id) {
         try {
             const customer = await Verification.isCustomer(userId)
             if (isNaN(customer)) { return customer }
+            
             const user = await Models.Likes.destroy({ where: { productId: id, customerId: customer } })
-                .catch((err) => console.log(err))
-            if (!user) { return Response.Unauthorized('Ulanyjy tapylmady!', []) }
-            return Response.Success('Üstünlikli!', [])
+
+            return user
+                ? Response.Success('Üstünlikli!', [])
+                : Response.Unauthorized('Ulanyjy tapylmady!', [])
         } catch (error) {
-            throw { status: 500, type: 'error', msg: error, detail: [] }
+            throw { status: 500, type: 'error', msg: error.message || error, detail: [] }
         }
     }
 }
