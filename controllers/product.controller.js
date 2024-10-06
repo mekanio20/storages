@@ -148,7 +148,7 @@ class productController {
     
     async allSubcategoryFeatures(req, res) {
         try {
-            const data = await productService.allSubcategoryFeaturesService(req.query)
+            const data = await productService.allSubcategoryFeaturesService(req.query.id)
             return res.status(data.status).json(data)
         } catch (error) {
             return res.status(500).json({ status: 500, type: 'error', msg: error, detail: [] })

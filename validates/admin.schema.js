@@ -1,71 +1,76 @@
 const Joi = require('joi')
 
+const stringRegex = (pattern) => Joi.string().regex(pattern)
+const positiveNumber = Joi.number().positive()
+const optionalBoolean = Joi.boolean().optional()
+const optionalString = Joi.string().optional()
+
 const adminSchema = {
     // POST
     addGroup: Joi.object({
-        id: Joi.number().positive().optional(),
-        name: Joi.string().uppercase().min(3).max(20).regex(/^[a-zA-Z]/).required(),
-        isActive: Joi.boolean().optional()
+        id: positiveNumber.optional(),
+        name: stringRegex(/^[a-zA-Z]/).uppercase().min(3).max(20).required(),
+        isActive: optionalBoolean
     }),
 
     addRole: Joi.object({
-        role: Joi.string().lowercase().min(3).max(20).regex(/^[a-zA-Z_]/).required()
+        role: stringRegex(/^[a-zA-Z_]/).lowercase().min(3).max(20).required()
     }),
 
     addPermission: Joi.object({
-        id: Joi.number().positive().optional(),
-        url: Joi.string().min(5).max(100).regex(/^[a-zA-Z0-9\-\/]/).required(),
+        id: positiveNumber.optional(),
+        url: stringRegex(/^[a-zA-Z0-9\-\/]/).min(5).max(100).required(),
         method: Joi.string().uppercase().valid('GET', 'POST', 'PUT', 'DELETE').required(),
-        groupId: Joi.number().positive().required()
+        groupId: positiveNumber.required()
     }),
 
     addCategory: Joi.object({
-        id: Joi.number().positive().optional(),
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).optional(),
-        en_name: Joi.string().min(3).max(100).optional(),
-        isActive: Joi.boolean().optional()
+        id: positiveNumber.optional(),
+        tm_name: stringRegex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+/).min(3).max(100).required(),
+        ru_name: optionalString.min(3).max(100),
+        en_name: optionalString.min(3).max(100),
+        isActive: optionalBoolean
     }),
 
     addSubcategory: Joi.object({
-        id: Joi.number().positive().optional(),
-        tm_name: Joi.string().min(3).max(100).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+$/).required(),
-        ru_name: Joi.string().min(3).max(100).optional(),
-        en_name: Joi.string().min(3).max(100).optional(),
-        categoryId: Joi.number().positive().required(),
-        isActive: Joi.boolean().optional()
+        id: positiveNumber.optional(),
+        tm_name: stringRegex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý-\s]+/).min(3).max(100).required(),
+        ru_name: optionalString.min(3).max(100),
+        en_name: optionalString.min(3).max(100),
+        categoryId: positiveNumber.required(),
+        isActive: optionalBoolean
     }),
 
     addFeature: Joi.object({
-        id: Joi.number().positive().optional(),
-        name: Joi.string().min(3).max(100).optional(),
-        isActive: Joi.boolean().optional()
+        id: positiveNumber.optional(),
+        name: optionalString.min(3).max(100),
+        isActive: optionalBoolean
     }),
 
     addFeatureDescription: Joi.object({
-        desc: Joi.string().max(50).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/),
-        featureId: Joi.number().positive().required(),
-        isActive: Joi.boolean().optional()
+        desc: optionalString.max(50).regex(/^[a-zA-Z0-9ÄäŇňÖöŞÜüÇçÝý-\s]+$/),
+        featureId: positiveNumber.required(),
+        isActive: optionalBoolean
     }),
 
     addSubcategoryFeature: Joi.object({
-        subcategoryId: Joi.number().positive().required(),
+        subcategoryId: positiveNumber.required(),
         featureId: Joi.ref('subcategoryId'),
-        isActive: Joi.boolean().optional()
+        isActive: optionalBoolean
     }),
 
     addBrand: Joi.object({
-        id: Joi.number().positive().optional(),
-        name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).required(),
-        desc: Joi.string().min(5).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).optional(),
-        isActive: Joi.boolean().optional()
+        id: positiveNumber.optional(),
+        name: stringRegex(/^[a-zA-Z-]/).min(2).max(50).required(),
+        desc: optionalString.min(5).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/),
+        isActive: optionalBoolean
     }),
 
     addSubscription: Joi.object({
-        id: Joi.number().positive().optional(),
+        id: positiveNumber.optional(),
         name: Joi.string().max(50).required(),
-        price: Joi.number().integer().max(10000).positive().required(),
-        order: Joi.number().integer().max(10).positive().required(),
+        price: positiveNumber.integer().max(10000).required(),
+        order: positiveNumber.integer().max(10).required(),
         p_limit: Joi.ref('price'),
         p_img_limit: Joi.ref('price'),
         seller_banner_limit: Joi.ref('price'),
@@ -78,58 +83,58 @@ const adminSchema = {
 
     // PUT
     updateUser: Joi.object({
-        id: Joi.number().positive().required(),
-        isActive: Joi.boolean().optional(),
+        id: positiveNumber.required(),
+        isActive: optionalBoolean,
         isCustomer: Joi.ref('isActive'),
         isSeller: Joi.ref('isActive'),
         isStaff: Joi.ref('isActive')
     }),
 
     updateBrand: Joi.object({
-        id: Joi.number().positive().required(),
-        name: Joi.string().min(2).max(50).regex(/^[a-zA-Z-]/).optional(),
-        desc: Joi.string().min(5).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/).optional(),
-        isActive: Joi.boolean().optional()
+        id: positiveNumber.required(),
+        name: stringRegex(/^[a-zA-Z-]/).min(2).max(50),
+        desc: optionalString.min(5).max(255).regex(/^[a-zA-ZÄäŇňÖöŞÜüÇçÝý\s]+$/),
+        isActive: optionalBoolean
     }),
 
     updateSeller: Joi.object({
-        id: Joi.number().positive().required(),
+        id: positiveNumber.required(),
         isVerified: Joi.boolean().required()
     }),
 
     updateStatus: Joi.object({
-        id: Joi.number().positive().required(),
+        id: positiveNumber.required(),
         isActive: Joi.boolean().required()
     }),
 
-    updateFetureDescription: Joi.object({
-        id: Joi.number().positive().required(),
+    updateFeatureDescription: Joi.object({
+        id: positiveNumber.required(),
         desc: Joi.string().required(),
-        isActive: Joi.boolean().optional()
+        isActive: optionalBoolean
     }),
 
     updateSubcategoryFeature: Joi.object({
-        id: Joi.number().positive().required(),
-        featureId: Joi.number().positive().optional(),
+        id: positiveNumber.required(),
+        featureId: positiveNumber.optional(),
         subcategoryId: Joi.ref('featureId'),
-        isActive: Joi.boolean().optional()
+        isActive: optionalBoolean
     }),
 
     // GET
     subcategoryFeatures: Joi.object({
-        page: Joi.number().positive().optional(),
+        page: positiveNumber.optional(),
         limit: Joi.ref('page'),
         order: Joi.string().valid('asc', 'desc').optional(),
         status: Joi.string().valid('all', true, false).optional(),
-        subcategoryId: Joi.number().positive().optional()
+        subcategoryId: positiveNumber.optional()
     }),
 
     featureDescriptions: Joi.object({
-        page: Joi.number().positive().optional(),
+        page: positiveNumber.optional(),
         limit: Joi.ref('page'),
         order: Joi.string().valid('asc', 'desc').optional(),
         status: Joi.string().valid('all', true, false).optional(),
-        featureId: Joi.number().positive().optional()
+        featureId: positiveNumber.optional()
     })
 }
 

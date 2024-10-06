@@ -307,7 +307,7 @@ class ProductService {
                 attributes: [
                     'id', 'tm_name', 'ru_name', 'en_name', 'slug',
                     'gender', 'quantity', 'sale_price', 'dis_price', 
-                    'dis_type', 'final_price'
+                    'dis_type', 'final_price', 'isActive'
                 ],
                 where: filters,
                 include: [
@@ -857,11 +857,11 @@ class ProductService {
         }
     }
     
-    async allSubcategoryFeaturesService(q) {
+    async allSubcategoryFeaturesService(id) {
         try {
             const featureIds = await Models.SubcategoryFeatures.findAll({
                 attributes: ['featureId'],
-                where: { subcategoryId: q.id }
+                where: { subcategoryId: id }
             })
             if (featureIds.length === 0) { return Response.NotFound('Maglumat tapylmady!', []) }
 

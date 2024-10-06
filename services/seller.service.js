@@ -99,7 +99,7 @@ class SellerService {
 
             const seller = await Models.Sellers.findAndCountAll({
                 where: whereState,
-                attributes: ['id', 'name', 'store_number', 'store_floor', 'logo', 'seller_type', 'sell_type'],
+                attributes: ['id', 'name', 'store_number', 'store_floor', 'logo', 'seller_type', 'sell_type', 'isVerified', 'main_number'],
                 include: [
                     {
                         model: Models.Categories,

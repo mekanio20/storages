@@ -68,7 +68,7 @@ class CommentService {
     
             const comments = await Models.Comments.findAndCountAll({
                 where: whereClause,
-                attributes: ['id', 'comment', 'createdAt'],
+                attributes: ['id', 'comment', 'isActive', 'createdAt'],
                 include: [
                     { model: Models.Customers, attributes: ['id', 'fullname', 'img'] },
                     { model: Models.Products, where: sellerClause, attributes: ['id', 'tm_name'] },
