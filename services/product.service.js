@@ -835,7 +835,7 @@ class ProductService {
     async allSubcategoryService(q) {
         try {
             const { page = 1, limit = 10, status = true } = q
-            const whereState = { ...(status !== 'all' && { isActive }) }
+            const whereState = { ...(status !== 'all' && { isActive: status }) }
     
             const subcategories = await Models.Categories.findAndCountAll({
                 where: whereState,
