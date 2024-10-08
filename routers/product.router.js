@@ -55,7 +55,7 @@ router.get('/offers',
     productController.offerProduct)
 
 router.get('/top/selling',
-    validationMiddleware(baseSchema.queryControl, 'query'),
+    validationMiddleware(productSchema.topSelling, 'query'),
     productController.topSelling)
 
 router.get('/top/liked',

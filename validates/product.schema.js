@@ -96,6 +96,13 @@ const productSchema = {
     }),
     allSubcategoryFeatures: Joi.object({
         subcategoryId: Joi.number().positive().required()
+    }),
+    topSelling: Joi.object({
+        page: Joi.number().positive().optional(),
+        limit: Joi.number().positive().optional(),
+        order: Joi.string().valid('asc', 'desc').optional(),
+        status: Joi.string().valid('all', true, false).optional(),
+        sellerId: Joi.number().positive().optional()
     })
 }
 

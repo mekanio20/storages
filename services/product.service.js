@@ -539,9 +539,10 @@ class ProductService {
             const {
                 page = 1,
                 limit = 10,
-                order = 'desc'
+                order = 'desc',
+                sellerId
             } = q
-    
+
             const sellingProducts = await Models.OrderItems.findAll({
                 attributes: [
                     'productId',
@@ -554,7 +555,7 @@ class ProductService {
     
             const productPromises = sellingProducts.map(async item => {
                 const product = await Models.Products.findOne({
-                    where: { id: item.productId, isActive: true },
+                    where: { id: item.productId, ...(sellerId && { sellerId }), isActive: true },
                     attributes: [
                         'id', 'tm_name', 'ru_name', 'en_name', 'slug',
                         'gender', 'quantity', 'sale_price', 'dis_price',
