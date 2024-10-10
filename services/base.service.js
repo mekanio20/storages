@@ -13,7 +13,7 @@ class BaseService {
     }
     async getService(q) {
         try {
-            const { page = 1, limit = 10, sort = 'id', order = 'asc', statu = true } = q
+            const { page = 1, limit = 10, sort = 'id', order = 'asc', status = true } = q
             const whereCondition = status === 'all' ? {} : { isActive: status }
             const data = await this.Model.findAndCountAll({
                 where: whereCondition,
